@@ -125,6 +125,26 @@ Server side:
 - `POST /api/oral/tool` accepts an optional `levelId`. When it is set and a `verify_claim` states one of the level's own catch claims, the route still checks it and returns the verdict, but does not write it to the player's mastery map or return `next_focus` (the examiner said it, not the player). The client should pass `levelId` on every tool call of a level.
 - The system prompt of a catch level contains the marks (which claims are bluffs). It is returned to the browser like the rest of the prompt, so a player who opens the network tab can read it. That only spoils their own game; scoring never trusts the model, only the flag in the run.
 
+### Round progress is owned by the game (level-controller.ts, voice-tools.ts)
+
+Live defect, 2026-09-30: a misheard spoken answer left the game with no stance, the examiner still called `verify_claim`, revealed and went on to claim 3 while the screen stayed on claim 1. The rule now is that the examiner may advance only after the game reports the round closed.
+
+- `runVoiceTool` intercepts `verify_claim` when its `claim` is one of the level's own catch claims (`LevelController.claimIndex`). It records the check, then waits up to `OPEN_ROUND_GRACE_MS` (1200 ms) for a transcript still on its way (`whenClosed`). If the round has closed it returns the verdict with `round: "closed"`. If not it returns `{ round: "open", instruction }` with no verdict and no quote: ask "real or bluff?" and wait, do not reveal, do not state the next claim.
+- The catch rules in the level prompt say the same (LEVEL_PROMPT_VERSION 2026-09-30.3): reveal and state the next claim only after a result with `round: "closed"`; on `open`, call `verify_claim` again on the same claim after the player answers.
+- On an open answer the play screen shows the notice "The game did not catch your answer. Tap Catch it or That is true, or say it again." and the buttons stay live. A tap closes the round on the screen; a live voice session is then reopened at the next round (`levelSessionUrl(..., from)`), so the examiner follows the screen.
+- `LevelController.speech(text, startedAtMs)`: a turn whose speech began before the last round closed is ignored for the round now on screen (a late final transcript or a correction of the previous claim). The hook passes the time the machine entered `USER_SPEAKING`. Calls without a start time behave as before.
+- Grade results (Say rounds) carry no `round` field and are unchanged.
+
+Live evidence: `docs/evidence/probes/aloud-catch-open.2026-09-30.json` (open result, examiner said only "real or bluff?", screen stayed on claim 1, tap, resumed at claim 2 on both sides) and `aloud-boss.2026-09-30.json` (the two claim rounds of a spoken Boss returned `round: "closed"` with the verdict). Learner voice is synthetic.
+
+### Other changes in this pass
+
+- Daily ring: `dailyRing().shown` is minutes to one decimal, rounded down, no trailing ".0" (0.73 shows 0.7, not 0). The status rail and the copy use it.
+- `withRecall`: a recall level for one missed concept pads with a different question, not a repeat of the first (it filtered by object identity before).
+- Error boundaries: `src/app/error.tsx`, `global-error.tsx`, `(app)/error.tsx`, `run/error.tsx`, `play/[levelId]/error.tsx`, all through `src/components/ErrorPanel.tsx`. There is deliberately no `loading.tsx` under `run` or `play`: with them in place the dev server logged a CSP violation for a Next chunk (script-src is nonce plus strict-dynamic) and `/run/<id>` stayed on the skeleton. `tests/error-boundaries.test.ts` guards both.
+- Streak, freeze and daily ring through the real progress route with a faked clock: `tests/game-progress-clock.test.ts`.
+- Live drive scenarios `boss`, `recall` and `catch-open` in `scripts/probes/aloud-live-drive.mjs`; earlier levels are seeded with results scored by the engine (`scripts/probes/aloud-seed.mts`) so the server accepts them.
+
 ## 6. API (src/app/api/game/*)
 
 All routes resolve the caller from the identity cookie (`viva_did`), scope every read and write to that user, send `Cache-Control: no-store`, rate limit per IP and per identity, and cap the body at 64 KB. Errors use the existing `{ error: { code, message, retryable } }` envelope.
