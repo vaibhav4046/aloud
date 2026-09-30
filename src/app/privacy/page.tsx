@@ -5,8 +5,8 @@ import { DraftNotice, PublicShell } from "@/components/PublicShell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Privacy: VIVA",
-  description: "What VIVA stores, where it goes, and how to delete it. Written from the code, not from a template.",
+  title: "Privacy",
+  description: "What Aloud stores, where it goes, and how to delete it. Written from the code, not from a template.",
 };
 
 /*
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
             screen sends a recorded clip to our server, which forwards it to AssemblyAI for transcription.
           </p>
           <p>
-            VIVA&apos;s code has no function that writes audio to a database or a file. What AssemblyAI keeps and for how
+            Aloud&apos;s code has no function that writes audio to a database or a file. What AssemblyAI keeps and for how
             long is set by AssemblyAI&apos;s own terms; read them before you use your own material. [NEEDS LEGAL REVIEW]
           </p>
         </section>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
           </p>
           <p>
             Where they are saved depends on the deployment. With a Postgres database configured they are durable.
-            Without one, VIVA uses a file store on the server&apos;s temporary disk: it is ephemeral, and it is wiped when
+            Without one, Aloud uses a file store on the server&apos;s temporary disk: it is ephemeral, and it is wiped when
             the server instance restarts or is replaced. <code>/api/health/ready</code> reports which one is running.
             On the hosted hackathon demo, treat storage as ephemeral unless that endpoint says <code>durable: true</code>.
           </p>
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
               <strong>AssemblyAI</strong> receives your audio and returns transcripts, as described above.
             </li>
             <li>
-              <strong>Language-model providers.</strong> To mark an answer, VIVA sends passages from your material and
+              <strong>Language-model providers.</strong> To mark an answer, Aloud sends passages from your material and
               your answer to the model providers in its failover chain, which is set by deployment configuration
               (<code>LLM_BASE_URL</code> and <code>LLM_FALLBACKS</code>). The default in the repository&apos;s
               <code> .env.example</code> is Google&apos;s Gemini through AI Studio. The live chain for this deployment
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
               <strong>Vercel</strong> hosts the site and sees ordinary request data (IP address, user agent, URL).
             </li>
             <li>
-              <strong>Sites you name.</strong> If you give VIVA a web address, our server fetches that page.
+              <strong>Sites you name.</strong> If you give Aloud a web address, our server fetches that page.
             </li>
           </ul>
         </section>
@@ -107,7 +107,7 @@ export default function PrivacyPage() {
         <section aria-labelledby="p-children">
           <h2 id="p-children" className="heading text-xl">Children</h2>
           <p>
-            VIVA was built for university students. It makes no claim about being suitable for children and has no age
+            Aloud was built for university students. It makes no claim about being suitable for children and has no age
             check. [NEEDS LEGAL REVIEW]
           </p>
         </section>

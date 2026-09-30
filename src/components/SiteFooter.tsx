@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/ui/Wordmark";
 
 /*
  * Footer on every page. The four trust pages are written from the code by
@@ -14,26 +15,23 @@ const LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="site-footer border-t hairline" style={{ background: "var(--canvas)" }}>
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-sm sm:px-6">
-        <nav aria-label="Legal and project" className="flex flex-wrap items-center gap-x-1">
+    <footer className="site-footer">
+      <div className="site-footer-card">
+        <div className="site-footer-brand">
+          <Wordmark size={28} href="/" />
+          <p>Learn it by saying it.</p>
+        </div>
+        <nav aria-label="Legal and project" className="site-footer-links">
           {LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className="link inline-flex min-h-11 items-center px-2">
+            <Link key={href} href={href} className="nav-link">
               {label}
             </Link>
           ))}
-          <a
-            href="https://github.com/vaibhav4046/viva"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link inline-flex min-h-11 items-center px-2"
-          >
+          <a href="https://github.com/vaibhav4046/aloud" target="_blank" rel="noopener noreferrer" className="nav-link">
             Source
           </a>
         </nav>
-        <p className="mono" style={{ color: "var(--text-muted)" }}>
-          Hackathon build. Voice by AssemblyAI.
-        </p>
+        <p className="site-footer-note">Hackathon build. Voice by AssemblyAI.</p>
       </div>
     </footer>
   );

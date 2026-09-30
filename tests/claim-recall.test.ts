@@ -223,7 +223,7 @@ function everyChunk(c: Course): SourceChunk[] {
   return c.sources.flatMap((s) => s.chunks);
 }
 
-describe("precision across every subject VIVA ships", () => {
+describe("precision across every subject Aloud ships", () => {
   it(`contradicts under ${(FALSE_POSITIVE_RATE_CEILING * 100).toFixed(1)}% of its own true sentences`, () => {
     const seen = new Set<string>();
     const flagged: string[] = [];

@@ -181,7 +181,7 @@ export function learnerDNA(mastery: Record<string, { mastery: number; misconcept
     recallPatterns: { totalEvents },
     interactionPreference: "spoken_recall",
     weak: entries.filter(([, m]) => m.mastery < 0.45).map(([id]) => id),
-    note: "Based on your VIVA sessions, interaction preferences and learning history, not neuroscience.",
+    note: "Based on your Aloud sessions, interaction preferences and learning history, not neuroscience.",
   };
 }
 

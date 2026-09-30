@@ -41,7 +41,7 @@ export async function docFromUrl(raw: string): Promise<SourceResult> {
 
 const TOO_BIG = (mb: number): SourceFailure => ({
   code: "FILE_TOO_LARGE",
-  message: `That file is over ${mb} MB, which is more than VIVA can take in one request. Try a smaller one, or paste the part you are studying.`,
+  message: `That file is over ${mb} MB, which is more than Aloud can take in one request. Try a smaller one, or paste the part you are studying.`,
   status: 413,
 });
 
@@ -64,8 +64,8 @@ export async function docFromFile(name: string, bytes: Buffer): Promise<SourceRe
       return {
         ok: false,
         error: read.code === "NO_TEXT"
-          ? { code: "NO_TEXT_IN_FILE", message: "There is no readable text in that document. Paste the text instead and VIVA will read that.", status: 422 }
-          : { code: "BAD_FILE", message: "VIVA could not open that document. Save it as a .docx, a PDF or plain text and try again.", status: 415 },
+          ? { code: "NO_TEXT_IN_FILE", message: "There is no readable text in that document. Paste the text instead and Aloud will read that.", status: 422 }
+          : { code: "BAD_FILE", message: "Aloud could not open that document. Save it as a .docx, a PDF or plain text and try again.", status: 415 },
       };
     }
     return { ok: true, doc: { title, type: "doc", pages: pagesFrom(read.doc.sections), fallbackSection: title } };
@@ -79,12 +79,12 @@ export async function docFromFile(name: string, bytes: Buffer): Promise<SourceRe
   if (junk > text.length / 200) {
     return {
       ok: false,
-      error: { code: "BAD_FILE", message: "VIVA can read PDFs, Word documents and plain text. That file is something else, paste the text instead.", status: 415 },
+      error: { code: "BAD_FILE", message: "Aloud can read PDFs, Word documents and plain text. That file is something else, paste the text instead.", status: 415 },
     };
   }
   const read = readTextDoc(text, title);
   if (!read.ok) {
-    return { ok: false, error: { code: "NO_TEXT_IN_FILE", message: "There is almost nothing in that file. Paste your notes instead and VIVA will read those.", status: 422 } };
+    return { ok: false, error: { code: "NO_TEXT_IN_FILE", message: "There is almost nothing in that file. Paste your notes instead and Aloud will read those.", status: 422 } };
   }
   return { ok: true, doc: { title, type: "text", pages: pagesFrom(read.doc.sections), fallbackSection: title } };
 }
@@ -102,12 +102,12 @@ function pdfFailure(code: string): SourceFailure {
     return {
       code: "NO_TEXT_IN_PDF",
       message:
-        "There is no text in that PDF, it looks like scanned pages or images. VIVA will not guess at what they say. Paste the text instead and it will read that.",
+        "There is no text in that PDF, it looks like scanned pages or images. Aloud will not guess at what they say. Paste the text instead and it will read that.",
       status: 422,
     };
   }
   if (code === "NOT_A_PDF") {
-    return { code: "BAD_FILE", message: "VIVA could not tell what kind of file that is. Upload a PDF, a Word document or plain text.", status: 415 };
+    return { code: "BAD_FILE", message: "Aloud could not tell what kind of file that is. Upload a PDF, a Word document or plain text.", status: 415 };
   }
-  return { code: "PARSE_FAILED", message: "VIVA could not open that PDF. Try another file, or paste the text.", status: 422 };
+  return { code: "PARSE_FAILED", message: "Aloud could not open that PDF. Try another file, or paste the text.", status: 422 };
 }

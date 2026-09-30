@@ -250,7 +250,7 @@ export default function TodayPage() {
                 <dl className="mt-3 space-y-3 text-sm leading-relaxed">
                   {[
                     ["Your 10-minute path", "What you got wrong first, then what is weakest, then one thing to prove."],
-                    ["Due for review", "The concepts VIVA wants to hear again, soonest first."],
+                    ["Due for review", "The concepts Aloud wants to hear again, soonest first."],
                     ["What keeps tripping you up", "The one you have got wrong more than once."],
                     ["Recently improved", "The answer that moved, and the day it moved."],
                   ].map(([term, line]) => (

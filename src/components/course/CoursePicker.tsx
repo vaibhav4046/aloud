@@ -23,7 +23,7 @@ export type CourseMeta = {
 };
 
 /** The two names the whole product uses for the two kinds of subject. */
-export const SHIPPED_GROUP = "VIVA's subjects";
+export const SHIPPED_GROUP = "Aloud's subjects";
 export const OWN_GROUP = "Your subjects";
 
 export async function fetchCourses(): Promise<CourseMeta[]> {

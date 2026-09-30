@@ -5,8 +5,8 @@ import { DraftNotice, PublicShell } from "@/components/PublicShell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Terms: VIVA",
-  description: "Terms for using VIVA during the hackathon: acceptable use, no guarantees, and what to check yourself.",
+  title: "Terms",
+  description: "Terms for using Aloud during the hackathon: acceptable use, no guarantees, and what to check yourself.",
 };
 
 export default function TermsPage() {
@@ -19,7 +19,7 @@ export default function TermsPage() {
         <section aria-labelledby="t-what">
           <h2 id="t-what" className="heading text-xl">What this is</h2>
           <p>
-            VIVA is a hackathon project. It examines you aloud on material you supply. It is offered as it is, and it
+            Aloud is a hackathon project. It examines you aloud on material you supply. It is offered as it is, and it
             may be offline, slow or reset at any time while the hackathon runs.
           </p>
         </section>
@@ -29,7 +29,7 @@ export default function TermsPage() {
           <p>
             A language model marks your answers and speaks the feedback. Corrections are checked by code against the
             passages you supplied, and a page number is attached so you can read the source. Check the cited page
-            before you rely on a correction. VIVA does not know whether your notes are right, only whether your answer
+            before you rely on a correction. Aloud does not know whether your notes are right, only whether your answer
             matches them. Nothing here predicts or guarantees an exam result.
           </p>
         </section>
@@ -38,9 +38,9 @@ export default function TermsPage() {
           <h2 id="t-use" className="heading text-xl">Acceptable use</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>Upload only material you have the right to use.</li>
-            <li>Do not use VIVA to break another service&apos;s rules, or to send abusive, unlawful or harmful content.</li>
+            <li>Do not use Aloud to break another service&apos;s rules, or to send abusive, unlawful or harmful content.</li>
             <li>Do not probe, overload or scrape the service. Report security problems as described in SECURITY.md.</li>
-            <li>VIVA is a study aid. Do not use it during an assessed exam in a way your institution forbids.</li>
+            <li>Aloud is a study aid. Do not use it during an assessed exam in a way your institution forbids.</li>
           </ul>
         </section>
 

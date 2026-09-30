@@ -70,7 +70,7 @@ if (!window.__vivaBridge) {
       });
       if (!res.ok || !res.body) {
         const body = await res.json().catch(() => null);
-        await write({ status: "error", error: body?.error || { code: String(res.status), message: "VIVA would not take that page." } });
+        await write({ status: "error", error: body?.error || { code: String(res.status), message: "Aloud would not take that page." } });
         return;
       }
       let finished = false;
@@ -79,9 +79,9 @@ if (!window.__vivaBridge) {
         else if (msg.error) { finished = true; void write({ status: "error", error: msg.error }); }
         else if (msg.subject) { finished = true; void write({ status: "done", subject: msg.subject, redirect: msg.redirect }); }
       });
-      if (!finished) await write({ status: "error", error: { code: "NO_RESULT", message: "VIVA stopped part-way through building that subject." } });
+      if (!finished) await write({ status: "error", error: { code: "NO_RESULT", message: "Aloud stopped part-way through building that subject." } });
     } catch (e) {
-      await write({ status: "error", error: { code: "NETWORK", message: "VIVA did not answer. Is it still running?" } });
+      await write({ status: "error", error: { code: "NETWORK", message: "Aloud did not answer. Is it still running?" } });
     }
   }
 
@@ -92,7 +92,7 @@ if (!window.__vivaBridge) {
       body: JSON.stringify({ text, subjectId: subjectId || undefined, origin: origin || "typed" }),
     });
     const body = await res.json().catch(() => null);
-    if (!res.ok) return { ok: false, error: body?.error || { code: String(res.status), message: "VIVA could not take that." } };
+    if (!res.ok) return { ok: false, error: body?.error || { code: String(res.status), message: "Aloud could not take that." } };
     return {
       ok: true,
       reply: body?.tutor?.text || "",
@@ -113,7 +113,7 @@ if (!window.__vivaBridge) {
     form.append("mode", "study");
     const res = await fetch("/api/voice/transcribe", { method: "POST", body: form });
     const body = await res.json().catch(() => null);
-    if (!res.ok) return { ok: false, error: body?.error || { code: String(res.status), message: "VIVA could not hear that." } };
+    if (!res.ok) return { ok: false, error: body?.error || { code: String(res.status), message: "Aloud could not hear that." } };
     return { ok: true, text: body.clean || body.verbatim || "", confidence: body.confidence ?? null };
   }
 

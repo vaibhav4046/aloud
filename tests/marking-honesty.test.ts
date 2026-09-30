@@ -141,7 +141,7 @@ describe("a trap fires on the claim, not on its topic", () => {
     }
   });
 
-  it("no trap fires on its own correction, in any subject VIVA ships", () => {
+  it("no trap fires on its own correction, in any subject Aloud ships", () => {
     for (const course of Object.values(COURSES)) {
       const chunks = allChunks(course);
       for (const trap of course.traps) {
@@ -152,7 +152,7 @@ describe("a trap fires on the claim, not on its topic", () => {
   });
 });
 
-describe("VIVA may say a claim is right only when a line of the source says it", () => {
+describe("Aloud may say a claim is right only when a line of the source says it", () => {
   it("quotes the passage that matches, rather than correcting it", () => {
     const check = cold(TRANSFORMERS, "A single attention head computes one weighted average, which bottlenecks what it can express.");
     expect(check.status).toBe("supported");
@@ -175,7 +175,7 @@ describe("VIVA may say a claim is right only when a line of the source says it",
  * 2. An open question must not swallow the turn.
  * ------------------------------------------------------------------ */
 
-describe("an open question does not stop VIVA reading what you said", () => {
+describe("an open question does not stop Aloud reading what you said", () => {
   it("corrects a false claim typed while a question is open, and leaves the question open", async () => {
     freshUser("interrupt");
     setReasoningProvider(new DeadProvider());
@@ -324,7 +324,7 @@ describe("credit is a quote of what the learner said", () => {
   });
 });
 
-describe("the learner's own sentence is never handed back as VIVA's line", () => {
+describe("the learner's own sentence is never handed back as Aloud's line", () => {
   const chunks = allChunks(TRANSFORMERS).slice(0, 3);
   const reply = {
     right: "AVL trees allow the two subtree heights to differ by at most two.",

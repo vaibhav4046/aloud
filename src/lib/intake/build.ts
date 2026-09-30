@@ -241,10 +241,10 @@ function sourcesFrom(docs: IntakeDoc[], baseId: string, single: boolean): BuiltS
 function trimNote(trimmed: string[], multiple: boolean): string | null {
   if (!trimmed.length) return null;
   if (!multiple) {
-    return "That is more than VIVA studies in one subject, so it is working from the earlier part of it. Make the rest into a second subject and you will have all of it.";
+    return "That is more than Aloud studies in one subject, so it is working from the earlier part of it. Make the rest into a second subject and you will have all of it.";
   }
   const names = trimmed.length === 1 ? trimmed[0] : `${trimmed.slice(0, -1).join(", ")} and ${trimmed[trimmed.length - 1]}`;
-  return `There was more in ${names} than VIVA studies in one subject, so it took the earlier part of each. Make the rest into a second subject and you will have all of it.`;
+  return `There was more in ${names} than Aloud studies in one subject, so it took the earlier part of each. Make the rest into a second subject and you will have all of it.`;
 }
 
 export async function buildSubject(
@@ -272,7 +272,7 @@ export async function buildSubject(
   if (input.kind === "docs") {
     docs = input.docs.filter((d) => d.pages.some((p) => p.text.trim().length > 0));
     if (!docs.length) {
-      return { ok: false, error: { code: "TOO_THIN", message: "VIVA could not find any readable text in that." } };
+      return { ok: false, error: { code: "TOO_THIN", message: "Aloud could not find any readable text in that." } };
     }
     pages = docs.flatMap((d) => d.pages);
     origin = input.origin;
@@ -285,7 +285,7 @@ export async function buildSubject(
         error: {
           code: "NEEDS_TEXT",
           message:
-            "VIVA can build a subject from your material, but it cannot write the material for you right now. Paste some notes or upload a PDF and it will read those instead.",
+            "Aloud can build a subject from your material, but it cannot write the material for you right now. Paste some notes or upload a PDF and it will read those instead.",
         },
       };
     }
@@ -309,7 +309,7 @@ export async function buildSubject(
       ok: false,
       error: {
         code: "TOO_THIN",
-        message: "That is not quite enough to study from. A few paragraphs, around 100 words or more, gives VIVA something to work with.",
+        message: "That is not quite enough to study from. A few paragraphs, around 100 words or more, gives Aloud something to work with.",
       },
     };
   }
@@ -329,7 +329,7 @@ export async function buildSubject(
   if (note) onProgress(note);
   const chunks = sources.flatMap((s) => s.chunks);
   if (chunks.length === 0) {
-    return { ok: false, error: { code: "TOO_THIN", message: "VIVA could not find any readable text in that." } };
+    return { ok: false, error: { code: "TOO_THIN", message: "Aloud could not find any readable text in that." } };
   }
 
   // --- 2. Make the map -----------------------------------------------------
@@ -376,7 +376,7 @@ export async function buildSubject(
       ok: false,
       error: {
         code: "TOO_THIN",
-        message: "VIVA read that but could not find enough distinct ideas to quiz you on. Longer notes, or notes with headings, work best.",
+        message: "Aloud read that but could not find enough distinct ideas to quiz you on. Longer notes, or notes with headings, work best.",
       },
     };
   }

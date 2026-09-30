@@ -348,7 +348,7 @@ describe("several documents in one subject", () => {
     }
     expect(out.subject.sources.reduce((n, s) => n + s.chunks.length, 0)).toBeLessThanOrEqual(120);
     // and it says out loud that it could not take all of it.
-    expect(lines.join(" ")).toMatch(/more in .* than VIVA studies in one subject/);
+    expect(lines.join(" ")).toMatch(/more in .* than Aloud studies in one subject/);
   });
 
   it("says so when one long source had to be cut short", async () => {
@@ -356,7 +356,7 @@ describe("several documents in one subject", () => {
     const lines: string[] = [];
     const out = await buildSubject({ kind: "paste", title: "A book", text: HUGE }, "u_docs_one", (line) => lines.push(line));
     expect(out.ok).toBe(true);
-    expect(lines.join(" ")).toMatch(/more than VIVA studies in one subject/);
+    expect(lines.join(" ")).toMatch(/more than Aloud studies in one subject/);
   });
 
   it("stays quiet when everything fitted", async () => {
@@ -364,6 +364,6 @@ describe("several documents in one subject", () => {
     const lines: string[] = [];
     const out = await buildSubject({ kind: "paste", title: "A lecture", text: LECTURE }, "u_docs_fit", (line) => lines.push(line));
     expect(out.ok).toBe(true);
-    expect(lines.join(" ")).not.toMatch(/than VIVA studies in one subject/);
+    expect(lines.join(" ")).not.toMatch(/than Aloud studies in one subject/);
   });
 });

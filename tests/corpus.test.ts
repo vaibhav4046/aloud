@@ -86,7 +86,7 @@ describe("preloaded library", () => {
     }
   });
 
-  it("concept ids are unique across everything VIVA ships", () => {
+  it("concept ids are unique across everything Aloud ships", () => {
     // ownerCourse() and findSubjectOwning() answer "which subject owns this
     // concept" by scanning every course and taking the first hit. Two subjects
     // sharing an id means one of them silently grades against the other.
@@ -99,7 +99,7 @@ describe("preloaded library", () => {
     }
   });
 
-  it("chunk ids are unique across everything VIVA ships", () => {
+  it("chunk ids are unique across everything Aloud ships", () => {
     const ids = Object.values(COURSES).flatMap((c) => c.sources.flatMap((s) => s.chunks.map((x) => x.id)));
     expect(new Set(ids).size).toBe(ids.length);
   });

@@ -23,7 +23,7 @@ import { AppShell } from "@/components/AppShell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Page not found · VIVA",
+  title: "Page not found",
 };
 
 export default function NotFound() {

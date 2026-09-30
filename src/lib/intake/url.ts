@@ -34,13 +34,13 @@ export type UrlFetchResult =
 
 const MESSAGES: Record<UrlFetchError, string> = {
   BAD_URL: "That does not look like a web address. Paste the full link, starting with https://.",
-  BLOCKED_HOST: "VIVA will only read pages on the public web, and that address is not one.",
-  UNREACHABLE: "VIVA could not reach that page. Check the link, or paste the text instead.",
+  BLOCKED_HOST: "Aloud will only read pages on the public web, and that address is not one.",
+  UNREACHABLE: "Aloud could not reach that page. Check the link, or paste the text instead.",
   HTTP_ERROR: "That page would not open, it may need a sign-in, or it may be gone. Paste the text instead.",
-  UNSUPPORTED_TYPE: "That link is not a web page VIVA can read. Upload the file, or paste the text.",
+  UNSUPPORTED_TYPE: "That link is not a web page Aloud can read. Upload the file, or paste the text.",
   TOO_LARGE: "That page is too big to read in one go. Try a single article, or paste the part you are studying.",
   NO_READABLE_TEXT:
-    "There was not enough readable text on that page, it may be mostly video, images or a sign-in wall. VIVA will not guess at what it said. Paste the text and it will read that.",
+    "There was not enough readable text on that page, it may be mostly video, images or a sign-in wall. Aloud will not guess at what it said. Paste the text and it will read that.",
 };
 
 function fail(code: UrlFetchError): UrlFetchResult {
@@ -191,7 +191,7 @@ export async function fetchReadableUrl(raw: string): Promise<UrlFetchResult> {
         redirect: "manual",
         headers: {
           // Say who is asking. Some sites serve a different page to a blank UA.
-          "User-Agent": "VIVA-study-bot/1.0 (+https://viva-five-murex.vercel.app)",
+          "User-Agent": "Aloud-study-bot/1.0 (+https://viva-five-murex.vercel.app)",
           Accept: "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.1",
           "Accept-Language": "en",
         },

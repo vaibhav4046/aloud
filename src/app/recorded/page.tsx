@@ -7,8 +7,8 @@ import { loadRecording, loadRecordingIndex, recordingDateLabel } from "@/lib/rec
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Watch a recorded exam: VIVA",
-  description: "A recorded VIVA oral exam with audio, transcript and source checks. No microphone needed.",
+  title: "Watch a recorded exam",
+  description: "A recorded Aloud oral exam with audio, transcript and source checks. No microphone needed.",
 };
 
 export default async function RecordedPage() {

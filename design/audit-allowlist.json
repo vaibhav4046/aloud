@@ -2,7 +2,7 @@
     {
         "rule":  "X03",
         "file":  "src/app/layout.tsx",
-        "line":  66,
+        "line":  58,
         "reason":  "Next.js Viewport.themeColor is a browser API that takes a literal colour and cannot read a CSS variable. The value is the --canvas token from src/styles/tokens.css and tests/design-tokens.test.ts pins the token."
     },
     {

@@ -45,7 +45,6 @@ export const metadata: Metadata = {
   title: { default: TITLE, template: "%s | Aloud" },
   description: DESCRIPTION,
   applicationName: "Aloud",
-  manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: "/icon.svg",

@@ -115,14 +115,14 @@ const SHELF_PREVIEW = 6;
  */
 const CREATE_ERROR: Record<string, string> = {
   BAD_URL: "That does not look like a web address. Paste the whole link, starting with https://.",
-  BLOCKED_HOST: "VIVA only reads pages on the open web, and that address is not one of them.",
+  BLOCKED_HOST: "Aloud only reads pages on the open web, and that address is not one of them.",
   HTTP_ERROR: "That page would not open. It may want a sign-in, or it may be gone, paste the text instead.",
-  UNSUPPORTED_TYPE: "That link is not a page VIVA can read. Upload the file itself, or paste the text.",
+  UNSUPPORTED_TYPE: "That link is not a page Aloud can read. Upload the file itself, or paste the text.",
   TOO_LARGE: "That page is too long to read in one go. Try a single article, or paste the part you are studying.",
   NO_READABLE_TEXT:
-    "There was too little to read on that page, it may be mostly video, pictures or a sign-in wall. VIVA will not guess at what it said, so paste the text and it will read that.",
-  NO_TEXT_IN_FILE: "There is no readable text in that file. Paste the text instead and VIVA will read that.",
-  BAD_FILE: "VIVA reads PDFs, Word documents and plain text. That file is something else, paste the text instead.",
+    "There was too little to read on that page, it may be mostly video, pictures or a sign-in wall. Aloud will not guess at what it said, so paste the text and it will read that.",
+  NO_TEXT_IN_FILE: "There is no readable text in that file. Paste the text instead and Aloud will read that.",
+  BAD_FILE: "Aloud reads PDFs, Word documents and plain text. That file is something else, paste the text instead.",
 };
 
 function phrase(code: string | null | undefined, message: string | null | undefined): string {
@@ -132,7 +132,7 @@ function phrase(code: string | null | undefined, message: string | null | undefi
 /** One plain sentence per build path. No jargon, no hedging. */
 function builtByLine(builtBy: string | null | undefined): string | null {
   if (builtBy === "model") return "A language model read this and wrote the map.";
-  if (builtBy === "reading") return "VIVA read these notes itself, no model helped.";
+  if (builtBy === "reading") return "Aloud read these notes itself, no model helped.";
   return null;
 }
 
@@ -143,7 +143,7 @@ function builtByLine(builtBy: string | null | undefined): string | null {
  * where the others carry a credit reads as a card that lost something. The
  * truthful sentence costs one line and the shelf stops looking broken.
  */
-const HOUSE_NOTES_LINE = "Written for VIVA. Every passage is our own.";
+const HOUSE_NOTES_LINE = "Written for Aloud. Every passage is our own.";
 
 export default function SubjectsPage() {
   const router = useRouter();
@@ -188,9 +188,9 @@ export default function SubjectsPage() {
     let body: BodyInit;
     if (tab === "files") {
       if (!files.length) { setError("Choose a file first."); return; }
-      if (files.length > MAX_DOCS) { setError(`VIVA reads up to ${MAX_DOCS} files at once. Keep the ones that matter most.`); return; }
+      if (files.length > MAX_DOCS) { setError(`Aloud reads up to ${MAX_DOCS} files at once. Keep the ones that matter most.`); return; }
       if (files.reduce((n, f) => n + f.size, 0) > MAX_UPLOAD_BYTES) {
-        setError(`Those come to more than ${MAX_UPLOAD_MB} MB together, which is more than VIVA can take in one request. Try fewer, or paste the part you are studying.`);
+        setError(`Those come to more than ${MAX_UPLOAD_MB} MB together, which is more than Aloud can take in one request. Try fewer, or paste the part you are studying.`);
         return;
       }
       const form = new FormData();
@@ -200,7 +200,7 @@ export default function SubjectsPage() {
     } else if (tab === "link") {
       const urls = links.split("\n").map((l) => l.trim()).filter(Boolean);
       if (!urls.length) { setError("Paste the address of the page you want to study."); return; }
-      if (urls.length > MAX_DOCS) { setError(`VIVA reads up to ${MAX_DOCS} pages at once. Keep the ones that matter most.`); return; }
+      if (urls.length > MAX_DOCS) { setError(`Aloud reads up to ${MAX_DOCS} pages at once. Keep the ones that matter most.`); return; }
       body = JSON.stringify({ kind: "url", urls, ...(title.trim() ? { title: title.trim() } : {}) });
     } else if (tab === "paste") {
       if (text.trim().length < 200) { setError("Paste a bit more, a few paragraphs is enough."); return; }
@@ -267,7 +267,7 @@ export default function SubjectsPage() {
        */
       if (subject && !failed) open(subject.id);
     } catch {
-      setError("The connection dropped while VIVA was reading. Nothing was saved, try again.");
+      setError("The connection dropped while Aloud was reading. Nothing was saved, try again.");
     } finally {
       setBusy(false);
       reload();
@@ -373,7 +373,7 @@ export default function SubjectsPage() {
     <>
       <PageHeader
         title="Subjects"
-        description="Start with one of ours, or bring your own notes and let VIVA build the map."
+        description="Start with one of ours, or bring your own notes and let Aloud build the map."
       />
 
       {loadError ? (
@@ -448,7 +448,7 @@ export default function SubjectsPage() {
           Your own notes
         </h2>
         <p className="mt-1 max-w-prose text-sm leading-relaxed" style={{ color: "var(--color-mist)" }}>
-          Paste a lecture, add a link, upload your files, or name the topic. VIVA builds the map, the questions and the
+          Paste a lecture, add a link, upload your files, or name the topic. Aloud builds the map, the questions and the
           passages it will quote back at you.
         </p>
 
@@ -539,7 +539,7 @@ export default function SubjectsPage() {
                 style={{ background: "var(--color-obsidian)", borderColor: "var(--color-hairline)", color: "var(--color-paper)", overflowWrap: "anywhere" }}
               />
               <span className="text-xs leading-relaxed" style={{ color: "var(--color-ash)" }}>
-                A page behind a sign-in is a page VIVA cannot open. If that is what you have, paste the words instead.
+                A page behind a sign-in is a page Aloud cannot open. If that is what you have, paste the words instead.
               </span>
             </label>
           ) : null}
@@ -563,7 +563,7 @@ export default function SubjectsPage() {
                 </span>
               ) : null}
               <span className="text-xs leading-relaxed" style={{ color: "var(--color-ash)" }}>
-                A scanned PDF has no text in it. If that is what you have, paste the words instead, VIVA will not guess
+                A scanned PDF has no text in it. If that is what you have, paste the words instead, Aloud will not guess
                 at pages it cannot read.
               </span>
             </label>
@@ -571,7 +571,7 @@ export default function SubjectsPage() {
 
           {tab === "name" ? (
             <p className="text-xs leading-relaxed" style={{ color: "var(--color-ash)" }}>
-              With no notes to read, VIVA writes the passages for you and labels them as its own. Your own material
+              With no notes to read, Aloud writes the passages for you and labels them as its own. Your own material
               always makes a better subject, because every question can point back at a line you wrote.
             </p>
           ) : null}
@@ -614,7 +614,7 @@ export default function SubjectsPage() {
             <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-mist)" }}>
               {builtByLine(built.builtBy) ?? ""}
               {built.builtBy === "reading"
-                ? " That means plainer questions and no worked analogies, everything you see comes straight out of your own words. It also means that when you say something wrong here, VIVA will more often tell you it could not check than catch it. It still quotes your own lines back when it can, and it will not agree with you to be nice."
+                ? " That means plainer questions and no worked analogies, everything you see comes straight out of your own words. It also means that when you say something wrong here, Aloud will more often tell you it could not check than catch it. It still quotes your own lines back when it can, and it will not agree with you to be nice."
                 : ""}
             </p>
             {/* The route says whether this landed somewhere durable and supplies

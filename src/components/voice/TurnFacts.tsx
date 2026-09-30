@@ -77,7 +77,7 @@ export function turnFactsLine(facts: TurnFacts): string | null {
 /** Why the backup path answered, in a sentence rather than an error code. */
 export function pathTitle(facts: TurnFacts): string {
   if (facts.origin === "external-dictation")
-    return "This arrived as one block rather than keystrokes, so it was pasted or dictated by another tool. VIVA did not transcribe it and claims no time for it.";
+    return "This arrived as one block rather than keystrokes, so it was pasted or dictated by another tool. Aloud did not transcribe it and claims no time for it.";
   if (facts.asrMode === LIVE_ASR_MODE)
     return "The clip never came back, so these are the words the live stream had painted while you spoke. Nothing tidied them, and there is no AssemblyAI time or confidence for them.";
   if (facts.fellBackFrom) {

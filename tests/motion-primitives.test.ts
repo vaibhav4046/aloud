@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { easeOutCubic } from "@/components/ui/motion/CountUp";
-import { idleBarAmp } from "@/components/ui/motion/Waveform";
+import { idleBarAmp } from "@/components/ui/motion/idle";
 
 describe("count-up easing", () => {
   it("starts at 0, ends at 1 and clamps outside the range", () => {

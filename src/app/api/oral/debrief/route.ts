@@ -74,7 +74,7 @@ export async function POST(req: Request): Promise<Response> {
     return done(err("BAD_REQUEST", "Expected JSON.", false, 400));
   }
   const parsed = Body.safeParse(body);
-  if (!parsed.success) return done(err("BAD_REQUEST", "That session record was not shaped the way VIVA expects.", false, 400));
+  if (!parsed.success) return done(err("BAD_REQUEST", "That session record was not shaped the way Aloud expects.", false, 400));
 
   try {
     const store = getStore();

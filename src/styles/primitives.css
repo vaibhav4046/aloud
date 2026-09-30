@@ -57,3 +57,21 @@
   .magnetic { transition: none; transform: none !important; }
   .flame-flicker, .star[data-on="true"] { animation: none; }
 }
+
+/* site footer ------------------------------------------------------------ */
+.site-footer { padding: var(--space-6) var(--gutter) calc(var(--space-6) + env(safe-area-inset-bottom)); }
+.site-footer-card {
+  max-width: var(--page-max); margin: 0 auto;
+  display: grid; gap: var(--space-5); align-items: center;
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--surface-1) 80%, transparent);
+  border: 1.5px solid var(--border);
+}
+.site-footer-brand p { margin: var(--space-2) 0 0; color: var(--text-secondary); font-size: var(--fs-body-sm); }
+.site-footer-links { display: flex; flex-wrap: wrap; gap: 4px; }
+.site-footer-note { margin: 0; font-size: var(--fs-caption); color: var(--text-muted); }
+@media (min-width: 900px) {
+  .site-footer-card { grid-template-columns: auto 1fr auto; }
+  .site-footer-links { justify-content: center; }
+}

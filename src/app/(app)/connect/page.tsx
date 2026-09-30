@@ -85,12 +85,12 @@ export default function ConnectPage() {
       const res = await fetch("/api/mcp/pair", { method: "POST" });
       const data = (await res.json()) as Pairing & { error?: { message?: string } };
       if (!res.ok) {
-        setError(data?.error?.message ?? "VIVA could not make a code just now. Try again in a moment.");
+        setError(data?.error?.message ?? "Aloud could not make a code just now. Try again in a moment.");
         return;
       }
       setPairing({ code: data.code, expiresInSeconds: data.expiresInSeconds, survivesDeploys: data.survivesDeploys });
     } catch {
-      setError("VIVA could not make a code just now. Try again in a moment.");
+      setError("Aloud could not make a code just now. Try again in a moment.");
     } finally {
       setBusy(false);
     }
@@ -105,15 +105,15 @@ export default function ConnectPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Connect"
-        title="Study with VIVA from wherever you already work"
-        description="Add VIVA to Claude, Cursor or any assistant that speaks the same tool protocol, then pair it with this browser's account. Your subjects, your map and your notes come with you; the microphone stays here."
+        title="Study with Aloud from wherever you already work"
+        description="Add Aloud to Claude, Cursor or any assistant that speaks the same tool protocol, then pair it with this browser's account. Your subjects, your map and your notes come with you; the microphone stays here."
       />
 
       {error ? <ErrorBanner message={error} onRetry={generate} /> : null}
 
       <section className="space-y-3" aria-labelledby="step-add">
         <h2 id="step-add" className="heading text-lg">
-          1 · Add VIVA to your assistant
+          1 · Add Aloud to your assistant
         </h2>
         <p className="prose-measure text-sm leading-relaxed" style={{ color: "var(--color-mist)" }}>
           One command in a terminal, or one entry in the config file your assistant already has.
@@ -128,7 +128,7 @@ export default function ConnectPage() {
         </h2>
         <p className="prose-measure text-sm leading-relaxed" style={{ color: "var(--color-mist)" }}>
           The code below works for the next ten minutes, and anyone who can see it in that time can use it. Treat it
-          like a password: paste it straight into your assistant and say connect my VIVA account with this code.
+          like a password: paste it straight into your assistant and say connect my Aloud account with this code.
         </p>
 
         {pairing && alive ? (
@@ -146,7 +146,7 @@ export default function ConnectPage() {
             {pairing.survivesDeploys ? null : (
               <p className="prose-measure text-xs leading-relaxed" style={{ color: "var(--color-ash)" }}>
                 Worth knowing: this deployment has no shared signing key set, so a paired assistant is disconnected the
-                next time VIVA is updated. Pair again and it works exactly as before.
+                next time Aloud is updated. Pair again and it works exactly as before.
               </p>
             )}
           </div>

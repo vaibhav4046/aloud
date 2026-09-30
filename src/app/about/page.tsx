@@ -6,8 +6,8 @@ import { PublicShell } from "@/components/PublicShell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "About: VIVA",
-  description: "Who built VIVA, why, and where the source is.",
+  title: "About",
+  description: "Who built Aloud, why, and where the source is.",
 };
 
 export default function AboutPage() {
@@ -18,7 +18,7 @@ export default function AboutPage() {
         <section aria-labelledby="ab-who">
           <h2 id="ab-who" className="heading text-xl">Who built it</h2>
           <p>
-            One person: Vaibhav Lalwani, a computer science student. VIVA started as a study tool that listens while
+            One person: Vaibhav Lalwani, a computer science student. Aloud started as a study tool that listens while
             you think aloud. The oral exam was added for the AssemblyAI Voice Agent hackathon.
           </p>
         </section>
@@ -27,7 +27,7 @@ export default function AboutPage() {
           <h2 id="ab-why" className="heading text-xl">Why</h2>
           <p>
             Reading notes back is easy to mistake for knowing them. A viva or an oral exam makes you say the answer
-            with the pages closed, and that is a different skill. VIVA gives you that practice on your own lecture
+            with the pages closed, and that is a different skill. Aloud gives you that practice on your own lecture
             notes, at any hour, and points at the page when you are wrong.
           </p>
         </section>

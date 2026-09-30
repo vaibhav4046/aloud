@@ -57,11 +57,11 @@ const Body = z.object({
 /** Say what was actually wrong with the body, not "text is required." */
 function bodyProblem(issues: { code: string; path: PropertyKey[] }[]): string {
   if (issues.some((i) => i.code === "too_big")) {
-    return "That was longer than VIVA takes in one go — say it in a shorter burst.";
+    return "That was longer than Aloud takes in one go — say it in a shorter burst.";
   }
   const field = issues[0]?.path.join(".") || "the request";
   if (issues.some((i) => i.code === "too_small")) return "There were no words in that.";
-  return `That request was not shaped the way VIVA expects (${field}).`;
+  return `That request was not shaped the way Aloud expects (${field}).`;
 }
 
 /**

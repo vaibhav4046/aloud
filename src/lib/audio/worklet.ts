@@ -105,7 +105,7 @@ export function warmDictation(): void {
 
 export async function startCapture(opts: Capture = {}): Promise<CaptureHandle> {
   if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-    throw captureError("NO_MIC", "This browser will not give VIVA a microphone. Type instead.");
+    throw captureError("NO_MIC", "This browser will not give Aloud a microphone. Type instead.");
   }
 
   let stream: MediaStream;

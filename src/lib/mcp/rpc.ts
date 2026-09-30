@@ -15,14 +15,14 @@ import { TOOL_LIST, callTool, type ToolEnvironment } from "./tools";
  * has anything to interleave. The specification allows either.
  */
 
-const SERVER = { name: "viva", title: "VIVA", version: "0.1.0" } as const;
+const SERVER = { name: "viva", title: "Aloud", version: "0.1.0" } as const;
 
 /** Versions this server answers to. Anything else is answered in the newest. */
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const LATEST = PROTOCOL_VERSIONS[0];
 
 const INSTRUCTIONS =
-  "VIVA is the study app the student talks to. Their subjects, their map and their notes live in their VIVA account, so connect once with connect_my_viva_account before anything else. Let VIVA ask and mark the questions, it marks against the student's own material and it is the only thing that moves their map. Quote what VIVA quotes; do not add material their source does not have.";
+  "Aloud is the study app the student talks to. Their subjects, their map and their notes live in their Aloud account, so connect once with connect_my_viva_account before anything else. Let Aloud ask and mark the questions, it marks against the student's own material and it is the only thing that moves their map. Quote what Aloud quotes; do not add material their source does not have.";
 
 export type JsonRpcId = string | number | null;
 
@@ -130,7 +130,7 @@ export async function handleBody(body: unknown, env: ToolEnvironment): Promise<J
       fail(
         null,
         INVALID_REQUEST,
-        `That batch carries ${messages.length} messages and VIVA takes at most ${MAX_BATCH} in one POST. Send them in smaller batches.`
+        `That batch carries ${messages.length} messages and Aloud takes at most ${MAX_BATCH} in one POST. Send them in smaller batches.`
       ),
     ];
   }

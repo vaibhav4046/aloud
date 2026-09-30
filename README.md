@@ -1,8 +1,10 @@
-# VIVA
+# Aloud
 
-An oral exam on your own lecture notes. VIVA asks the questions out loud, checks your answers against your own pages, and tells you what to revise tomorrow.
+Learn it by saying it. Drop your notes, play them out loud. Aloud turns your own material into a run of spoken levels, catches your bluffs with claims that sound right and are not, and shows the page that proves each answer.
 
-![The VIVA front page at 1440 px: headline and start buttons on the left, a scripted exam excerpt with a quoted page on the right](docs/evidence/visual/2026-09-29/landing-1440.png)
+![The Aloud front page at 1440 px: the headline Learn it by saying it, two buttons, and a live waveform](docs/evidence/visual/site/landing-1440.png)
+
+Aloud grew out of VIVA, an oral-exam tool on the same voice engine. The engine (AssemblyAI Voice Agent, source-grounded claim checking, mastery) is unchanged; the game, the look and the front end are new. Internal identifiers such as the `viva_did` cookie keep their old names.
 
 ## Try it
 

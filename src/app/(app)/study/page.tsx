@@ -369,7 +369,7 @@ export default function StudyPage() {
             | null;
           setTurnError({
             message:
-              body?.error?.message ?? "That didn't reach VIVA. Nothing was saved, try again.",
+              body?.error?.message ?? "That didn't reach Aloud. Nothing was saved, try again.",
             retry: body?.error?.retryable === false ? undefined : () => void takeTurn(t),
           });
           return;
@@ -413,7 +413,7 @@ export default function StudyPage() {
         }
       } catch {
         setTurnError({
-          message: "That didn't reach VIVA. Nothing was saved, try again.",
+          message: "That didn't reach Aloud. Nothing was saved, try again.",
           retry: () => void takeTurn(t),
         });
       } finally {
@@ -468,7 +468,7 @@ export default function StudyPage() {
     <>
       <PageHeader
         title={subject ? subject.title : "Study"}
-        description="Say what you think. VIVA answers from your source and asks the one question that moves you."
+        description="Say what you think. Aloud answers from your source and asks the one question that moves you."
         actions={
           <div className="orb-dock min-h-11 min-w-0">
             <OrbSlot className="orb-slot--dock" priority={1} />
@@ -545,7 +545,7 @@ export default function StudyPage() {
           {localOnly ? (
             <p className="mono text-xs leading-relaxed" style={{ color: "var(--color-band-getting)" }}>
               This subject is the copy your browser kept. Your map and your notes are here; reload
-              and VIVA will hand it back so it can quote your passages again.
+              and Aloud will hand it back so it can quote your passages again.
             </p>
           ) : null}
 
