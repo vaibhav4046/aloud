@@ -7,7 +7,10 @@
  *
  *   BASE_URL=http://localhost:3261 node scripts/probes/aloud-live-drive.mjs <scenario> [--tag x]
  *
- * scenarios: calibrate | say | catch | bargein | typed-say | typed-catch | boss | recall
+ * scenarios: calibrate | say | catch | bargein | typed-say | typed-catch | boss | recall | catch-open
+ *            catch-open: Catch level 2, first answer is a mumble with no stance. The game must answer the examiner's
+ *            verify_claim with round open, the screen must show its notice, the examiner must not advance; then a tap
+ *            closes the round and the examiner follows.
  *            boss: World 1 boss (catch, say, catch, say), spoken. recall: level 2 (Catch) is played by typing with one
  *            deliberate wrong call, then the run must serve a recall level, which is played by voice.
  * Options:   --greet <sec>  click-to-end-of-greeting, from a calibrate run (default 14)
@@ -34,7 +37,7 @@ const tag = opt("--tag", "");
 const greetSec = Number(opt("--greet", 14));
 const gapSec = Number(opt("--gap", 40));
 const RUN_ID = "run_course_transformers_w4";
-const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", "bargein-say": "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1", boss: "l_boss_1", recall: "l_say_c_self_attention_1" };
+const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", "bargein-say": "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1", boss: "l_boss_1", "catch-open": "l_catch_c_self_attention_1", recall: "l_say_c_self_attention_1" };
 let levelId = opt("--level", LEVELS[scenario]);
 const audioDir = "fixtures/audio/live";
 const date = new Date().toISOString().slice(0, 10);
@@ -92,11 +95,12 @@ if (scenario === "bargein") {
   totalSec = 60;
 }
 const voice = !scenario.startsWith("typed");
-const inject = argv.includes("--inject") || scenario === "bargein-say";
+const inject = argv.includes("--inject") || scenario === "bargein-say" || scenario === "catch-open";
 const limitSec = Number(opt("--limit", 240));
+const openState = { tapped: false, openSeenAt: null, noticeText: null, agentAfterOpen: [], tappedAt: null };
 let answered = 0;
 let lastAnswerAt = -1e9;
-const ANSWERS = { "bargein-say": ["interrupt", "say-weight", "say-why"], say: ["say-weight", "say-why"], catch: ["claim-real", "claim-real", "claim-bluff"], boss: ["boss-bluff", "boss-qkv", "claim-real", "say-weight"], recall: ["say-weight", "say-why"] }[scenario] ?? [];
+const ANSWERS = { "bargein-say": ["interrupt", "say-weight", "say-why"], say: ["say-weight", "say-why"], catch: ["claim-real", "claim-real", "claim-bluff"], "catch-open": ["claim-vague"], boss: ["boss-bluff", "boss-qkv", "claim-real", "say-weight"], recall: ["say-weight", "say-why"] }[scenario] ?? [];
 let fakeArgs = [];
 if (voice && !inject) {
   const wavPath = path.join(os.tmpdir(), `aloud-live-${scenario}.wav`);
@@ -260,6 +264,10 @@ try {
     }, { run, seeded, upto: lvl.index }).then((st) => (doc.seedStatus = st));
     doc.serverAfterSeed = await page.evaluate(async () => { const j = await (await fetch("/api/game/progress?subjectId=course_transformers_w4", { cache: "no-store" })).json(); return { results: Object.keys(j.progress.results).length, unlockedIndex: j.progress.unlockedIndex, xp: j.progress.xp }; });
   }
+  if (scenario === "catch-open") {
+    const r0 = await page.evaluate(async () => (await (await fetch("/api/game/run?subjectId=course_transformers_w4", { cache: "no-store" })).json()).run);
+    doc.truth = Object.fromEntries(r0.levels.find((l) => l.id === levelId).items.map((i) => [i.claim.replace(/\s+/g, " ").trim(), i.isBluff]));
+  }
   await page.goto(`${base}/play/${encodeURIComponent(levelId)}?run=${RUN_ID}`, { waitUntil: "networkidle" });
   await page.waitForSelector('[data-testid="play-screen"]', { timeout: 30000 });
   await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-intro-430.png` });
@@ -291,6 +299,7 @@ try {
     if (s?.reveal) { await page.waitForTimeout(1500); await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-reveal-${++shots}-430.png` }).catch(() => {}); doc.revealClicks = (doc.revealClicks ?? 0) + 1; await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2000 }).catch(() => {}); }
     if (s?.proof) { await page.waitForTimeout(1200); await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-proof-${++shots}-430.png` }).catch(() => {}); await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2000 }).catch(() => {}); }
     if (voice && inject) await injectStep(s);
+    if (scenario === "catch-open") { const stop = await openStep(s); if (stop) break; }
     if (!voice) await typedStep(page, s);
     await page.waitForTimeout(300);
   }
@@ -451,4 +460,38 @@ async function servedRecall() {
   if (!served.serverRecall.length) throw new Error("the run served no recall level after a miss on level 1");
   levelId = served.serverRecall[0].id;
   doc.levelId = levelId;
+}
+
+/* ---------- catch-open: a mumbled answer, the game holds the round open, then a tap closes it ---------- */
+async function openStep(s) {
+  const results = ws.filter((e) => e.type === "tool.result");
+  const open = results.find((e) => e.round === "open");
+  if (open && openState.openSeenAt === null) {
+    openState.openSeenAt = open.t;
+    doc.openResult = { t: open.t, verdict: open.verdict ?? null, round: open.round, keys: open.keys };
+  }
+  if (openState.openSeenAt !== null && !openState.noticeText) {
+    openState.noticeText = await page.evaluate(() => document.querySelector('[role="status"].gx-note')?.textContent ?? null);
+    if (openState.noticeText) await page.screenshot({ path: `${shotDir}/live-catch-open${tag}-notice-430.png` }).catch(() => {});
+  }
+  if (openState.openSeenAt === null) return false;
+  // Give the examiner time to answer the open result; it must not reveal or state the next claim.
+  if (!openState.tapped && T() - openState.openSeenAt > 15000) {
+    const truth = doc.truth;
+    const claim = s?.claim ? s.claim.replace(/\s+/g, " ").trim() : "";
+    const bluff = truth?.[claim];
+    doc.agentAfterOpen = ws.filter((e) => e.type === "transcript.agent" && e.t > openState.openSeenAt).map((e) => ({ t: e.t, text: e.text }));
+    doc.screenAfterOpen = { round: s?.round ?? null, claim: claim.slice(0, 120), hearts: s?.hearts ?? null, notice: openState.noticeText };
+    await page.getByRole("button", { name: bluff ? /Catch it/ : /That is true/ }).first().click({ timeout: 4000 }).catch(() => {});
+    openState.tapped = true;
+    openState.tappedAt = T();
+    doc.tap = { at: T(), isBluff: bluff ?? null, tapped: bluff ? "bluff" : "real", claim: claim.slice(0, 80) };
+    return false;
+  }
+  if (openState.tapped && T() - openState.tappedAt > 40000) {
+    doc.agentAfterTap = ws.filter((e) => e.type === "transcript.agent" && e.t > openState.tappedAt).map((e) => ({ t: e.t, text: e.text }));
+    doc.screenAfterTap = { round: dom.at(-1)?.round ?? null, claim: (dom.at(-1)?.claim ?? "").slice(0, 120), failure: dom.at(-1)?.failure ?? null };
+    return true;
+  }
+  return false;
 }

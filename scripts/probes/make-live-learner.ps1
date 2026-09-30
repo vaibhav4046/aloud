@@ -8,6 +8,8 @@ $lines = [ordered]@{
   'claim-real'   = 'I think this claim is real. It matches what my notes say.'
   'claim-bluff'  = 'That is a bluff. It is self attention, not backpropagation, that is permutation equivariant.'
   'interrupt'    = 'Wait, can you repeat the question?'
+  'claim-vague'  = 'I think that one holds up. It matches what my notes say on that page.'
+  'claim-mumble' = 'Hmm, let me think about that for a moment.'
   'boss-bluff'   = 'That is a bluff. The page says the opposite.'
   'boss-qkv'     = 'Queries ask what a token is looking for, keys advertise what a token holds, and values carry the content that gets passed along.'
 }

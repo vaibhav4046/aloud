@@ -1,0 +1,678 @@
+{
+ "scenario": "catch-open",
+ "tag": "",
+ "measuredOn": "2026-09-30T15:51:27.661Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "base": "http://localhost:3301",
+ "levelId": "l_catch_c_self_attention_1",
+ "learnerVoice": "synthetic (Windows System.Speech)",
+ "plan": [],
+ "greetSecAssumed": 14,
+ "gapSec": 40,
+ "ws": [
+  {
+   "t": 4792,
+   "dir": "out",
+   "type": "session.update"
+  },
+  {
+   "t": 5135,
+   "dir": "in",
+   "type": "session.updated"
+  },
+  {
+   "t": 5153,
+   "dir": "in",
+   "type": "session.ready",
+   "session_id": "sess_942"
+  },
+  {
+   "t": 5153,
+   "dir": "out",
+   "type": "input.audio.first"
+  },
+  {
+   "t": 5167,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 5686,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 22482,
+   "n": 1691,
+   "bytes": 811680
+  },
+  {
+   "t": 22496,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "Bluff check: Self-attention. I will state some claims from your pages. Some are real and some are planted. Here is the first: For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Real or bluff?"
+  },
+  {
+   "t": 22496,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 22734,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 22848,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 26628,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 26843,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 26846,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "Let me think about the attention."
+  },
+  {
+   "t": 26846,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 30313,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 31912,
+   "n": 171,
+   "bytes": 82080
+  },
+  {
+   "t": 31920,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "Real or bluff?"
+  },
+  {
+   "t": 31925,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 32169,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 32224,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  }
+ ],
+ "http": [
+  {
+   "t": 1790783500773,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 628
+  },
+  {
+   "t": 1790783501894,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 662
+  },
+  {
+   "t": 1790783502565,
+   "url": "/api/game/progress",
+   "method": "GET",
+   "status": 200,
+   "ms": 155
+  },
+  {
+   "t": 1790783508273,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 601
+  },
+  {
+   "t": 3784,
+   "url": "/api/oral/session",
+   "method": "GET",
+   "status": 200,
+   "ms": 516
+  },
+  {
+   "t": 4496,
+   "url": "/api/voice-agent/token",
+   "method": "GET",
+   "status": 200,
+   "ms": 158
+  },
+  {
+   "t": 3786,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 1152,
+   "result": {
+    "verdict": "supported",
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the sco",
+    "page": 4,
+    "passage_id": "ch_sa_1",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+    "concept": "c_self_attention"
+   }
+  }
+ ],
+ "dom": [
+  {
+   "t": 21,
+   "phase": "ready",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": "Bluff check: Self-attention",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 3915,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ConnectingOpening a session with the voice service.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 5294,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 6556,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": "Examiner Bluff check: Self-attention. I will state some claims from your pages. Some are real and some are planted. Here is the first: For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Real or bluff?",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 22857,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": "Examiner Bluff check: Self-attention. I will state some claims from your pages. Some are real and some are planted. Here is the first: For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Real or bluff?",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 26733,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": "Examiner Bluff check: Self-attention. I will state some claims from your pages. Some are real and some are planted. Here is the first: For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Real or bluff?",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 26936,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": "Examiner Bluff check: Self-attention. I will state some claims from your pages. Some are real and some are planted. Here is the first: For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Real or bluff?",
+   "examinerCut": false,
+   "you": "You Let me think about the attention.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 30409,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": "Examiner Real or bluff?",
+   "examinerCut": false,
+   "you": "You Let me think about the attention.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 32287,
+   "phase": "live",
+   "hearts": "2 of 2 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": "Examiner Real or bluff?",
+   "examinerCut": false,
+   "you": "You Let me think about the attention.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  }
+ ],
+ "agentDeltas": [
+  [
+   6434,
+   "21410a",
+   "Bluff"
+  ],
+  [
+   6456,
+   "21410a",
+   "check:"
+  ],
+  [
+   6456,
+   "21410a",
+   "Self-attention."
+  ],
+  [
+   6490,
+   "21410a",
+   "I"
+  ],
+  [
+   6490,
+   "21410a",
+   "will"
+  ],
+  [
+   6490,
+   "21410a",
+   "state"
+  ],
+  [
+   6490,
+   "21410a",
+   "some"
+  ],
+  [
+   6490,
+   "21410a",
+   "claims"
+  ],
+  [
+   6490,
+   "21410a",
+   "from"
+  ],
+  [
+   6490,
+   "21410a",
+   "your"
+  ],
+  [
+   6490,
+   "21410a",
+   "pages."
+  ],
+  [
+   6490,
+   "21410a",
+   "Some"
+  ],
+  [
+   6490,
+   "21410a",
+   "are"
+  ],
+  [
+   6490,
+   "21410a",
+   "real"
+  ],
+  [
+   6490,
+   "21410a",
+   "and"
+  ],
+  [
+   6490,
+   "21410a",
+   "some"
+  ],
+  [
+   6490,
+   "21410a",
+   "are"
+  ],
+  [
+   6490,
+   "21410a",
+   "planted."
+  ],
+  [
+   6490,
+   "21410a",
+   "Here"
+  ],
+  [
+   6490,
+   "21410a",
+   "is"
+  ],
+  [
+   6490,
+   "21410a",
+   "the"
+  ],
+  [
+   6490,
+   "21410a",
+   "first:"
+  ],
+  [
+   6490,
+   "21410a",
+   "For"
+  ],
+  [
+   6490,
+   "21410a",
+   "each"
+  ],
+  [
+   6512,
+   "21410a",
+   "pair,"
+  ],
+  [
+   6512,
+   "21410a",
+   "the"
+  ],
+  [
+   6512,
+   "21410a",
+   "model"
+  ],
+  [
+   6512,
+   "21410a",
+   "computes"
+  ],
+  [
+   6512,
+   "21410a",
+   "a"
+  ],
+  [
+   6512,
+   "21410a",
+   "compatibility"
+  ],
+  [
+   6512,
+   "21410a",
+   "score,"
+  ],
+  [
+   6512,
+   "21410a",
+   "normalises"
+  ],
+  [
+   6512,
+   "21410a",
+   "the"
+  ],
+  [
+   6512,
+   "21410a",
+   "scores"
+  ],
+  [
+   6512,
+   "21410a",
+   "with"
+  ],
+  [
+   6512,
+   "21410a",
+   "a"
+  ],
+  [
+   6512,
+   "21410a",
+   "softmax"
+  ],
+  [
+   6512,
+   "21410a",
+   "into"
+  ],
+  [
+   6512,
+   "21410a",
+   "weights,"
+  ],
+  [
+   6512,
+   "21410a",
+   "and"
+  ],
+  [
+   6512,
+   "21410a",
+   "returns"
+  ],
+  [
+   6512,
+   "21410a",
+   "a"
+  ],
+  [
+   6512,
+   "21410a",
+   "weighted"
+  ],
+  [
+   6512,
+   "21410a",
+   "average"
+  ],
+  [
+   6512,
+   "21410a",
+   "of"
+  ],
+  [
+   6512,
+   "21410a",
+   "the"
+  ],
+  [
+   6513,
+   "21410a",
+   "value"
+  ],
+  [
+   6513,
+   "21410a",
+   "vectors."
+  ],
+  [
+   6513,
+   "21410a",
+   "Real"
+  ],
+  [
+   6513,
+   "21410a",
+   "or"
+  ],
+  [
+   6513,
+   "21410a",
+   "bluff?"
+  ],
+  [
+   30403,
+   "6f794f",
+   "Real "
+  ],
+  [
+   30403,
+   "6f794f",
+   "or "
+  ],
+  [
+   30403,
+   "6f794f",
+   "bluff?"
+  ]
+ ],
+ "errors": [],
+ "seededLevels": [
+  {
+   "id": "l_say_c_self_attention_1",
+   "stars": 3,
+   "xp": 200
+  }
+ ],
+ "seedStatus": 200,
+ "serverAfterSeed": {
+  "results": 1,
+  "unlockedIndex": 2,
+  "xp": 260
+ },
+ "truth": {
+  "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.": false,
+  "Self-attention lets every token in a sequence compare itself with every other token.": false,
+  "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: backpropagation without position information is permutation-equivariant.": true
+ },
+ "clickAt": 1790783509670,
+ "injected": [
+  {
+   "wav": "claim-mumble",
+   "atMs": 23793,
+   "durSec": 3.34,
+   "afterReplyDoneMs": 945
+  }
+ ],
+ "localProgress": {
+  "xp": 260,
+  "rank": 1,
+  "unlockedIndex": 2,
+  "results": {
+   "l_say_c_self_attention_1": {
+    "stars": 3,
+    "xp": 200,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   }
+  },
+  "proofs": []
+ },
+ "failure": null,
+ "audioFrames": 1912,
+ "audioBytes": 917760,
+ "examinerAudioSec": 19.12
+}
