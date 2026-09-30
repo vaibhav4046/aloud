@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <PublicShell>
-      <h1 className="heading text-[clamp(1.75rem,1.4rem+1.4vw,2.5rem)]">Privacy</h1>
+      <h1 className="display">Privacy</h1>
       <div className="mt-4"><DraftNotice /></div>
 
       <div className="prose-vv mt-6 space-y-8">
@@ -46,6 +46,16 @@ export default function PrivacyPage() {
             Without one, Aloud uses a file store on the server&apos;s temporary disk: it is ephemeral, and it is wiped when
             the server instance restarts or is replaced. <code>/api/health/ready</code> reports which one is running.
             On the hosted hackathon demo, treat storage as ephemeral unless that endpoint says <code>durable: true</code>.
+          </p>
+        </section>
+
+        <section aria-labelledby="p-game">
+          <h2 id="p-game" className="heading text-xl">Your run and your progress</h2>
+          <p>
+            The levels built from your material, your stars, XP, streak, hearts and daily-goal minutes are progress
+            data. They are kept in your browser&apos;s localStorage, and where durable storage is configured they are
+            also saved under your browser identity, so the same browser gets them back. They hold no audio and no
+            account details. The streak counts local calendar days as your browser reports them.
           </p>
         </section>
 

@@ -14,8 +14,8 @@ export function PublicShell({ children, width = "prose" }: { children: ReactNode
         <nav aria-label="Primary" className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
           <Wordmark href="/" size={26} />
           <div className="flex items-center gap-0.5">
-            <Link href="/oral" className="nav-link">Oral exam</Link>
-            <Link href="/subjects" className="nav-link">Your material</Link>
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/subjects" className="nav-link">Your notes</Link>
           </div>
         </nav>
       </header>
@@ -24,7 +24,7 @@ export function PublicShell({ children, width = "prose" }: { children: ReactNode
         className="legal mx-auto w-full flex-1 px-4 py-8 sm:px-6"
         style={{ maxWidth: width === "wide" ? "72rem" : "46rem" }}
       >
-        {children}
+        <div className="legal-sheet">{children}</div>
       </main>
     </div>
   );

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function AccessibilityPage() {
   return (
     <PublicShell>
-      <h1 className="heading text-[clamp(1.75rem,1.4rem+1.4vw,2.5rem)]">Accessibility</h1>
+      <h1 className="display">Accessibility</h1>
       <p className="mt-4" style={{ color: "var(--text-secondary)" }}>
         The target is WCAG 2.2 level AA where practical. This is a statement of what has been checked, not a claim of
         conformance.
@@ -29,7 +29,9 @@ export default function AccessibilityPage() {
             <li>Animation and transitions are switched off when your system asks for reduced motion.</li>
             <li>The state line is a polite live region. Partial transcript words are not announced.</li>
             <li>Audio never plays before you press a button.</li>
-            <li>The landing page, the oral exam screen, the recorded exam page, the subjects (intake) page and these four pages were screenshotted at 320, 375, 390, 430, 768, 1024, 1280, 1440 and 1920 px with no horizontal scroll. Other screens were not.</li>
+            <li>The landing page, the privacy page, the subjects page and the oral exam screen were screenshotted at 390 and 1440 px on 2026-09-30, and the landing page also at 768 px, with no horizontal scroll. The findings are in docs/evidence/visual/REVIEW-site.md. Other screens were not.</li>
+            <li>The moving colour wash behind the pages holds still under reduced motion, and text stays above 4.5:1 on every pool of it.</li>
+            <li>The waveform on the landing page asks for the microphone only when you press its button, and it only measures your voice on your device.</li>
           </ul>
         </section>
 
@@ -46,7 +48,7 @@ export default function AccessibilityPage() {
           <h2 id="a-gaps" className="heading text-xl">Known gaps</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>The oral exam depends on a microphone and headphones for the spoken path. The typed path exists but is slower and has been tested less.</li>
-            <li>Some study screens (map, quiz, today) have only been restyled, not redesigned, and have not had a manual keyboard pass.</li>
+            <li>Some study screens (map, quiz, today) have only been restyled, not redesigned, and have not had a manual keyboard pass. The game screens have not had a screen-reader pass.</li>
             <li>The concept map is a graph drawing and has not been checked for screen-reader navigation.</li>
             <li>Only English interface text is provided.</li>
           </ul>

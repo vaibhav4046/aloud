@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <PublicShell>
-      <h1 className="heading text-[clamp(1.75rem,1.4rem+1.4vw,2.5rem)]">Terms</h1>
+      <h1 className="display">Terms</h1>
       <div className="mt-4"><DraftNotice /></div>
 
       <div className="mt-6 space-y-8">
         <section aria-labelledby="t-what">
           <h2 id="t-what" className="heading text-xl">What this is</h2>
           <p>
-            Aloud is a hackathon project. It examines you aloud on material you supply. It is offered as it is, and it
+            Aloud is a hackathon project. It turns material you supply into a game you play out loud. It is offered as it is, and it
             may be offline, slow or reset at any time while the hackathon runs.
           </p>
         </section>
