@@ -15,13 +15,20 @@ const FILES = [
   "src/app/global-error.tsx",
   "src/app/(app)/error.tsx",
   "src/app/(app)/run/error.tsx",
-  "src/app/(app)/run/loading.tsx",
   "src/app/(app)/play/[levelId]/error.tsx",
-  "src/app/(app)/play/[levelId]/loading.tsx",
 ];
 
 describe("route boundaries exist", () => {
   for (const f of FILES) it(`${f} exists`, () => expect(existsSync(new URL(`../${f}`, import.meta.url))).toBe(true));
+
+  it("has no loading.tsx: a route-level Suspense fallback broke hydration under the nonce CSP", () => {
+    // Live, 2026-09-30: with run/loading.tsx and play/[levelId]/loading.tsx the dev server logged
+    // "Loading the script ... violates the following Content Security Policy directive" on /run/new,
+    // and /run/<id> stayed on the skeleton after navigation. Removing both files cleared it.
+    for (const f of ["src/app/loading.tsx", "src/app/(app)/loading.tsx", "src/app/(app)/run/loading.tsx", "src/app/(app)/play/[levelId]/loading.tsx"]) {
+      expect(existsSync(new URL(`../${f}`, import.meta.url)), f).toBe(false);
+    }
+  });
 
   it("error boundaries are client components and global-error renders its own document", () => {
     for (const f of FILES.filter((x) => x.endsWith("error.tsx"))) {
