@@ -141,7 +141,7 @@ describe("context condensing", () => {
     // byte-identical transcripts, no leak, so treat that as an unreproduced
     // observation. This test stays either way: stripping is right on its own
     // terms, because the prompt is context, not speech.
-    expect(condenseContext(["Student: I read about attention.", "VIVA: What stuck?"]))
+    expect(condenseContext(["Student: I read about attention.", "Aloud: What stuck?"]))
       .toBe("I read about attention. What stuck?");
   });
 

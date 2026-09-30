@@ -42,7 +42,7 @@ describe("learner reducer", () => {
     expect(r.delta!).toBeGreaterThan(graded.delta!);
     expect(r.next.misconceptionCount).toBe(0);
   });
-  it("a claim VIVA could not check costs the learner nothing", () => {
+  it("a claim Aloud could not check costs the learner nothing", () => {
     const before = blankMastery("c_flat_signal", T);
     const r = reduceMastery(before, { intent: "claim", createdAt: T, masterySignal: "flat" });
     expect(r.delta).toBe(0);

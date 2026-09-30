@@ -61,9 +61,9 @@ type Line =
  * browser keeps it, and it is handed in again on the next load. What is still
  * true is the part these now say — this browser, not this account.
  */
-const NO_DATABASE = "Before you start: VIVA keeps what you build in this browser, so it comes back here and not on your other devices.";
+const NO_DATABASE = "Before you start: Aloud keeps what you build in this browser, so it comes back here and not on your other devices.";
 const KEEPING = "Keeping it in this browser — that is where your subjects live.";
-const NOT_KEPT = "Kept in this browser. Open VIVA here again and it is waiting; open it somewhere else and it will not be.";
+const NOT_KEPT = "Kept in this browser. Open Aloud here again and it is waiting; open it somewhere else and it will not be.";
 
 /**
  * How much pasted text this route buffers. Not a study limit — a memory one:
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     const declared = Number(req.headers.get("content-length") ?? 0);
     if (Number.isFinite(declared) && declared > PDF_MAX_BYTES) return done(tooLarge());
     let form: FormData;
-    try { form = await req.formData(); } catch { return done(bad("BAD_REQUEST", "VIVA could not read that upload.")); }
+    try { form = await req.formData(); } catch { return done(bad("BAD_REQUEST", "Aloud could not read that upload.")); }
     const files = form.getAll("file").filter((f): f is File => f instanceof File).slice(0, MAX_DOCS);
     if (!files.length) return done(bad("NO_FILE", "Attach a file, or paste your notes instead."));
     if (files.reduce((n, f) => n + f.size, 0) > PDF_MAX_BYTES) return done(tooLarge());
@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
       if (text.trim().length < 200) return done(bad("BAD_REQUEST", "Paste a bit more — a few paragraphs is enough."));
       if (text.length > PASTE_MAX_CHARS) {
         notes.push(
-          `That paste is longer than VIVA takes in one go, so it is reading the first ${Math.round(PASTE_MAX_CHARS / 1_000)},000 characters and leaving the rest. Paste the next part as its own subject.`
+          `That paste is longer than Aloud takes in one go, so it is reading the first ${Math.round(PASTE_MAX_CHARS / 1_000)},000 characters and leaving the rest. Paste the next part as its own subject.`
         );
       }
       input = { kind: "paste", title, text: text.slice(0, PASTE_MAX_CHARS) };
@@ -252,7 +252,7 @@ function tooLarge(): Response {
   const mb = Math.round(PDF_MAX_BYTES / (1024 * 1024));
   return bad(
     "FILE_TOO_LARGE",
-    `That PDF is over ${mb} MB, which is more than VIVA can take in one request. Try a smaller one, or paste the part you are studying.`,
+    `That PDF is over ${mb} MB, which is more than Aloud can take in one request. Try a smaller one, or paste the part you are studying.`,
     413
   );
 }

@@ -70,9 +70,9 @@ async function readCapped(req: Request): Promise<string | null> {
 }
 
 function problem(issues: { code: string; path: PropertyKey[] }[]): string {
-  if (issues.some((i) => i.code === "too_big")) return "That was longer than VIVA takes in one go.";
+  if (issues.some((i) => i.code === "too_big")) return "That was longer than Aloud takes in one go.";
   const field = issues[0]?.path.join(".") || "the request";
-  return `That tool call was not shaped the way VIVA expects (${field}).`;
+  return `That tool call was not shaped the way Aloud expects (${field}).`;
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -96,7 +96,7 @@ export async function POST(req: Request): Promise<Response> {
   let body: unknown;
   try {
     const text = await readCapped(req);
-    if (text === null) return done(err("PAYLOAD_TOO_LARGE", "That was longer than VIVA takes in one go.", false, 413));
+    if (text === null) return done(err("PAYLOAD_TOO_LARGE", "That was longer than Aloud takes in one go.", false, 413));
     body = JSON.parse(text);
   } catch {
     return done(err("BAD_REQUEST", "Expected JSON.", false, 400));

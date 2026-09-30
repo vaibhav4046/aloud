@@ -9,7 +9,7 @@
  * this excerpt; nobody said them. The caption says so.
  */
 export const EXCERPT = {
-  course: "Transformers, Week 4 (VIVA course notes, sample)",
+  course: "Transformers, Week 4 (Aloud course notes, sample)",
   question: "Suppose we remove the positional encodings. What does the model lose?",
   learnerAnswer: "It loses track of which words are important, so the ranking of relevance is gone.",
   learnerWrong: "which words are important",

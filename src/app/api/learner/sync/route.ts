@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     const where = first?.path.join(".") || "the request";
     return done(err(
       "BAD_REQUEST",
-      `VIVA could not read that saved record (${where}). At most ${MAX_SYNC_EVENTS} notes and ${MAX_SYNC_SUBJECTS} subjects in one go.`,
+      `Aloud could not read that saved record (${where}). At most ${MAX_SYNC_EVENTS} notes and ${MAX_SYNC_SUBJECTS} subjects in one go.`,
       false,
       400
     ));
@@ -140,7 +140,7 @@ function tooLarge(): Response {
   const kb = Math.round(MAX_SYNC_BYTES / 1024);
   return err(
     "SYNC_TOO_LARGE",
-    `That saved record is over ${kb} KB, which is more than VIVA takes in one go. Send the most recent part.`,
+    `That saved record is over ${kb} KB, which is more than Aloud takes in one go. Send the most recent part.`,
     false,
     413
   );

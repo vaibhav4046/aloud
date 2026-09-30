@@ -86,7 +86,7 @@ export const PROBABILITY: Course = {
   sources: [
     {
       id: SOURCE_ID,
-      title: "Probability Traps (VIVA course notes)",
+      title: "Probability Traps (Aloud course notes)",
       type: "notes",
       chunks: SOURCE_CHUNKS,
     },

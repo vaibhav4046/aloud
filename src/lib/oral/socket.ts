@@ -226,7 +226,7 @@ function errorSentence(code: string): string {
       return "Voice sign-in failed. Reload the page and try again.";
     case "at_capacity":
     case "concurrency_exceeded":
-      return "VIVA is busy right now. Try again in a moment.";
+      return "Aloud is busy right now. Try again in a moment.";
     case "session_not_found":
     case "session_expired":
       return "That exam session expired. Starting a new one.";
@@ -235,9 +235,9 @@ function errorSentence(code: string): string {
     case "invalid_config":
     case "immutable_field":
     case "invalid_value":
-      return "VIVA could not set up the exam audio. Reload the page.";
+      return "Aloud could not set up the exam audio. Reload the page.";
     case "invalid_audio":
-      return "The microphone sent audio VIVA could not read. Type instead.";
+      return "The microphone sent audio Aloud could not read. Type instead.";
     default:
       return voiceMessage("NETWORK_DOWN");
   }

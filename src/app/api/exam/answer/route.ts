@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
     evidenceIds: a.evidenceIds,
     requestedAction: "evaluate",
     status: "responded",
-    sourceLocator: { section: "VIVA oral exam" },
+    sourceLocator: { section: "Aloud oral exam" },
     assessment: a.verdict === "correct" ? "correct" : a.verdict === "partial" ? "partial" : "incorrect",
     hint: q.hint,
   });

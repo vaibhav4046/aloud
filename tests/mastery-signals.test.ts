@@ -54,7 +54,7 @@ describe("study-turn signals move the record", () => {
     expect(r.delta!).toBeLessThan(oneTurn({ assessment: "correct" }).delta!);
   });
 
-  it("a sentence VIVA could not check moves no counter and no number", () => {
+  it("a sentence Aloud could not check moves no counter and no number", () => {
     const r = oneTurn({ masterySignal: "flat" });
     expect(r.next.successfulRecallCount).toBe(0);
     expect(r.next.failedRecallCount).toBe(0);

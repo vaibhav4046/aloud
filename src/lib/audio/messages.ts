@@ -11,7 +11,7 @@ export const VOICE_MESSAGES: Record<string, string> = {
   NO_API_KEY: "Voice is not switched on for this deployment. Type instead, nothing is faked.",
   NO_DICTATION_URL: "Voice is not switched on for this deployment. Type instead, nothing is faked.",
   MIC_BLOCKED: "Microphone access is blocked. Allow it in the browser bar, or type instead.",
-  NO_MIC: "This browser will not give VIVA a microphone. Type instead.",
+  NO_MIC: "This browser will not give Aloud a microphone. Type instead.",
   NO_WORKLET: "This browser could not start the microphone. Type instead.",
   // Held long enough to say something, and the input device delivered nothing:
   // muted at the operating system, a dead virtual input, a headset that never

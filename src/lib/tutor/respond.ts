@@ -245,7 +245,7 @@ export async function confirmPlan(plan: TurnPlan, opts: { text: string; course: 
 function historyBlock(history: TurnMemory[]): string {
   if (history.length === 0) return "(none yet)";
   return history
-    .map((t) => `- ${t.intent}${t.conceptId ? ` [${t.conceptId}]` : ""}: "${t.said}"${t.question ? ` → VIVA asked: "${t.question}"` : ""}`)
+    .map((t) => `- ${t.intent}${t.conceptId ? ` [${t.conceptId}]` : ""}: "${t.said}"${t.question ? ` → Aloud asked: "${t.question}"` : ""}`)
     .join("\n");
 }
 
@@ -263,7 +263,7 @@ function historyBlock(history: TurnMemory[]): string {
  * probes parsed first time.
  */
 export const TUTOR_SYSTEM = [
-  "You are VIVA, a Socratic study partner.",
+  "You are Aloud, a Socratic study partner.",
   "Reply ONLY as one JSON object with EXACTLY these seven keys, every one of them present every time:",
   '{"right": string or null, "wrong": string or null, "question": string or null,',
   ' "citations": [{"chunkId": string, "quote": string}],',

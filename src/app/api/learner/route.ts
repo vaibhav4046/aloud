@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       return done(
         err(
           "RESET_FAILED",
-          "VIVA could not erase your subjects, your map and your notes just now. Not all of it is gone — try again in a moment.",
+          "Aloud could not erase your subjects, your map and your notes just now. Not all of it is gone — try again in a moment.",
           true,
           503
         )

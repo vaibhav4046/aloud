@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MarkIcon } from "@/components/ui/icons";
+import { Wordmark } from "@/components/ui/Wordmark";
 
 /**
  * The one shell. Every page inside the app group renders through this: a
@@ -71,12 +71,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 border-b hairline" style={{ background: "var(--canvas)", zIndex: "var(--z-nav)" }}>
+      <header className="sticky top-0 border-b hairline" style={{ background: "color-mix(in srgb, var(--canvas) 86%, transparent)", zIndex: "var(--z-nav)" }}>
         <nav aria-label="Primary" className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 sm:px-6">
-          <Link href="/" className="flex min-h-11 shrink-0 items-center gap-2" aria-label="VIVA home">
-            <MarkIcon size={22} />
-            <span className="heading text-xl tracking-tight">VIVA</span>
-          </Link>
+          <Wordmark href="/" size={26} />
 
           {/* Desktop: the destinations inline. Mobile gets the tab bar. */}
           <div className="ml-2 hidden items-center gap-0.5 md:flex">
@@ -111,7 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Concept map
           </Link>
           <Link href="/connect" className="link mono inline-flex min-h-11 items-center">
-            Use VIVA from another assistant
+            Use Aloud from another assistant
           </Link>
         </footer>
       </div>

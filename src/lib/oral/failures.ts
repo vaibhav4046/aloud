@@ -27,7 +27,7 @@ export const ORAL_FAILURES: readonly OralFailure[] = [
   { id: "no_audio_device", cause: "The browser found no microphone", state: "ERROR", code: "NO_MIC", fatal: true, source: "client",
     message: "This browser did not find a microphone. Plug one in and start again." },
   { id: "insecure_context", cause: "The page is not served over HTTPS, so the browser hides the microphone", state: "ERROR", code: "INSECURE_CONTEXT", fatal: true, source: "client",
-    message: "The microphone needs a secure page. Open VIVA at its secure address and start again." },
+    message: "The microphone needs a secure page. Open Aloud at its secure address and start again." },
   { id: "no_audio_worklet", cause: "The browser has no AudioWorklet", state: "ERROR", code: "NO_WORKLET", fatal: true, source: "client",
     message: "This browser cannot start the microphone. Try a current Chrome, Edge, Firefox or Safari." },
   { id: "token_unauthorized", cause: "The voice token request was refused (401 or 403 upstream)", state: "ERROR", code: "AUTH_FAILED", fatal: true, source: "route",

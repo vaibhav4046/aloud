@@ -77,14 +77,14 @@ button.act:focus-visible { outline: 2px solid #b8ff5a; outline-offset: 2px; }
 
     const card = el("div", "card");
     card.setAttribute("role", "dialog");
-    card.setAttribute("aria-label", "VIVA");
+    card.setAttribute("aria-label", "Aloud");
 
     const head = el("div", "head");
     const subject = el("span", "subject");
     const close = el("button", "x", "×");
-    close.setAttribute("aria-label", "Close VIVA");
+    close.setAttribute("aria-label", "Close Aloud");
     close.onclick = hide;
-    head.append(el("span", "mark"), el("span", "title", "VIVA"), subject, close);
+    head.append(el("span", "mark"), el("span", "title", "Aloud"), subject, close);
 
     const body = el("div", "body");
     const said = el("p", "said");
@@ -95,7 +95,7 @@ button.act:focus-visible { outline: 2px solid #b8ff5a; outline-offset: 2px; }
     box.placeholder = "Say what you think this is saying…";
     const row = el("div", "row");
     const mic = el("button", "act mic", "Hold to speak");
-    const go = el("button", "act go", "Ask VIVA");
+    const go = el("button", "act go", "Ask Aloud");
     row.append(mic, go);
     body.append(said, reply);
     const compose = el("div", "compose");
@@ -125,13 +125,13 @@ button.act:focus-visible { outline: 2px solid #b8ff5a; outline-offset: 2px; }
   function renderNote(extra) {
     ui.note.textContent =
       extra ||
-      `Only what you write or say here leaves this page — it goes to ${state.origin} when you press Ask. VIVA is not reading this page.`;
+      `Only what you write or say here leaves this page — it goes to ${state.origin} when you press Ask. Aloud is not reading this page.`;
   }
 
   function setBusy(busy, label) {
     state.busy = busy;
     ui.go.disabled = busy;
-    ui.go.textContent = busy ? label || "Thinking…" : "Ask VIVA";
+    ui.go.textContent = busy ? label || "Thinking…" : "Ask Aloud";
   }
 
   async function ask() {
@@ -145,7 +145,7 @@ button.act:focus-visible { outline: 2px solid #b8ff5a; outline-offset: 2px; }
       .catch(() => null);
     setBusy(false);
     if (!res?.ok) {
-      ui.reply.replaceChildren(el("span", "err", res?.error?.message || "VIVA did not answer. Open VIVA in a tab and try again."));
+      ui.reply.replaceChildren(el("span", "err", res?.error?.message || "Aloud did not answer. Open Aloud in a tab and try again."));
       return;
     }
     ui.box.value = "";
@@ -224,7 +224,7 @@ button.act:focus-visible { outline: 2px solid #b8ff5a; outline-offset: 2px; }
       ui.mic.classList.add("on");
       ui.mic.textContent = "Listening…";
     } catch {
-      renderNote("This page would not give VIVA the microphone. Type it instead.");
+      renderNote("This page would not give Aloud the microphone. Type it instead.");
     }
   }
 
@@ -241,13 +241,13 @@ button.act:focus-visible { outline: 2px solid #b8ff5a; outline-offset: 2px; }
         .sendMessage({ type: "viva.panel.transcribe", wav: toBase64(buf), subjectId: state.subject?.id || null })
         .catch(() => null);
       setBusy(false);
-      if (!res?.ok) { renderNote(res?.error?.message || "VIVA could not hear that. Type it instead."); return; }
+      if (!res?.ok) { renderNote(res?.error?.message || "Aloud could not hear that. Type it instead."); return; }
       ui.box.value = res.text;
       state.kind = "voice";
       ui.box.focus();
     } catch {
       setBusy(false);
-      renderNote("VIVA could not read that recording. Type it instead.");
+      renderNote("Aloud could not read that recording. Type it instead.");
     }
   }
 

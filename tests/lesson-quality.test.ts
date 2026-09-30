@@ -20,7 +20,7 @@ function bodyOf(course: (typeof SUBJECTS)[number]) {
   return course.sources.flatMap((s) => s.chunks).map((c) => c.text).join(" ").toLowerCase();
 }
 
-describe("the material VIVA ships", () => {
+describe("the material Aloud ships", () => {
   it("has subjects to check", () => {
     expect(SUBJECTS.length).toBeGreaterThanOrEqual(20);
   });

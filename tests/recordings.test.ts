@@ -4,7 +4,7 @@ import { SessionSchema } from "@/lib/recordings";
 const base = {
   id: "sample-1",
   recordedAt: "2026-09-29T14:00:00Z",
-  course: "Transformers, Week 4 (VIVA course notes, sample)",
+  course: "Transformers, Week 4 (Aloud course notes, sample)",
   learnerVoice: "synthetic",
   audio: "/recordings/sample-1/session.wav",
   durationMs: 90000,

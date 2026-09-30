@@ -36,13 +36,13 @@ type Tool = {
 /* ----------------------------- shared bits ----------------------------- */
 
 const CONNECT_FIRST =
-  "This assistant is not connected to a VIVA account yet. Open VIVA in the browser you study in, go to the Connect page, copy the code it shows, and call connect_my_viva_account with it.";
+  "This assistant is not connected to a Aloud account yet. Open Aloud in the browser you study in, go to the Connect page, copy the code it shows, and call connect_my_viva_account with it.";
 
 /** Every account tool takes the same optional key, so define it once. */
 const ACCOUNT_TOKEN: SchemaProp = {
   type: "string",
   description:
-    "Your VIVA key, if this connection does not already send it as an Authorization header. connect_my_viva_account hands you one.",
+    "Your Aloud key, if this connection does not already send it as an Authorization header. connect_my_viva_account hands you one.",
   maxLength: 200,
 };
 
@@ -166,7 +166,7 @@ const LearnerState = z.object({
 });
 
 /** A route answered, but not in the shape this reader expects. Say so plainly. */
-const ODD_SHAPE = "VIVA answered in a shape this connection did not understand. Try again in the app.";
+const ODD_SHAPE = "Aloud answered in a shape this connection did not understand. Try again in the app.";
 
 function parsed<S extends z.ZodTypeAny>(schema: S, data: unknown): z.infer<S> | null {
   const result = schema.safeParse(data);
@@ -178,16 +178,16 @@ function parsed<S extends z.ZodTypeAny>(schema: S, data: unknown): z.infer<S> | 
 const TOOLS: Tool[] = [
   {
     name: "connect_my_viva_account",
-    title: "Connect a VIVA account",
+    title: "Connect a Aloud account",
     description:
-      "Connect this assistant to a VIVA study account. Open VIVA in the browser you study in, go to the Connect page, and paste the code it shows here. You get a key back that every other VIVA tool needs.",
+      "Connect this assistant to a Aloud study account. Open Aloud in the browser you study in, go to the Connect page, and paste the code it shows here. You get a key back that every other Aloud tool needs.",
     auth: "pairing",
     schema: {
       type: "object",
       properties: {
         pairing_code: {
           type: "string",
-          description: "The code the Connect page in VIVA showed you.",
+          description: "The code the Connect page in Aloud showed you.",
           maxLength: 200,
         },
       },
@@ -198,20 +198,20 @@ const TOOLS: Tool[] = [
       const check = readToken(text(args, "pairing_code"), "pair");
       if (!check.ok) {
         const why: Record<string, string> = {
-          missing: "No code came through. Open the Connect page in VIVA and copy the one it shows.",
-          malformed: "That does not look like a VIVA connection code. Copy the whole thing from the Connect page.",
-          forged: "That code did not check out. Generate a fresh one on the Connect page in VIVA.",
-          expired: "That code has run out. Generate a fresh one on the Connect page in VIVA.",
-          wrong_purpose: "That is a VIVA key, not a connection code. You are already connected, use the key.",
+          missing: "No code came through. Open the Connect page in Aloud and copy the one it shows.",
+          malformed: "That does not look like a Aloud connection code. Copy the whole thing from the Connect page.",
+          forged: "That code did not check out. Generate a fresh one on the Connect page in Aloud.",
+          expired: "That code has run out. Generate a fresh one on the Connect page in Aloud.",
+          wrong_purpose: "That is a Aloud key, not a connection code. You are already connected, use the key.",
         };
         throw new ToolFailure(why[check.reason], check.reason);
       }
       const key = mintToken(check.did, "access");
       const days = Math.round(ACCESS_TTL_SECONDS / 86400);
       return [
-        `Connected. This key is the student's VIVA account for the next ${days} days:`,
+        `Connected. This key is the student's Aloud account for the next ${days} days:`,
         key,
-        "Pass it as account_token on the other VIVA tools, or set it as this connection's Authorization bearer header and never pass it again. Anyone holding it can read and add to this study account, so keep it where you keep your other keys.",
+        "Pass it as account_token on the other Aloud tools, or set it as this connection's Authorization bearer header and never pass it again. Anyone holding it can read and add to this study account, so keep it where you keep your other keys.",
       ].join("\n\n");
     },
   },
@@ -220,7 +220,7 @@ const TOOLS: Tool[] = [
     name: "list_my_subjects",
     title: "List my subjects",
     description:
-      "List what is in this VIVA account: the subjects the student built from their own notes, plus the ones VIVA ships with. Call it first when you need a subject id for another VIVA tool.",
+      "List what is in this Aloud account: the subjects the student built from their own notes, plus the ones Aloud ships with. Call it first when you need a subject id for another Aloud tool.",
     auth: "account",
     schema: { type: "object", properties: { account_token: ACCOUNT_TOKEN }, additionalProperties: false },
     run: async (_args, ctx) => {
@@ -233,7 +233,7 @@ const TOOLS: Tool[] = [
       }
       const lines = list.subjects.map((s) => {
         const built = s.demo
-          ? "comes with VIVA"
+          ? "comes with Aloud"
           : s.builtBy
             ? `built from their own notes, read by ${s.builtBy}`
             : "built from their own notes";
@@ -253,7 +253,7 @@ const TOOLS: Tool[] = [
     name: "add_subject_from_notes",
     title: "Add a subject from notes",
     description:
-      "Turn pasted notes into a VIVA subject: VIVA splits them into passages, pulls out the concepts and writes practice questions from the student's own words. It needs a few paragraphs to work with, and will refuse a bare topic name rather than invent material.",
+      "Turn pasted notes into a Aloud subject: Aloud splits them into passages, pulls out the concepts and writes practice questions from the student's own words. It needs a few paragraphs to work with, and will refuse a bare topic name rather than invent material.",
     auth: "account",
     schema: {
       type: "object",
@@ -292,9 +292,9 @@ const TOOLS: Tool[] = [
 
   {
     name: "tell_viva",
-    title: "Say something to VIVA",
+    title: "Say something to Aloud",
     description:
-      "Say something to VIVA in the student's own words: a note, a question, or a belief they want checked. VIVA files it against the right concept in their subject and answers Socratically, quoting the line in their own material it is going from. Use it both to save a note and to get a reply that stays inside their source.",
+      "Say something to Aloud in the student's own words: a note, a question, or a belief they want checked. Aloud files it against the right concept in their subject and answers Socratically, quoting the line in their own material it is going from. Use it both to save a note and to get a reply that stays inside their source.",
     auth: "account",
     schema: {
       type: "object",
@@ -316,7 +316,7 @@ const TOOLS: Tool[] = [
       if (!turn) throw new ToolFailure(ODD_SHAPE, "ODD_SHAPE");
       const quote = turn.tutor.citations[0]?.quote;
       const at = where(turn.event?.sourceLocator);
-      const lines = [`Kept it. VIVA says: ${turn.tutor.text}`];
+      const lines = [`Kept it. Aloud says: ${turn.tutor.text}`];
       if (quote) lines.push(`From their own source${at ? ` (${at})` : ""}: “${shorten(quote)}”`);
       if (turn.band) lines.push(`That moved their map: the concept it touched now reads ${turn.band.label}.`);
       if (turn.quiz?.open && turn.quiz.question) {
@@ -332,7 +332,7 @@ const TOOLS: Tool[] = [
     name: "quiz_me",
     title: "Quiz me",
     description:
-      "Ask the student one question from their own material. Name a concept to drill it, or leave it out and VIVA picks whatever they are weakest on. The marking key never leaves VIVA, send their answer to answer_quiz_question and VIVA marks it.",
+      "Ask the student one question from their own material. Name a concept to drill it, or leave it out and Aloud picks whatever they are weakest on. The marking key never leaves Aloud, send their answer to answer_quiz_question and Aloud marks it.",
     auth: "account",
     schema: {
       type: "object",
@@ -369,7 +369,7 @@ const TOOLS: Tool[] = [
     name: "answer_quiz_question",
     title: "Answer a quiz question",
     description:
-      "Hand the student's answer to VIVA in their words. VIVA marks it against their own material and moves their map. Do not mark it yourself, and do not tidy up what they said.",
+      "Hand the student's answer to Aloud in their words. Aloud marks it against their own material and moves their map. Do not mark it yourself, and do not tidy up what they said.",
     auth: "account",
     schema: {
       type: "object",
@@ -408,7 +408,7 @@ const TOOLS: Tool[] = [
     name: "what_should_i_study_today",
     title: "What should I study today",
     description:
-      "Today's ten minutes: what VIVA would put in front of the student next, in order, with the minutes each part takes and why it is there. Built from what they have actually said and answered.",
+      "Today's ten minutes: what Aloud would put in front of the student next, in order, with the minutes each part takes and why it is there. Built from what they have actually said and answered.",
     auth: "account",
     schema: {
       type: "object",
@@ -435,7 +435,7 @@ const TOOLS: Tool[] = [
     name: "what_am_i_mixed_up_about",
     title: "What am I mixed up about",
     description:
-      "Where the student stands, concept by concept, in the words on their VIVA map: Solid, Getting there, Shaky, Mixed up, Not yet. Weakest first, so you know what to work on.",
+      "Where the student stands, concept by concept, in the words on their Aloud map: Solid, Getting there, Shaky, Mixed up, Not yet. Weakest first, so you know what to work on.",
     auth: "account",
     schema: {
       type: "object",
@@ -489,7 +489,7 @@ function validate(schema: ToolSchema, raw: unknown): { ok: true; args: ToolArgs 
     if (value === null || value === undefined) continue;
     if (typeof value !== prop.type) return { ok: false, message: `${key} must be a ${prop.type}.` };
     if (prop.maxLength !== undefined && typeof value === "string" && value.length > prop.maxLength) {
-      return { ok: false, message: `${key} is longer than VIVA takes in one go.` };
+      return { ok: false, message: `${key} is longer than Aloud takes in one go.` };
     }
     args[key] = value as string | number | boolean;
   }
@@ -522,7 +522,7 @@ export type ToolOutcome = { text: string; isError: boolean };
  */
 export async function callTool(name: string, rawArgs: unknown, env: ToolEnvironment): Promise<ToolOutcome> {
   const tool = TOOLS.find((t) => t.name === name);
-  if (!tool) return { text: `There is no VIVA tool called ${name}.`, isError: true };
+  if (!tool) return { text: `There is no Aloud tool called ${name}.`, isError: true };
 
   const checked = validate(tool.schema, rawArgs);
   if (!checked.ok) return { text: checked.message, isError: true };
@@ -533,9 +533,9 @@ export async function callTool(name: string, rawArgs: unknown, env: ToolEnvironm
   if (!identity.ok) {
     const why: Record<string, string> = {
       missing: CONNECT_FIRST,
-      malformed: "That VIVA key is not readable. Connect again from the Connect page in VIVA.",
-      forged: "That VIVA key did not check out. Connect again from the Connect page in VIVA.",
-      expired: "That VIVA key has run out. Connect again from the Connect page in VIVA.",
+      malformed: "That Aloud key is not readable. Connect again from the Connect page in Aloud.",
+      forged: "That Aloud key did not check out. Connect again from the Connect page in Aloud.",
+      expired: "That Aloud key has run out. Connect again from the Connect page in Aloud.",
       wrong_purpose: "That is a connection code, not a key. Exchange it with connect_my_viva_account first.",
     };
     return { text: why[identity.reason], isError: true };
@@ -556,7 +556,7 @@ async function run(tool: Tool, args: ToolArgs, ctx: ApiContext): Promise<ToolOut
     return { text: await tool.run(args, ctx), isError: false };
   } catch (error) {
     if (error instanceof ToolFailure) return { text: error.message, isError: true };
-    return { text: "Something broke on VIVA's side running that. Nothing was lost, try it again.", isError: true };
+    return { text: "Something broke on Aloud's side running that. Nothing was lost, try it again.", isError: true };
   }
 }
 

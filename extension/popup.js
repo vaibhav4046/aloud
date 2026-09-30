@@ -37,7 +37,7 @@ function render(capture) {
   if (capture.status === "error" && capture.error) {
     say(capture.error.message, "err");
     $("capture").disabled = false;
-    $("capture").textContent = "Read this page into VIVA";
+    $("capture").textContent = "Read this page into Aloud";
   }
   if (capture.status === "done" && capture.subject) {
     const s = capture.subject;
@@ -45,7 +45,7 @@ function render(capture) {
     if (s.storageNote) say(s.storageNote);
     const open = document.createElement("a");
     open.href = "#";
-    open.textContent = "Open it in VIVA →";
+    open.textContent = "Open it in Aloud →";
     open.onclick = async (e) => {
       e.preventDefault();
       const origin = $("origin").value;
@@ -53,7 +53,7 @@ function render(capture) {
     };
     log.append(open);
     $("capture").disabled = false;
-    $("capture").textContent = "Read this page into VIVA";
+    $("capture").textContent = "Read this page into Aloud";
   }
 }
 
@@ -81,9 +81,9 @@ async function init() {
     say(`Sending this page to ${sel.value}`);
     const res = await chrome.runtime.sendMessage({ type: "viva.capture" }).catch(() => null);
     if (!res?.ok) {
-      say(res?.message || "VIVA could not read this page.", "err");
+      say(res?.message || "Aloud could not read this page.", "err");
       $("capture").disabled = false;
-      $("capture").textContent = "Read this page into VIVA";
+      $("capture").textContent = "Read this page into Aloud";
       return;
     }
     const p = res.page;
@@ -92,7 +92,7 @@ async function init() {
 
   $("panel").onclick = async () => {
     const res = await chrome.runtime.sendMessage({ type: "viva.openPanel" }).catch(() => null);
-    if (!res?.ok) { say(res?.message || "VIVA cannot open on this page.", "err"); return; }
+    if (!res?.ok) { say(res?.message || "Aloud cannot open on this page.", "err"); return; }
     window.close();
   };
 

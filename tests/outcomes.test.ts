@@ -31,7 +31,7 @@ function input(over: Partial<RecordInput> = {}): RecordInput {
     evidenceIds: ["ch_pr_cond_2"],
     requestedAction: "evaluate",
     status: "grounded",
-    sourceLocator: { section: "VIVA oral exam" },
+    sourceLocator: { section: "Aloud oral exam" },
     ...over,
   };
 }
@@ -55,7 +55,7 @@ function validEvent() {
     importance: 0.65,
     confusion: 0.35,
     confidenceSelfReport: null,
-    sourceLocator: { section: "VIVA oral exam" },
+    sourceLocator: { section: "Aloud oral exam" },
     interpretationConfidence: 0.8,
     evidenceIds: ["ch_pr_cond_2"],
     requestedAction: "evaluate" as const,
