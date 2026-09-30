@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
- * Examiner's table token guard.
+ * Warm room token guard.
  *
  * Two jobs:
  *  1. Pin the palette in src/styles/tokens.css and the Tailwind bridge in
@@ -47,43 +47,53 @@ export function contrast(a: string, b: string): number {
 
 /* ----------------------------- the palette ----------------------------- */
 
+const WASH = readFileSync(fileURLToPath(new URL("../src/styles/wash.css", import.meta.url)), "utf8");
+
 const PALETTE: Record<string, string> = {
-  canvas: "#F1EDE4",
-  "surface-1": "#F8F5EE",
-  "surface-2": "#E7E1D5",
-  elevated: "#FBF9F4",
-  "text-primary": "#1D1B18",
-  "text-secondary": "#4A463F",
-  "text-muted": "#625C52",
-  primary: "#1F2A3A",
-  "on-primary": "#F8F5EE",
-  correction: "#A63A2B",
-  danger: "#A63A2B",
-  success: "#2B6B4A",
+  canvas: "#FBF8F2",
+  "surface-1": "#FFFFFF",
+  "surface-2": "#F3EEE4",
+  elevated: "#FFFFFF",
+  "text-primary": "#1B1A17",
+  "text-secondary": "#46433B",
+  "text-muted": "#635D53",
+  primary: "#1B2321",
+  "primary-hover": "#2C3A36",
+  "primary-active": "#0E1513",
+  "on-primary": "#FBF8F2",
+  accent: "#E7D9FB",
+  "on-accent": "#1B1A17",
+  correction: "#A8382B",
+  danger: "#A8382B",
+  success: "#1F6B4A",
   warning: "#7A4F00",
-  info: "#1F5F8B",
-  "success-tint": "#E2EBDD",
-  "correction-tint": "#F1DDD6",
-  "warning-tint": "#F0E4C8",
-  "info-tint": "#DDE8EE",
-  "border-subtle": "#DDD6C8",
-  border: "#CFC7B8",
-  "border-strong": "#8C8475",
-  "border-focus": "#1F5F8B",
-  "border-error": "#A63A2B",
+  info: "#4A3FA3",
+  panel: "#10322C",
+  "on-panel": "#F6F1E6",
+  "on-panel-muted": "#BFCFC8",
+  "success-tint": "#DDF0E3",
+  "correction-tint": "#F9DDD6",
+  "warning-tint": "#F8EBC6",
+  "info-tint": "#E7E0FA",
+  "border-subtle": "#EFE9DC",
+  border: "#E2DACA",
+  "border-strong": "#857D6D",
+  "border-focus": "#4A3FA3",
+  "border-error": "#A8382B",
 };
 
-describe("Examiner's table palette", () => {
+describe("Warm room palette", () => {
   it.each(Object.entries(PALETTE))("--%s is %s", (name, hex) => {
     expect(tokenVar(name).toUpperCase()).toBe(hex.toUpperCase());
   });
 
-  it("uses the radius scale 2, 4, 6, 10 and a pill", () => {
-    expect(["xs", "sm", "md", "lg", "pill"].map((k) => tokenVar(`radius-${k}`))).toEqual([
-      "2px",
-      "4px",
+  it("uses the radius scale 6, 12, 20, 28, 40 and a pill", () => {
+    expect(["xs", "sm", "md", "lg", "xl", "pill"].map((k) => tokenVar(`radius-${k}`))).toEqual([
       "6px",
-      "10px",
+      "12px",
+      "20px",
+      "28px",
+      "40px",
       "999px",
     ]);
   });
@@ -109,8 +119,21 @@ describe("Examiner's table palette", () => {
     expect(GLOBALS + TOKENS).not.toMatch(/#b8ff5a|#0b0b0c|#131417/i);
   });
 
-  it("carries no gradient, glass, or blur", () => {
+  it("carries no gradient, glass, or blur outside the wash", () => {
     expect(GLOBALS + TOKENS).not.toMatch(/gradient\(|backdrop-filter|filter:\s*blur/);
+  });
+
+  it("builds the wash only from the four wash tokens", () => {
+    const colours = [...WASH.matchAll(/radial-gradient\([^;]*?\)(?=,\n|;)/g)].join(" ");
+    expect(colours).toMatch(/--wash-lavender/);
+    expect(colours).toMatch(/--wash-peach/);
+    expect(colours).toMatch(/--wash-mint/);
+    expect(colours).toMatch(/--wash-butter/);
+    expect(WASH).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgb\(/);
+  });
+
+  it("holds the wash still under prefers-reduced-motion", () => {
+    expect(WASH).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*body::before\s*\{\s*animation:\s*none/);
   });
 });
 
@@ -140,6 +163,27 @@ describe("text contrast on every surface", () => {
   it("on-primary text on the ink button clears 4.5:1, and on hover and active", () => {
     for (const bg of ["primary", "primary-hover", "primary-active"]) {
       expect(contrast(tokenVar("on-primary"), tokenVar(bg))).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("on-accent text clears 4.5:1 on the lavender pill and its hover", () => {
+    expect(contrast(tokenVar("on-accent"), tokenVar("accent"))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(tokenVar("on-accent"), tokenVar("accent-strong"))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("panel text clears 4.5:1 on both dark panel surfaces", () => {
+    for (const bg of ["panel", "panel-2"]) {
+      for (const fg of ["on-panel", "on-panel-muted"]) {
+        expect(contrast(tokenVar(fg), tokenVar(bg))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it("text stays readable on the pastel wash pools", () => {
+    for (const wash of ["wash-lavender", "wash-peach", "wash-mint", "wash-butter"]) {
+      for (const fg of ["text-primary", "text-secondary", "text-muted"]) {
+        expect(contrast(tokenVar(fg), tokenVar(wash))).toBeGreaterThanOrEqual(4.5);
+      }
     }
   });
 
@@ -173,15 +217,15 @@ describe("type scale", () => {
     expect(body).toMatch(/line-height:\s*var\(--lh-body\)/);
   });
 
-  it("names Newsreader for display, IBM Plex Sans for the interface and IBM Plex Mono for figures", () => {
-    expect(tokenVar("font-display")).toMatch(/--font-newsreader/);
-    expect(tokenVar("font-ui")).toMatch(/--font-plex-sans/);
+  it("names Fraunces for display, Onest for the interface and IBM Plex Mono for figures", () => {
+    expect(tokenVar("font-display")).toMatch(/--font-fraunces/);
+    expect(tokenVar("font-ui")).toMatch(/--font-onest/);
     expect(tokenVar("font-mono")).toMatch(/--font-plex-mono/);
   });
 
   it("loads no default-AI font", () => {
     const layout = readFileSync(fileURLToPath(new URL("../src/app/layout.tsx", import.meta.url)), "utf8");
-    expect(layout).not.toMatch(/\b(Inter|Geist|Space_Grotesk|Poppins|DM_Sans|Plus_Jakarta)/);
+    expect(layout).not.toMatch(/\b(Inter|Geist|Space_Grotesk|Poppins|DM_Sans|Plus_Jakarta|Figtree|EB_Garamond)/);
   });
 });
 

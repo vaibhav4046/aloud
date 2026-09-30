@@ -1,0 +1,59 @@
+/*
+ * Styles for the shared UI primitives in src/components/ui.
+ * Motion here is opacity and transform only, and every rule has a
+ * reduced-motion answer at the bottom.
+ */
+
+/* reveal on scroll ------------------------------------------------------ */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-y, 24px), 0);
+  transition: opacity var(--dur-reveal) var(--ease-out-expo) var(--reveal-delay, 0ms),
+              transform var(--dur-reveal) var(--ease-out-expo) var(--reveal-delay, 0ms);
+}
+.reveal[data-in="true"] { opacity: 1; transform: none; }
+
+/* magnetic control ------------------------------------------------------ */
+.magnetic { display: inline-block; transition: transform 320ms var(--ease-out-expo); }
+
+/* surfaces -------------------------------------------------------------- */
+.surface {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3.4vw, 40px);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+.surface--panel { background: var(--panel); color: var(--on-panel); border-color: var(--panel-line); box-shadow: var(--shadow-lift); }
+.surface--panel .eyebrow, .surface--panel .muted { color: var(--on-panel-muted); }
+.surface--accent { background: var(--accent); color: var(--on-accent); border-color: var(--accent-strong); box-shadow: none; }
+.surface--accent .eyebrow, .surface--accent .muted { color: var(--text-secondary); }
+.surface--xl { border-radius: var(--radius-xl); }
+.surface--tile { border-radius: var(--radius-md); padding: clamp(16px, 2.4vw, 24px); }
+
+/* pill badge ------------------------------------------------------------ */
+.pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: var(--radius-pill);
+  background: var(--surface-1); border: 1px solid var(--border);
+  font-size: var(--fs-label); font-weight: 500; color: var(--text-secondary);
+}
+.pill--accent { background: var(--accent); border-color: var(--accent-strong); color: var(--on-accent); }
+
+/* game bits ------------------------------------------------------------- */
+.heart { transition: transform var(--dur-panel) var(--ease-out-expo), opacity var(--dur-base) var(--ease-standard); transform-origin: 50% 60%; }
+.heart[data-lost="true"] { opacity: 0.32; transform: scale(0.86); }
+.ring-arc { transition: stroke-dashoffset 900ms var(--ease-out-expo); }
+.flame-flicker { transform-origin: 50% 90%; animation: flame 2.6s ease-in-out infinite alternate; }
+@keyframes flame { from { transform: scale(1) rotate(-1.5deg); } to { transform: scale(1.06, 1.1) rotate(1.5deg); } }
+.star[data-on="true"] { animation: star-pop 520ms var(--ease-out-expo) both; animation-delay: var(--star-delay, 0ms); }
+@keyframes star-pop { from { transform: scale(0.3) rotate(-30deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* fallbacks: never leave content hidden --------------------------------- */
+@media (scripting: none) { .reveal { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .magnetic { transition: none; transform: none !important; }
+  .flame-flicker, .star[data-on="true"] { animation: none; }
+}
