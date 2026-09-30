@@ -43,7 +43,7 @@ describe("route boundaries exist", () => {
   it("no boundary copy uses a dash, an exclamation mark or a banned word", () => {
     for (const f of FILES) {
       const src = readFileSync(new URL(`../${f}`, import.meta.url), "utf8");
-      expect(src).not.toMatch(/[–—]/);
+      expect(src).not.toMatch(/[\u2013\u2014]/);
       expect(src).not.toMatch(/>[^<{]*![^<{]*</);
     }
   });
