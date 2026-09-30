@@ -286,6 +286,8 @@
   pointer-events: none;
 }
 .gx-continue .gx-btn { pointer-events: auto; min-width: min(360px, 100%); }
+/* Under md the app shell's tab bar (about 57px) is fixed to the bottom; sit above it. */
+@media (max-width: 767px) { .gx-continue { bottom: calc(57px + env(safe-area-inset-bottom)); padding-bottom: 12px; } }
 
 /* ------------------------------------ play --------------------------------- */
 
@@ -455,7 +457,8 @@
 .gx-pcard:nth-child(3n) { background: color-mix(in srgb, var(--g-butter) 50%, var(--g-card)); }
 .gx-pcard:hover { transform: translateY(-4px) rotate(-0.4deg); box-shadow: var(--g-lift); }
 .gx-pcard blockquote { margin: 0; font: 400 1.05rem/1.5 var(--g-display); }
-.gx-pcard footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--g-ink-3); font-size: 0.8rem; }
+.gx-pcard footer time { white-space: nowrap; }
+.gx-pcard footer { flex-wrap: wrap; display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--g-ink-3); font-size: 0.8rem; }
 .gx-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .gx-cal b { font: 600 0.7rem/1 var(--g-mono); color: var(--g-ink-3); text-align: center; }
 .gx-cal i { aspect-ratio: 1; border-radius: 10px; background: color-mix(in srgb, var(--g-line) 65%, transparent); display: block; }

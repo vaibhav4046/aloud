@@ -39,7 +39,7 @@ function Settings({ progress, onGoal }: { progress: Progress | null; onGoal: (m:
             <span>Daily goal</span>
             <span className="gx-note">Minutes of play that fill the ring.</span>
           </label>
-          <select id="set-goal" className="gx-field" style={{ width: "auto", minHeight: 48, padding: "0 14px" }} value={progress.dailyGoalMinutes} onChange={(e) => onGoal(Number(e.target.value))}>
+          <select id="set-goal" className="gx-field" style={{ width: "auto", minWidth: 116, minHeight: 48, padding: "0 32px 0 16px" }} value={progress.dailyGoalMinutes} onChange={(e) => onGoal(Number(e.target.value))}>
             {GOAL_CHOICES.map((m) => <option key={m} value={m}>{m} min</option>)}
           </select>
         </div>
