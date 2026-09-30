@@ -301,3 +301,19 @@ describe("run shape as JSON", () => {
     expect(JSON.parse(JSON.stringify(run))).toEqual(run);
   });
 });
+
+describe("a recall level never asks the same question twice", () => {
+  it("pads a single missed concept with a different question, not a repeat of the first", async () => {
+    const { getCourse } = await import("../src/lib/courses");
+    const { newProgress } = await import("../src/lib/game/progress");
+    const course = getCourse("course_transformers_w4");
+    const base = generateRun(course as never, { now: "2026-09-30T00:00:00.000Z" });
+    const p = { ...newProgress(base.id, { now: new Date("2026-09-30T00:00:00Z") }), weakConceptIds: ["c_self_attention"] };
+    const recall = withRecall(base, course as never, p).levels.filter((l) => l.kind === "recall");
+    expect(recall.length).toBeGreaterThan(0);
+    for (const l of recall) {
+      const questions = (l.items ?? []).map((i) => (i.type === "say" ? i.question : i.claim));
+      expect(new Set(questions).size, questions.join(" | ")).toBe(questions.length);
+    }
+  });
+});

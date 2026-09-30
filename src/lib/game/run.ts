@@ -409,7 +409,8 @@ export function withRecall(run: Run, subject: RunSource, progress: Progress): Ru
     const world = worlds.find((w) => w.index === openWorlds[gi % openWorlds.length].index)!;
     const sameSet = levels.filter((l) => l.kind === "recall" && l.id.startsWith(`l_recall_${shortHash(ids.slice().sort().join(","))}`)).length;
     const items = ids.flatMap((id) => recallItems(byId(id), subject, sameSet, subject.concepts));
-    const padded = items.length < 2 ? [...items, ...sayCandidates(byId(ids[0]), subject, subject.concepts).filter((c) => !items.includes(c)).slice(0, 1)] : items;
+    const asked = new Set(items.map((i) => i.question));
+    const padded = items.length < 2 ? [...items, ...sayCandidates(byId(ids[0]), subject, subject.concepts).filter((c) => !asked.has(c.question)).slice(0, 1)] : items;
     const names = ids.map((id) => byId(id).name);
     const level: Level = {
       id: `l_recall_${shortHash(ids.slice().sort().join(","))}_${sameSet + 1}`,
