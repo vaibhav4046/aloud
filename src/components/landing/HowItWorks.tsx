@@ -1,5 +1,6 @@
 import { FileText } from "lucide-react";
 import { Reveal } from "@/components/ui/motion";
+import { WorldPath } from "./WorldPath";
 
 const FILES = ["Lecture slides.pdf", "Pasted notes", "The sample course"];
 
@@ -9,21 +10,6 @@ const KINDS = [
   { name: "Boss", line: "A fast oral round across the whole world." },
   { name: "Recall", line: "The ones you missed, brought back." },
 ];
-
-/** Five levels and a boss, as a little path. Decorative: the words beside it carry the meaning. */
-function WorldPath() {
-  return (
-    <div className="al-world" aria-hidden="true">
-      {[0, 1, 2, 3, 4].map((n) => (
-        <span key={n} style={{ display: "contents" }}>
-          <span className={`al-node${n === 0 ? " al-node--done" : ""}`} />
-          <span className="al-link" />
-        </span>
-      ))}
-      <span className="al-node al-node--boss" />
-    </div>
-  );
-}
 
 /**
  * How it works, as three scenes. The heading sticks on the left while the

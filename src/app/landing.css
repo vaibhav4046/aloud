@@ -96,7 +96,10 @@
 .al-world { display: flex; align-items: center; gap: 6px; width: 100%; margin-top: var(--space-2); }
 .al-node { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border-strong); }
 .al-node--boss { width: 22px; height: 22px; border-radius: 7px; background: var(--primary); border-color: var(--primary); }
-.al-node--done { background: var(--success); border-color: var(--success); }
+.al-node { transition: background-color 500ms var(--ease-standard) calc(var(--n, 0) * 160ms), border-color 500ms var(--ease-standard) calc(var(--n, 0) * 160ms), transform 500ms var(--ease-out-expo) calc(var(--n, 0) * 160ms); }
+.al-world[data-in="true"] .al-node:not(.al-node--boss) { background: var(--success); border-color: var(--success); }
+.al-world[data-in="true"] .al-node--boss { transform: scale(1.12) rotate(6deg); }
+@media (prefers-reduced-motion: reduce) { .al-node { transition: none; } .al-world .al-node:not(.al-node--boss) { background: var(--success); border-color: var(--success); } }
 .al-link { flex: 1; height: 2px; background: var(--border); min-width: 10px; }
 
 /* the bluff (dark panel) --------------------------------------------------- */
