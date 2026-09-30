@@ -225,7 +225,7 @@ try {
   else await page.getByRole("button", { name: /Play by typing/ }).click();
   doc.clickAt = t0;
 
-  const limitMs = (voice ? totalSec + 10 : 240) * 1000;
+  const limitMs = (voice ? totalSec + 30 : 240) * 1000;
   const isDone = () => dom.at(-1)?.phase === "result";
   let shots = 0;
   while (T() < limitMs && !isDone()) {
