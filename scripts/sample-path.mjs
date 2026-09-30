@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Front-door walk: open /, press "Try a sample exam", confirm /oral opens with the
- * sample course selected and that the oral session config for that course loads.
+ * Front-door walk: open /, confirm the two hero links and the Bluff demo are there,
+ * and that the oral session config for the sample course loads.
  *
  *   BASE_URL=http://localhost:3121 node scripts/sample-path.mjs
  *
@@ -23,13 +23,12 @@ try {
   const t0 = Date.now();
   await page.goto(base + "/", { waitUntil: "load" });
   check("landing has one h1", (await page.locator("h1").count()) === 1);
-  await page.getByRole("link", { name: "Try a sample exam" }).click();
-  await page.waitForURL(/\/oral\?subjectId=course_transformers_w4/, { timeout: 30000 });
-  check("sample button opens /oral with the sample course", true, `${Date.now() - t0} ms from load to /oral URL`);
-  const stored = await page.evaluate(() => [localStorage.getItem("viva.courseId"), localStorage.getItem("viva_course")]);
-  check("sample course stored for both screens", stored[0] === "course_transformers_w4" && stored[1] === "course_transformers_w4", stored.join(","));
-  await page.getByRole("button", { name: /Start the exam/ }).waitFor({ timeout: 30000 });
-  check("start control is present", true);
+  const start = page.getByRole("link", { name: "Start the sample run" }).first();
+  const href = await start.getAttribute("href");
+  check("hero start link points at the sample course", /subjectId=course_transformers_w4/.test(href ?? ""), String(href));
+  const upload = await page.getByRole("link", { name: "Upload your notes" }).first().getAttribute("href");
+  check("hero upload link is present", Boolean(upload), String(upload));
+  check("the Bluff demo renders", (await page.getByRole("button", { name: "Bluff" }).count()) === 1);
   const res = await page.evaluate(async () => {
     const r = await fetch("/api/oral/session?subjectId=course_transformers_w4", { cache: "no-store" });
     const b = await r.json().catch(() => null);

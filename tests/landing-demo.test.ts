@@ -37,3 +37,9 @@ describe("landing bluff demo", () => {
     for (const r of rounds.filter((x) => x.verdict === "true")) expect(traps.has(r.claim)).toBe(false);
   });
 });
+
+describe("landing bluff demo page label", () => {
+  it("shows the section name without its chapter number", () => {
+    for (const r of buildBluffDemo()) expect(r.proof.section).not.toMatch(/^\d/);
+  });
+});

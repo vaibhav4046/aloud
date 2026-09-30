@@ -307,7 +307,9 @@ select:disabled { cursor: not-allowed; color: var(--text-muted); }
 .scroll-pane { scrollbar-gutter: stable; overscroll-behavior: contain; }
 .waveform-bar { transform-origin: 50% 100%; }
 
-/* Reading pages: privacy, terms, accessibility, about, recorded. */
+/* Reading pages: privacy, terms, accessibility, about, recorded. The sheet is a big white rounded surface on the wash. */
+.legal-sheet { background: color-mix(in srgb, var(--surface-1) 94%, transparent); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-soft); padding: clamp(20px, 5vw, 56px); }
+.legal-sheet h2 { margin-top: var(--space-2); }
 .legal :is(p, ul, ol) { margin-top: var(--space-3); max-width: var(--measure); }
 .legal :is(li) + li { margin-top: var(--space-1); }
 .legal section > h2 + :is(p, ul) { margin-top: var(--space-2); }

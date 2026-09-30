@@ -12,6 +12,8 @@ import { turnResultOf, type Turn } from "@/lib/oral/next-concept";
 import { nextFocusFor } from "@/lib/oral/steering";
 import { resolveConceptId } from "@/lib/oral/debrief";
 import { err } from "@/lib/types";
+import { loadRun } from "@/lib/game/service";
+import { findLevel } from "@/lib/game/run";
 
 /**
  * POST /api/oral/tool, run one grounded tool on the caller's behalf.
@@ -33,6 +35,8 @@ const Body = z.object({
   name: z.string().min(1).max(60),
   arguments: z.record(z.unknown()).optional(),
   subjectId: z.string().max(80).optional(),
+  /** The game level this call belongs to. Lets the route tell an examiner-stated claim from a player claim. */
+  levelId: z.string().max(120).optional(),
   sessionId: z.string().max(120).nullish(),
   /** The learner transcript item the call was built from. Logged, never trusted. */
   transcriptId: z.string().max(120).nullish(),
@@ -100,7 +104,7 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = Body.safeParse(body);
   if (!parsed.success) return done(err("BAD_REQUEST", problem(parsed.error.issues), false, 400));
 
-  const { callId, name, arguments: args, subjectId } = parsed.data;
+  const { callId, name, arguments: args, subjectId, levelId } = parsed.data;
   const sessionId = parsed.data.sessionId ?? undefined;
 
   if (!WIRE_TOOLS.has(name)) {
@@ -125,6 +129,16 @@ export async function POST(req: Request): Promise<Response> {
     const chunks = await store.getCourseChunks(identity.userId, subject.id);
     // The answer this call checked, if it checked one: the next question is chosen from it.
     let current: Turn | null = null;
+    // A verify_claim on a claim the examiner itself stated in a Catch level is
+    // not something the player said, so it must not move their mastery map.
+    let examinerClaim = false;
+    if (levelId && name === "verify_claim" && typeof args?.claim === "string") {
+      const { run } = await loadRun(store, identity.userId, subject, { now: new Date() });
+      const said = args.claim.replace(/\s+/g, " ").trim().toLowerCase();
+      examinerClaim = (findLevel(run, levelId)?.items ?? []).some(
+        (i) => i.type === "catch" && i.claim.replace(/\s+/g, " ").trim().toLowerCase() === said
+      );
+    }
 
     const { result, isError } = await runOralTool(
       {
@@ -132,6 +146,7 @@ export async function POST(req: Request): Promise<Response> {
         course,
         chunks,
         onVerdict: async (v: OralVerdict) => {
+          if (examinerClaim) return;
           // The learner's map is written from the verdict a tool returned, with the
           // same event shape the written study loop uses, so mastery.ts folds it.
           const claim = (v.kind === "claim" ? v.claim : v.answer).slice(0, MAX_ANSWER);
@@ -171,7 +186,7 @@ export async function POST(req: Request): Promise<Response> {
       args
     );
 
-    if (!isError && !current && name === "verify_claim" && result.verdict === "not_in_material") {
+    if (!isError && !current && !examinerClaim && name === "verify_claim" && result.verdict === "not_in_material") {
       const claim = typeof args?.claim === "string" ? args.claim : "";
       const concept = typeof args?.concept === "string" ? args.concept : null;
       current = { conceptId: resolveConceptId(subject.concepts, concept, claim), result: "unsettled" };

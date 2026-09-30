@@ -13,22 +13,23 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <PublicShell>
-      <h1 className="heading text-[clamp(1.75rem,1.4rem+1.4vw,2.5rem)]">About</h1>
+      <h1 className="display">About</h1>
       <div className="mt-6 space-y-8">
         <section aria-labelledby="ab-who">
           <h2 id="ab-who" className="heading text-xl">Who built it</h2>
           <p>
-            One person: Vaibhav Lalwani, a computer science student. Aloud started as a study tool that listens while
-            you think aloud. The oral exam was added for the AssemblyAI Voice Agent hackathon.
+            One person: Vaibhav Lalwani, a computer science student. Aloud began as VIVA, a study tool that examines you
+            out loud on your own notes. For the AssemblyAI Voice Agent hackathon it became a game: a run of levels, a
+            Spot-the-Bluff mode, hearts, a streak and proof cards. The voice engine underneath is the same.
           </p>
         </section>
 
         <section aria-labelledby="ab-why">
           <h2 id="ab-why" className="heading text-xl">Why</h2>
           <p>
-            Reading notes back is easy to mistake for knowing them. A viva or an oral exam makes you say the answer
-            with the pages closed, and that is a different skill. Aloud gives you that practice on your own lecture
-            notes, at any hour, and points at the page when you are wrong.
+            Reading notes back is easy to mistake for knowing them. Saying the answer with the pages closed is a
+            different skill. Aloud gives you that practice on your own notes, at any hour, and points at the page when
+            you are wrong. It is made as a game because a habit you enjoy is one you keep.
           </p>
         </section>
 
@@ -45,10 +46,10 @@ export default function AboutPage() {
           <h2 id="ab-src" className="heading text-xl">Source</h2>
           <p>
             The code is at{" "}
-            <a className="link" href="https://github.com/vaibhav4046/viva" target="_blank" rel="noopener noreferrer">
-              github.com/vaibhav4046/viva
+            <a className="link" href="https://github.com/vaibhav4046/aloud" target="_blank" rel="noopener noreferrer">
+              github.com/vaibhav4046/aloud
             </a>
-            . Fonts (Newsreader, IBM Plex Sans, IBM Plex Mono) are under the SIL Open Font License. Libraries and their
+            . Fonts (Fraunces, Onest, IBM Plex Mono) are under the SIL Open Font License. Libraries and their
             licences are listed in THIRD-PARTY.md in the repository.
           </p>
         </section>

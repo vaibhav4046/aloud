@@ -17,21 +17,20 @@ import { Wordmark } from "@/components/ui/Wordmark";
  */
 
 const LINKS: readonly { href: string; label: string; short?: string; headerOnly?: boolean }[] = [
-  { href: "/", label: "Home" },
-  { href: "/run/new", label: "Build" },
-  { href: "/run", label: "Map" },
-  { href: "/proofs", label: "Proofs" },
-  { href: "/me", label: "Profile" },
+  { href: "/oral", label: "Oral exam", short: "Oral" },
+  { href: "/study", label: "Study" },
+  { href: "/subjects", label: "Subjects" },
+  { href: "/today", label: "Today" },
+  { href: "/map", label: "Map", headerOnly: true },
+  { href: "/exam", label: "Quiz" },
+  // headerOnly keeps the thumb bar at five destinations on a 320 px phone.
+  // Map and Connect are still reachable there: the footer links below are not md:-gated.
+  { href: "/connect", label: "Connect", headerOnly: true },
 ];
 
 const TAB_LINKS = LINKS.filter((l) => !l.headerOnly);
 
-/** Level play is full screen: no header and no tab bar while a level is on. */
-const IMMERSIVE = /^\/play(\/|$)/;
-
 function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  if (href === "/run") return pathname.startsWith("/run/") && pathname !== "/run/new" || pathname === "/run" || pathname.startsWith("/play/");
   return pathname === href || pathname.startsWith(href + "/");
 }
 
@@ -70,8 +69,6 @@ function SavedState() {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  if (IMMERSIVE.test(pathname)) return <div className="flex min-h-dvh flex-col">{children}</div>;
-
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 border-b hairline" style={{ background: "color-mix(in srgb, var(--canvas) 86%, transparent)", zIndex: "var(--z-nav)" }}>
@@ -103,6 +100,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 pb-28 md:pb-0">
         {children}
 
+        {/* A <footer>, not a <div>: <main> lives inside {children}, so this
+            sits outside every landmark and axe rightly calls that a region
+            violation. */}
+        <footer className="mx-auto w-full max-w-6xl px-4 pb-6 pt-2 sm:px-6 md:hidden">
+          <Link href="/map" className="link mono inline-flex min-h-11 items-center pr-4">
+            Concept map
+          </Link>
+          <Link href="/connect" className="link mono inline-flex min-h-11 items-center">
+            Use Aloud from another assistant
+          </Link>
+        </footer>
       </div>
 
       {/* Mobile bottom tabs. Fixed so the destinations are always one thumb

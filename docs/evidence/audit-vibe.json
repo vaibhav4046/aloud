@@ -1,7 +1,7 @@
 {
-  "files": 181,
-  "failing": 0,
-  "unreviewedWarnings": 0,
+  "files": 217,
+  "failing": 2,
+  "unreviewedWarnings": 1,
   "findings": [
     {
       "rule": "R16",
@@ -25,8 +25,8 @@
       "rule": "X03",
       "sev": "error",
       "file": "src/app/layout.tsx",
-      "line": 66,
-      "snippet": "themeColor: \"#F1EDE4\",",
+      "line": 58,
+      "snippet": "themeColor: \"#FBF8F2\",",
       "why": "raw colour in a component (use a token)",
       "status": "allowlisted"
     },
@@ -79,26 +79,53 @@
       "rule": "R30",
       "sev": "warn",
       "file": "src/styles/tokens.css",
-      "line": 23,
-      "snippet": "--surface-1: #F8F5EE;",
+      "line": 25,
+      "snippet": "--canvas: #FBF8F2;",
       "why": "pastel surface token",
       "status": "reviewed"
     },
     {
-      "rule": "R30",
+      "rule": "R20",
       "sev": "warn",
       "file": "src/styles/tokens.css",
-      "line": 25,
-      "snippet": "--elevated: #FBF9F4;",
-      "why": "pastel surface token",
+      "line": 41,
+      "snippet": "--accent: #E7D9FB;",
+      "why": "purple primary or accent token",
       "status": "reviewed"
+    },
+    {
+      "rule": "X06",
+      "sev": "warn",
+      "file": "docs/deck/index.html",
+      "line": 113,
+      "snippet": ".s8 .next li::before { content: \"open\"; font-size: 11px; text-transform: upperca",
+      "why": "tiny text",
+      "status": "unreviewed warning"
+    },
+    {
+      "rule": "R15",
+      "sev": "error",
+      "file": "docs/SUBMISSION.md",
+      "line": 12,
+      "snippet": "- A search-result summary of other pages mentions a video under 5 minutes and 30",
+      "why": "'not X, it is Y' construction (confirm by hand)",
+      "status": "FAIL"
+    },
+    {
+      "rule": "X04",
+      "sev": "error",
+      "file": "docs/SUBMISSION.md",
+      "line": 12,
+      "snippet": "- A search-result summary of other pages mentions a video under 5 minutes and 30",
+      "why": "banned phrase (8.1)",
+      "status": "FAIL"
     },
     {
       "rule": "R02",
       "sev": "warn",
       "file": "(repo)",
       "line": 0,
-      "snippet": "10 distinct icon-library imports",
+      "snippet": "13 distinct icon-library imports",
       "why": "more than 8 icon-library imports",
       "status": "reviewed"
     }
