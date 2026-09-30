@@ -89,6 +89,7 @@ body {
 
 /* ------------------------------- type ------------------------------- */
 
+.display, .hero-type, .heading { text-wrap: balance; }
 .display { font-family: var(--font-display); font-weight: 380; font-size: var(--fs-display); letter-spacing: var(--tracking-display); line-height: var(--lh-display); font-variation-settings: "SOFT" 60; }
 .hero-type { font-family: var(--font-display); font-weight: 340; font-size: var(--fs-hero); letter-spacing: var(--tracking-display); line-height: var(--lh-hero); font-variation-settings: "SOFT" 70; }
 .heading { font-family: var(--font-display); font-weight: 420; letter-spacing: -0.015em; line-height: 1.15; font-variation-settings: "SOFT" 50; }
@@ -314,7 +315,7 @@ select:disabled { cursor: not-allowed; color: var(--text-muted); }
 
 /* The mobile tab bar is fixed to the bottom edge; keep the footer links clear of it. */
 @media (max-width: 767px) {
-  body:has([data-tabbar]) .site-footer { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+  body:has([data-tabbar]) .site-footer { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
 }
 
 /* ---------------------------- scrollbars ----------------------------- */

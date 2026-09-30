@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Do not let the dev server write AGENTS.md or CLAUDE.md into the repo.
+  agentRules: false,
+  devIndicators: false,
   poweredByHeader: false,
   // Build output dir override for isolated verification lanes (parallel agents
   // rebuilding .next under a running `next start` corrupts chunk serving).

@@ -1,159 +1,141 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { SampleExamButton } from "@/components/SampleExamButton";
-import { CorrectionMark, PassageCard, QuestionCard, StateLine } from "@/components/ui/exam";
-import { MarkIcon } from "@/components/ui/icons";
-import { EXCERPT } from "@/lib/fixtures/excerpt";
-import { loadRecordingIndex } from "@/lib/recordings";
+import { LandingNav } from "@/components/landing/LandingNav";
+import { HeroStage } from "@/components/landing/HeroStage";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { BluffDemo } from "@/components/landing/BluffDemo";
+import { Features } from "@/components/landing/Features";
+import { Limits } from "@/components/landing/Limits";
+import { Magnetic, Parallax, Reveal } from "@/components/ui/motion";
+import { buildBluffDemo } from "@/lib/landing/bluff-demo";
+import { SAMPLE_RUN_HREF, UPLOAD_HREF } from "@/lib/landing/links";
 import "./landing.css";
 
 /*
- * VIVA front door.
+ * Aloud front door.
  *
- * A server component with no client JavaScript of its own except the one button
- * that selects the sample course. Rendered per request on purpose: reading the
- * nonce set by src/proxy.ts is what marks this route dynamic, and only a
- * dynamically rendered document gets Next's bootstrap scripts stamped with it.
- * Prerender it and `script-src 'strict-dynamic'` blocks every chunk.
+ * A server component. The client islands are the hero stage (microphone
+ * meter), the Bluff demo and the motion primitives. Rendered per request on
+ * purpose: reading the nonce set by src/proxy.ts is what marks this route
+ * dynamic, and only a dynamically rendered document gets Next's bootstrap
+ * scripts stamped with it. Prerender it and `script-src 'strict-dynamic'`
+ * blocks every chunk.
  *
- * Composition: the left column says what the product does and starts it, the
- * right column shows it doing that with the real components (state line,
- * question card, correction mark, passage card). Nothing here is a claim the
- * excerpt does not show. Only numbers present in numbers.json may appear in
- * copy; none exist yet, so there is no evidence strip.
+ * Nothing on this page is a number or a name the product cannot back: no
+ * pricing, no testimonials, no logos, no user counts. The claims in the demo
+ * come from the sample course and are checked by tests/landing-demo.test.ts.
  */
 
-/** The internal passage id stays in the fixture for the test; a reader sees the page number and section. */
-const { passageId: _internalId, ...visiblePassage } = EXCERPT.passage;
-
-export const metadata = {
-  title: "VIVA: an oral exam on your own lecture notes",
-};
+const HERO_WORDS = ["Learn", "it", "by", "saying", "it."];
+const ITALIC_FROM = 3;
 
 export default async function Home() {
   // Marks the route dynamic; see the note above. The value itself is unused.
   await headers();
-  const recording = await loadRecordingIndex();
+  const rounds = buildBluffDemo();
 
   return (
-    <div className="vv-page">
-      <header className="vv-top">
-        <Link href="/" className="vv-brand" aria-label="VIVA home">
-          <MarkIcon size={22} />
-          <span className="heading">VIVA</span>
-        </Link>
-        <nav aria-label="Start" className="vv-top-nav">
-          <Link href="/oral" className="nav-link">Oral exam</Link>
-          <Link href="/subjects" className="nav-link">Your material</Link>
-          <Link href="/recorded" className="nav-link">Watch a recording</Link>
-        </nav>
-      </header>
+    <div className="al-page">
+      <LandingNav />
 
       <main id="main">
-        <section className="vv-fold" id="hero" aria-labelledby="vv-h1">
-          <div className="vv-copy">
-            <h1 id="vv-h1" className="vv-h1">
-              Upload your lecture notes. Get examined on them out loud.
-            </h1>
-            <p className="vv-lede">
-              VIVA asks you questions, listens to your answers, checks them against your own pages, and tells you what to revise tomorrow.
-            </p>
-            <p className="vv-who">
-              For students who can recognise the right answer on the page but have not yet tried to explain it aloud.
-            </p>
+        <section className="al-hero al-wrap" aria-labelledby="hero-h">
+          <span className="pill">
+            <span className="al-live-dot" aria-hidden="true" style={{ background: "var(--success)" }} />
+            A study game you play by talking
+          </span>
+          <h1 id="hero-h" className="hero-type al-hero-title">
+            {HERO_WORDS.map((w, i) => (
+              <Fragment key={i}>
+                {i > 0 && " "}
+                <span className={`w${i >= ITALIC_FROM ? " italic-accent" : ""}`} style={{ ["--i" as string]: i }}>
+                  {w}
+                </span>
+              </Fragment>
+            ))}
+          </h1>
+          <p className="al-hero-sub">Drop your notes. Play it out loud.</p>
 
-            <div className="vv-cta">
-              <SampleExamButton />
-              <Link href="/subjects" className="btn-ghost">
-                Use your own material
+          <div className="al-cta">
+            <Magnetic>
+              <Link href={SAMPLE_RUN_HREF} className="btn-primary">
+                Start the sample run
               </Link>
-            </div>
-            <p className="vv-note">
-              Use headphones in a quiet room. Your browser will ask for the microphone, and you can type your answers instead.
-              The sample exam is on VIVA&apos;s own Transformers notes, so you need no upload.
-            </p>
-            <p className="vv-note">
-              No microphone?{" "}
-              <Link href="/recorded" className="link">
-                Watch a recorded exam
+            </Magnetic>
+            <Magnetic>
+              <Link href={UPLOAD_HREF} className="btn-ghost">
+                Upload your notes
               </Link>
-              .
-            </p>
+            </Magnetic>
           </div>
+          <p className="al-hero-note">Headphones and a quiet room help. Every level can be typed instead of spoken.</p>
 
-          <figure className="vv-excerpt" aria-label="Excerpt of an exam session">
-            <div className="vv-excerpt-head">
-              <span className="eyebrow">{EXCERPT.course}</span>
-              <StateLine>{EXCERPT.stateLine}</StateLine>
-            </div>
-
-            <QuestionCard>{EXCERPT.question}</QuestionCard>
-
-            <div className="vv-turn">
-              <p className="eyebrow">You</p>
-              <p className="vv-learner">
-                It loses track of <CorrectionMark>{EXCERPT.learnerWrong}</CorrectionMark>, so the ranking of relevance is gone.
-              </p>
-            </div>
-
-            <PassageCard {...visiblePassage} />
-
-            <div className="vv-turn">
-              <p className="eyebrow">Examiner</p>
-              <p className="vv-examiner">{EXCERPT.correction}</p>
-            </div>
-
-            <figcaption className="vv-caption">
-              {recording ? (
-                <>
-                  Recorded session, {recording.recordedAtLabel}, synthetic learner voice.{" "}
-                  <Link href="/recorded" className="link">Play it</Link>.
-                </>
-              ) : (
-                <>
-                  Scripted excerpt built from the sample course. The learner line is written, not recorded. The examiner
-                  reply shows the shape of a real one.
-                </>
-              )}
-            </figcaption>
-          </figure>
+          <div className="al-stage-wrap">
+            <Parallax className="al-float al-float-proof" speed={-0.05} max={40}>
+              <div className="al-proof-mini" aria-hidden="true">
+                <span className="al-page-tag">Page 20 &middot; proof card</span>
+                <p>&ldquo;Backpropagation computes gradients; gradient descent uses them.&rdquo;</p>
+              </div>
+            </Parallax>
+            <Parallax className="al-float al-float-xp" speed={0.07} max={44}>
+              <div className="al-xp-mini" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="11" fill="var(--primary)" />
+                  <path d="m7 12.5 3.2 3.2L17 8.8" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Bluff caught. +175 XP
+              </div>
+            </Parallax>
+            <HeroStage />
+          </div>
         </section>
 
-        <section className="vv-run" aria-labelledby="vv-run-h">
-          <h2 id="vv-run-h" className="heading vv-h2">What happens in a session</h2>
-          <ol className="vv-steps">
-            <li>
-              <span className="vv-step-n mono" aria-hidden>1</span>
-              <div>
-                <h3 className="vv-h3">You load material</h3>
-                <p>Pick the sample course, or upload your own notes. After an upload, VIVA shows how many concepts, questions and passages it found before you start.</p>
-              </div>
-            </li>
-            <li>
-              <span className="vv-step-n mono" aria-hidden>2</span>
-              <div>
-                <h3 className="vv-h3">The examiner asks, you answer aloud</h3>
-                <p>When you say something the pages contradict, VIVA looks up the passage, reads you the line, and names the page. A quoted line is accepted only if it appears word for word in your material.</p>
-              </div>
-            </li>
-            <li>
-              <span className="vv-step-n mono" aria-hidden>3</span>
-              <div>
-                <h3 className="vv-h3">You leave with a sheet</h3>
-                <p>A debrief lists which concepts were strong, shaky or weak with the answers behind each mark, the misconceptions caught against your pages, and a plan for what to revise tomorrow. You can print it or save it as a PDF.</p>
-              </div>
-            </li>
-          </ol>
+        <HowItWorks />
+
+        <section id="bluff" className="al-bluff al-wrap" aria-labelledby="bluff-h">
+          <div className="al-bluff-panel">
+            <div className="al-bluff-grid">
+              <Reveal>
+                <span className="pill al-kicker">Spot the Bluff</span>
+                <h2 id="bluff-h" className="display">
+                  The examiner will lie to you. Catch it.
+                </h2>
+                <p className="copy">
+                  Half the claims are true. Half are believable and wrong. Say which, correct the bluff, and the page settles it.
+                </p>
+                <p className="fine">
+                  Try three claims from the sample notes. The demo uses the same hearts and XP as a real level.
+                </p>
+              </Reveal>
+              <Reveal delay={100}>
+                <BluffDemo rounds={rounds} />
+              </Reveal>
+            </div>
+          </div>
         </section>
 
-        <section className="vv-limits" aria-labelledby="vv-limits-h">
-          <h2 id="vv-limits-h" className="heading vv-h2">Who this is not for</h2>
-          <p>
-            VIVA reads text. A scan with no text layer gives it nothing to quote. It cannot tell you your notes are
-            right, only whether your answer matches them. It is a hackathon build, and your microphone audio goes to
-            AssemblyAI while an exam runs. The{" "}
-            <Link href="/privacy" className="link">privacy page</Link> lists what is stored and where.
-          </p>
+        <Features />
+        <Limits />
+
+        <section className="al-section al-wrap al-close" aria-labelledby="close-h">
+          <Reveal>
+            <h2 id="close-h" className="hero-type" style={{ fontSize: "var(--fs-display)", lineHeight: 1.02 }}>
+              Say it once. See if it <span className="italic-accent">holds</span>.
+            </h2>
+            <div className="al-cta">
+              <Magnetic>
+                <Link href={SAMPLE_RUN_HREF} className="btn-primary">
+                  Start the sample run
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link href={UPLOAD_HREF} className="btn-ghost">
+                  Upload your notes
+                </Link>
+              </Magnetic>
+            </div>
+          </Reveal>
         </section>
       </main>
     </div>
