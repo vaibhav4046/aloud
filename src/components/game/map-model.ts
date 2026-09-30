@@ -150,7 +150,13 @@ export function layoutMap(run: Run, progress: Progress): MapLayout {
 
 /* ------------------------------ status rail ------------------------------ */
 
-export type DailyRing = { fraction: number; minutes: number; goal: number; met: boolean; copy: string };
+export type DailyRing = { fraction: number; minutes: number; shown: string; goal: number; met: boolean; copy: string };
+
+/** Minutes for display: one decimal, rounded down so a goal never reads as met early, and no trailing ".0". */
+export function formatMinutes(minutes: number): string {
+  const tenths = Math.floor(Math.max(0, minutes) * 10 + 1e-9) / 10;
+  return Number.isInteger(tenths) ? String(tenths) : tenths.toFixed(1);
+}
 
 /** The daily-goal ring. Minutes from an earlier day count for nothing today: the engine returns 0 then. */
 export function dailyRing(progress: Progress, ctx: Ctx): DailyRing {
@@ -158,7 +164,8 @@ export function dailyRing(progress: Progress, ctx: Ctx): DailyRing {
   const fraction = dailyGoalFraction(progress, ctx);
   const minutes = fraction * goal;
   const met = fraction >= 1;
-  return { fraction, minutes, goal, met, copy: met ? "Goal met" : `${Math.floor(minutes)} of ${goal} min` };
+  const shown = formatMinutes(minutes);
+  return { fraction, minutes, shown, goal, met, copy: met ? "Goal met" : `${shown} of ${goal} min` };
 }
 
 export type Flame = { days: number; lit: boolean; freezes: number; state: "none" | "safe" | "at_risk" | "broken"; copy: string; freezeCopy: string };

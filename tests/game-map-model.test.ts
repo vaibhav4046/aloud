@@ -92,6 +92,15 @@ describe("map layout", () => {
 describe("streak flame and daily ring", () => {
   const ctx = { now: new Date("2026-09-30T12:00:00Z"), tz: "UTC" };
 
+  it("shows minutes with one decimal, so 0.73 minutes is not floored to 0", () => {
+    const ring = dailyRing(fixtureProgress({ todayMinutes: 0.73, dailyGoalMinutes: 10, todayDay: "2026-09-30" }), ctx);
+    expect(ring.shown).toBe("0.7");
+    expect(ring.copy).toBe("0.7 of 10 min");
+    expect(dailyRing(fixtureProgress({ todayMinutes: 3, todayDay: "2026-09-30" }), ctx).shown).toBe("3");
+    expect(dailyRing(fixtureProgress({ todayMinutes: 9.99, todayDay: "2026-09-30" }), ctx).shown).toBe("9.9");
+    expect(dailyRing(fixtureProgress({ todayMinutes: 0, todayDay: "2026-09-30" }), ctx).shown).toBe("0");
+  });
+
   it("is lit only when a level was finished today", () => {
     expect(flameState(fixtureProgress({ streakDays: 3, lastPlayedDay: "2026-09-30" }), ctx)).toMatchObject({ lit: true, days: 3, state: "safe" });
     const f = flameState(fixtureProgress({ streakDays: 3, lastPlayedDay: "2026-09-29" }), ctx);
@@ -116,7 +125,7 @@ describe("streak flame and daily ring", () => {
     const met = dailyRing(fixtureProgress({ todayMinutes: 14, dailyGoalMinutes: 10, todayDay: "2026-09-30" }), ctx);
     expect(met.fraction).toBe(1);
     expect(met.met).toBe(true);
-    expect(dailyRing(fixtureProgress({ todayMinutes: 4.6, todayDay: "2026-09-30" }), ctx).copy).toBe("4 of 10 min");
+    expect(dailyRing(fixtureProgress({ todayMinutes: 4.6, todayDay: "2026-09-30" }), ctx).copy).toBe("4.6 of 10 min");
     expect(dailyRing(fixtureProgress({ todayMinutes: 9, todayDay: "2026-09-29" }), ctx).fraction).toBe(0);
   });
 });

@@ -51,7 +51,7 @@ export function StatusRail({ progress, ctx, showRank = true }: { progress: Progr
         </div>
         <div className="gx-stat gx-card">
           <RingIcon fraction={ring.fraction} met={ring.met} />
-          <b>{Math.floor(ring.minutes)}/{ring.goal}</b>
+          <b>{ring.shown}/{ring.goal}</b>
           <small>{ring.met ? "goal met" : "minutes today"}</small>
         </div>
         <div className="gx-stat gx-card">
