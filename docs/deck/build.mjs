@@ -6,7 +6,7 @@
  *
  * 1. Every element marked data-num="<key>" must show the value numbers.json holds for that key.
  * 2. The page must have nine slides, no dash characters (U+2014, U+2013) and no exclamation marks in text.
- * 3. Playwright prints docs/deck/index.html to docs/deck/viva-oral.pdf (1280 by 720, background on).
+ * 3. Playwright prints docs/deck/index.html to docs/deck/aloud.pdf (1280 by 720, background on).
  *
  * One Chromium, closed at the end.
  */
@@ -41,10 +41,19 @@ try {
   console.log(`${bad === 0 ? "pass" : "FAIL"} no dashes or exclamation marks in slide text (${bad} found)`);
   if (bad) failed = true;
 
+  const banned = ["seamless", "robust", "powerful", "cutting-edge", "revolutioniz", "leverage", "harness", "elevate", "empower", "game-changer", "comprehensive", "production-grade", "claude", "anthropic", "codex"];
+  const found = banned.filter((w) => text.toLowerCase().includes(w));
+  console.log(`${found.length === 0 ? "pass" : "FAIL"} no banned words (${found.join(", ") || "none"})`);
+  if (found.length) failed = true;
+
+  const overflow = await page.$$eval(".slide", (els) => els.map((e, i) => [i + 1, e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1]).filter(([, o]) => o).map(([i]) => i));
+  console.log(`${overflow.length === 0 ? "pass" : "FAIL"} no slide content overflows its 1280 by 720 box (${overflow.join(", ") || "none"})`);
+  if (overflow.length) failed = true;
+
   if (!failed) {
     await page.emulateMedia({ media: "print" });
-    await page.pdf({ path: join(here, "viva-oral.pdf"), width: "1280px", height: "720px", printBackground: true, preferCSSPageSize: true });
-    console.log("wrote docs/deck/viva-oral.pdf");
+    await page.pdf({ path: join(here, "aloud.pdf"), width: "1280px", height: "720px", printBackground: true, preferCSSPageSize: true });
+    console.log("wrote docs/deck/aloud.pdf");
   }
 } finally {
   await browser.close();
