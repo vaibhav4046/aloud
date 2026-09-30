@@ -357,7 +357,7 @@
 
 /* feedback toast */
 .gx-fb {
-  position: fixed; left: 50%; top: 116px; z-index: 30; transform: translateX(-50%);
+  position: fixed; left: 50%; top: 132px; z-index: 30; transform: translateX(-50%);
   display: flex; align-items: center; gap: 12px; padding: 12px 20px 12px 14px; border-radius: 999px;
   background: var(--g-card); border: 1px solid var(--g-line); box-shadow: var(--g-lift);
   font: 600 0.95rem/1 var(--g-ui); pointer-events: none; max-width: calc(100vw - 32px);

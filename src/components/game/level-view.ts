@@ -4,8 +4,8 @@ import type { PlayState, Feedback } from "./play-model";
 import type { OrbMode } from "./VoiceOrb";
 import type { ProofView } from "./PlayParts";
 
-export type { Stance } from "./round-session";
-import type { Stance } from "./round-session";
+export type { Stance } from "@/lib/game/session";
+import type { Stance } from "@/lib/game/session";
 
 /** What a catch round shows once it resolves: the claim, the page's own sentence and what was altered. */
 export type CatchReveal = {

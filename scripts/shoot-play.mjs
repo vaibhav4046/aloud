@@ -132,6 +132,16 @@ try {
       if (want("result")) {
         await page.waitForSelector('[data-testid="result"]', { timeout: 60000 });
         await shot("result", { settle: 2600 });
+        const crate = page.locator(".gx-crate");
+        log({ crateDropped: (await crate.count()) > 0 });
+        if (await crate.count()) {
+          await crate.scrollIntoViewIfNeeded();
+          await page.waitForTimeout(400);
+          await page.screenshot({ path: path.join(out, `result-crate-closed-${width}.png`) });
+          await page.getByRole("button", { name: /Open the crate/ }).click();
+          await page.waitForTimeout(900);
+          await page.screenshot({ path: path.join(out, `result-crate-open-${width}.png`) });
+        }
       }
     }
 

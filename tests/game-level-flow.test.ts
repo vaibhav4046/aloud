@@ -3,7 +3,7 @@ import { generateRun } from "../src/lib/game/run";
 import { getCourse } from "../src/lib/courses";
 import { openOralSocket } from "../src/lib/oral/socket";
 import { LevelController, type RoundClosed } from "../src/components/game/level-controller";
-import { beginRound, closeRound, isRoundReady, noteToolEvent, noteUserSpeech, overlap, setStance, stanceOf } from "../src/components/game/round-session";
+import { beginRound, closeRound, isRoundReady, noteToolEvent, noteUserSpeech, setStance, stanceOf } from "../src/lib/game/session";
 import { initialPlay, playReducer, type PlayState } from "../src/components/game/play-model";
 import { finishLevel } from "../src/components/game/engine-port";
 import type { CatchItem, Level, SayItem } from "../src/lib/game/types";
@@ -28,7 +28,7 @@ describe("round outcomes come from code", () => {
   const close = (item: CatchItem, stance: "real" | "bluff" | null) => {
     let d = beginRound(lvl(item), 0, 0);
     if (stance) d = setStance(d, stance);
-    return closeRound(d, lvl(item), 500);
+    return closeRound(d, lvl(item), chunks, 500);
   };
 
   it("maps every stance against the flag", () => {
@@ -51,13 +51,13 @@ describe("round outcomes come from code", () => {
     const l = lvl(real);
     let d = beginRound(l, 0, 0);
     const good = { name: "verify_claim", args: { claim: real.claim }, result: { verdict: "supported", quote: quoteOf(real.passageId), page: real.page, passage_id: real.passageId } };
-    d = setStance(noteToolEvent(d, l, good, chunks), "real");
-    const r = closeRound(d, l, 10);
+    d = setStance(noteToolEvent(d, l, good), "real");
+    const r = closeRound(d, l, chunks, 10);
     expect(r.grounded).toBe(true);
     expect(r.proof?.passageId).toBe(real.passageId);
 
     const forged = { ...good, result: { ...good.result, quote: "A sentence that is not on any page." } };
-    const r2 = closeRound(setStance(noteToolEvent(beginRound(l, 0, 0), l, forged, chunks), "real"), l, 10);
+    const r2 = closeRound(setStance(noteToolEvent(beginRound(l, 0, 0), l, forged), "real"), l, chunks, 10);
     expect(r2.grounded).toBe(false);
     expect(r2.proof).toBeUndefined();
     expect(r2.outcome).toBe("correct");
@@ -66,8 +66,7 @@ describe("round outcomes come from code", () => {
   it("ignores a page check about some other claim", () => {
     const l = lvl(real);
     const other = { name: "verify_claim", args: { claim: "Gradient descent minimises a loss." }, result: { verdict: "supported", quote: quoteOf(real.passageId), page: 1, passage_id: real.passageId } };
-    expect(noteToolEvent(beginRound(l, 0, 0), l, other, chunks).verify).toBeNull();
-    expect(overlap(real.claim, real.claim)).toBe(1);
+    expect(closeRound(setStance(noteToolEvent(beginRound(l, 0, 0), l, other), "real"), l, chunks, 5).proof).toBeUndefined();
   });
 
   it("a say round closes on the grade, a contradiction caps it at partial, and an ungrounded quote earns nothing", () => {
@@ -75,10 +74,10 @@ describe("round outcomes come from code", () => {
     const l: Level = { ...sayLevel, items: [item], rounds: 1 };
     let d = beginRound(l, 0, 0);
     expect(isRoundReady(d, l)).toBe(false);
-    d = noteToolEvent(d, l, { name: "verify_claim", args: { claim: "x" }, result: { verdict: "contradicted", quote: quoteOf("ch_sa_1"), page: 4, passage_id: "ch_sa_1" } }, chunks);
-    d = noteToolEvent(d, l, { name: "grade_my_answer", args: {}, result: { verdict: "correct" } }, chunks);
+    d = noteToolEvent(d, l, { name: "verify_claim", args: { claim: "x" }, result: { verdict: "contradicted", quote: quoteOf("ch_sa_1"), page: 4, passage_id: "ch_sa_1" } });
+    d = noteToolEvent(d, l, { name: "grade_my_answer", args: {}, result: { verdict: "correct" } });
     expect(isRoundReady(d, l)).toBe(true);
-    const r = closeRound(d, l, 5);
+    const r = closeRound(d, l, chunks, 5);
     expect(r.outcome).toBe("partial");
     expect(r.proof).toBeUndefined();
   });
@@ -113,7 +112,7 @@ class FakeWS {
 
 const tick = () => new Promise((r) => setTimeout(r, 5));
 
-async function playThroughSocket(level: Level, script: (item: SayItem | CatchItem, i: number) => { tools: [string, Record<string, unknown>, Record<string, unknown>][]; say?: string }) {
+async function playThroughSocket(level: Level, script: (item: SayItem | CatchItem, i: number) => { tools: [string, Record<string, unknown>, Record<string, unknown>][]; say?: string; check?: Record<string, unknown> }) {
   let state: PlayState = playReducer(initialPlay(level), { type: "start" });
   const closed: RoundClosed[] = [];
   const ctl = new LevelController(level, chunks, now, (c) => {
@@ -147,6 +146,8 @@ async function playThroughSocket(level: Level, script: (item: SayItem | CatchIte
   while (state.phase === "live" && ctl.index < level.rounds) {
     const i = ctl.index;
     const step = script(ctl.item!, i);
+    // A catch claim is page-checked as soon as it is shown; the check is in the draft before the player speaks.
+    if (step.check) ctl.tool("verify_claim", { claim: (ctl.item as CatchItem).claim }, step.check);
     if (step.say) ws.emit({ type: "transcript.user", item_id: `u${i}`, text: step.say });
     for (const [name, args] of step.tools) ws.emit({ type: "tool.call", call_id: `c${call++}`, name, arguments: args });
     await tick();
@@ -192,16 +193,24 @@ describe("a level played through the real socket client", () => {
     const level = catchLevel;
     const { state, closed } = await playThroughSocket(level, (item) => {
       const it = item as CatchItem;
-      return { say: it.isBluff ? "that is a bluff" : "that is true", tools: [] };
+      return { say: it.isBluff ? "that is a bluff" : "that is true", tools: [], check: { verdict: it.isBluff ? "contradicted" : "supported", quote: quoteOf(it.passageId), page: it.page, passage_id: it.passageId } };
     });
     expect(closed.map((c) => c.report.outcome).every((o) => o === "bluff_caught" || o === "correct")).toBe(true);
     expect(state.phase).toBe("won");
     expect(state.run.bestCombo).toBe(level.rounds);
   });
 
+  it("a claim round with no page check yet does not close on the stance alone", async () => {
+    const { closed } = await playThroughSocket(catchLevel, () => ({ say: "that is true", tools: [] }));
+    expect(closed).toHaveLength(0);
+  });
+
   it("a wrong call on a bluff costs a heart", async () => {
     const level = catchLevel;
-    const { state } = await playThroughSocket(level, () => ({ say: "that is true", tools: [] }));
+    const { state } = await playThroughSocket(level, (item) => {
+      const it = item as CatchItem;
+      return { say: "that is true", tools: [], check: { verdict: it.isBluff ? "contradicted" : "supported", quote: quoteOf(it.passageId), page: it.page, passage_id: it.passageId } };
+    });
     expect(state.run.rounds).toContain("bluff_missed");
     expect(state.run.hearts).toBeLessThan(level.hearts);
   });

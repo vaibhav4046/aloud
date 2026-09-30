@@ -11,7 +11,7 @@ import {
   type RoundDraft,
   type Stance,
   type ToolEvent,
-} from "./round-session";
+} from "@/lib/game/session";
 import { outcomeOfTool, type SourceCard } from "@/components/oral/model";
 
 /**
@@ -79,7 +79,7 @@ export class LevelController {
     const ev: ToolEvent = { name, args, result, isError };
     const out = outcomeOfTool(name, args, result, `${this.level.id}:${this.index}`);
     if (out.source) this.source = out.source;
-    this.draft = noteToolEvent(this.draft, this.level, ev, this.chunks);
+    this.draft = noteToolEvent(this.draft, this.level, ev);
     this.tryClose();
   }
 
@@ -90,7 +90,7 @@ export class LevelController {
 
   private tryClose(): void {
     if (!isRoundReady(this.draft, this.level)) return;
-    const report = closeRound(this.draft, this.level, this.now());
+    const report = closeRound(this.draft, this.level, this.chunks, this.now());
     const closed: RoundClosed = { report, item: this.item, source: this.source };
     this.index += 1;
     this.source = null;

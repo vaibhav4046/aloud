@@ -15,7 +15,6 @@ import type { OrbMode } from "./VoiceOrb";
 import type { ProofView } from "./PlayParts";
 import type { GameSettings } from "./settings";
 import { playCue, type Cue } from "./sound";
-import { buildLevelPrompt, levelGreeting, LEVEL_MARKER } from "./level-prompt";
 
 const SESSION_TIMEOUT_MS = 15_000;
 const TOOL_TIMEOUT_MS = 12_000;
@@ -172,7 +171,10 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
     const pre = prefetch.current.get(idx);
     if (!pre) return;
     const result = await Promise.race([pre, new Promise<null>((r) => setTimeout(() => r(null), PREFETCH_WAIT_MS))]);
-    if (result && c.index === idx) c.tool("verify_claim", { claim: it.claim, concept: it.conceptId }, result);
+    if (c.index !== idx) return;
+    // The engine closes a claim round on a stance plus a page check. If the check did not arrive in time, "not_in_material"
+    // says so honestly: the round still scores from the flag and the stance, and earns no proof card.
+    c.tool("verify_claim", { claim: it.claim, concept: it.conceptId }, result ?? { verdict: "not_in_material" });
   }, []);
 
   /* ---- voice ---- */
@@ -199,11 +201,9 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         const handle = await startOralExam(
           {
             config: {
-              // The server may already have added the level block (levelId is sent); if not, add it here.
-              system_prompt: body.system_prompt.includes(LEVEL_MARKER) ? body.system_prompt : `${body.system_prompt}
-
-${buildLevelPrompt(level)}`,
-              greeting: body.system_prompt.includes(LEVEL_MARKER) ? (body.greeting as string) : levelGreeting(level),
+              // The server adds the level block and the opening line because levelId is sent.
+              system_prompt: body.system_prompt,
+              greeting: body.greeting as string,
               tools: body.tools as never,
               keyterms: body.keyterms as string[],
               language_codes: body.language_codes as string[],

@@ -41,10 +41,12 @@ function RevealCard({ reveal, onClose }: { reveal: CatchReveal; onClose: () => v
   return (
     <section className="gx-card" style={{ padding: 20, display: "grid", gap: 12 }} aria-label="The answer" role="region">
       <p className="gx-eyebrow">{item.isBluff ? "That was a bluff" : "That claim was real"}</p>
-      <p style={{ margin: 0, fontFamily: "var(--g-display)", fontSize: "1.15rem", lineHeight: 1.4 }}>
-        <span className="gx-eyebrow">Claimed </span>
-        <Marked text={item.claim} marks={item.alteration ? [item.alteration.to] : []} tone="bad" />
-      </p>
+      {item.isBluff ? (
+        <p style={{ margin: 0, fontFamily: "var(--g-display)", fontSize: "1.15rem", lineHeight: 1.4 }}>
+          <span className="gx-eyebrow">Claimed </span>
+          <Marked text={item.claim} marks={item.alteration ? [item.alteration.to] : []} tone="bad" />
+        </p>
+      ) : null}
       <p style={{ margin: 0, fontFamily: "var(--g-display)", fontSize: "1.15rem", lineHeight: 1.4 }}>
         <span className="gx-eyebrow">Your page{item.page != null ? `, p. ${item.page}` : ""} </span>
         <Marked text={item.source} marks={item.alteration ? [item.alteration.from] : []} tone="ok" />
