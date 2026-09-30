@@ -1,4 +1,5 @@
 import type { Level, LevelKind, Progress, Run, World } from "@/lib/game/types";
+import { dailyGoalFraction, streakStatus, type Ctx } from "@/lib/game/progress";
 
 /**
  * Pure screen model for the run map. Everything the map draws is derived here
@@ -151,31 +152,29 @@ export function layoutMap(run: Run, progress: Progress): MapLayout {
 
 export type DailyRing = { fraction: number; minutes: number; goal: number; met: boolean; copy: string };
 
-export function dailyRing(progress: Progress): DailyRing {
+/** The daily-goal ring. Minutes from an earlier day count for nothing today: the engine returns 0 then. */
+export function dailyRing(progress: Progress, ctx: Ctx): DailyRing {
   const goal = Math.max(1, progress.dailyGoalMinutes);
-  const minutes = Math.max(0, progress.todayMinutes);
-  const fraction = Math.min(1, minutes / goal);
-  const met = minutes >= goal;
-  const shown = Math.floor(minutes);
-  return { fraction, minutes, goal, met, copy: met ? "Goal met" : `${shown} of ${goal} min` };
+  const fraction = dailyGoalFraction(progress, ctx);
+  const minutes = fraction * goal;
+  const met = fraction >= 1;
+  return { fraction, minutes, goal, met, copy: met ? "Goal met" : `${Math.floor(minutes)} of ${goal} min` };
 }
 
-export type Flame = { days: number; lit: boolean; freezes: number; copy: string; freezeCopy: string };
+export type Flame = { days: number; lit: boolean; freezes: number; state: "none" | "safe" | "at_risk" | "broken"; copy: string; freezeCopy: string };
 
-/** Local calendar day as YYYY-MM-DD, the same shape Progress.lastPlayedDay uses. */
-export function localDay(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-
-export function flameState(progress: Progress, now: Date): Flame {
-  const today = localDay(now);
-  const lit = progress.lastPlayedDay === today;
-  const days = progress.streakDays;
+/** The flame. A broken streak shows 0 and no guilt: the copy says how to start again. */
+export function flameState(progress: Progress, ctx: Ctx): Flame {
+  const s = streakStatus(progress, ctx);
   const freezes = progress.freezes;
-  const copy = days === 0 ? "Start a streak" : lit ? `${days} day streak` : `${days} day streak, play today to extend it`;
+  const copy =
+    s.state === "none" || s.state === "broken"
+      ? "Start a streak"
+      : s.state === "safe"
+        ? `${s.days} day streak`
+        : `${s.days} day streak, play today to extend it`;
   const freezeCopy = freezes > 0 ? `${freezes} freeze${freezes === 1 ? "" : "s"} banked` : "No freeze banked. One is earned every 7 days";
-  return { days, lit, freezes, copy, freezeCopy };
+  return { days: s.days, lit: s.playedToday, freezes, state: s.state, copy, freezeCopy };
 }
 
 export const KIND_LABEL: Record<LevelKind, string> = {

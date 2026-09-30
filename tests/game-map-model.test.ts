@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentLevel, dailyRing, flameState, layoutMap, localDay, nodeLabel, nodeState, worldSummary } from "../src/components/game/map-model";
+import { currentLevel, dailyRing, flameState, layoutMap, nodeLabel, nodeState, worldSummary } from "../src/components/game/map-model";
 import { fixtureProgress, fixtureRun, won } from "./game-fixture";
 
 describe("map node states", () => {
@@ -90,29 +90,33 @@ describe("map layout", () => {
 });
 
 describe("streak flame and daily ring", () => {
+  const ctx = { now: new Date("2026-09-30T12:00:00Z"), tz: "UTC" };
+
   it("is lit only when a level was finished today", () => {
-    const now = new Date(2026, 8, 30, 12, 0, 0);
-    const today = localDay(now);
-    expect(flameState(fixtureProgress({ streakDays: 3, lastPlayedDay: today }), now).lit).toBe(true);
-    const f = flameState(fixtureProgress({ streakDays: 3, lastPlayedDay: "2026-09-29" }), now);
+    expect(flameState(fixtureProgress({ streakDays: 3, lastPlayedDay: "2026-09-30" }), ctx)).toMatchObject({ lit: true, days: 3, state: "safe" });
+    const f = flameState(fixtureProgress({ streakDays: 3, lastPlayedDay: "2026-09-29" }), ctx);
     expect(f.lit).toBe(false);
+    expect(f.state).toBe("at_risk");
     expect(f.copy).toMatch(/play today/);
   });
 
-  it("uses no guilt copy for a zero streak", () => {
-    const f = flameState(fixtureProgress(), new Date(2026, 8, 30));
-    expect(f.copy).toBe("Start a streak");
+  it("uses no guilt copy for a zero or broken streak", () => {
+    expect(flameState(fixtureProgress(), ctx).copy).toBe("Start a streak");
+    const broken = flameState(fixtureProgress({ streakDays: 9, lastPlayedDay: "2026-09-20" }), ctx);
+    expect(broken).toMatchObject({ days: 0, state: "broken", copy: "Start a streak" });
   });
 
-  it("shows the freeze bank", () => {
-    const f = flameState(fixtureProgress({ streakDays: 7, freezes: 1 }), new Date(2026, 8, 30));
+  it("keeps a streak alive across a missed day when a freeze covers it", () => {
+    const f = flameState(fixtureProgress({ streakDays: 8, freezes: 1, lastPlayedDay: "2026-09-28" }), ctx);
+    expect(f).toMatchObject({ days: 8, state: "at_risk" });
     expect(f.freezeCopy).toBe("1 freeze banked");
   });
 
-  it("caps the ring at 1 and reports goal met", () => {
-    const r = dailyRing(fixtureProgress({ todayMinutes: 14, dailyGoalMinutes: 10 }));
-    expect(r.fraction).toBe(1);
-    expect(r.met).toBe(true);
-    expect(dailyRing(fixtureProgress({ todayMinutes: 4.6 })).copy).toBe("4 of 10 min");
+  it("caps the ring at 1, reports goal met, and counts only minutes from today", () => {
+    const met = dailyRing(fixtureProgress({ todayMinutes: 14, dailyGoalMinutes: 10, todayDay: "2026-09-30" }), ctx);
+    expect(met.fraction).toBe(1);
+    expect(met.met).toBe(true);
+    expect(dailyRing(fixtureProgress({ todayMinutes: 4.6, todayDay: "2026-09-30" }), ctx).copy).toBe("4 of 10 min");
+    expect(dailyRing(fixtureProgress({ todayMinutes: 9, todayDay: "2026-09-29" }), ctx).fraction).toBe(0);
   });
 });

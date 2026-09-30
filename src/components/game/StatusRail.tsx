@@ -1,7 +1,7 @@
 "use client";
 import type { Progress } from "@/lib/game/types";
 import { dailyRing, flameState } from "./map-model";
-import { rankInfo } from "./engine-port";
+import { rankInfo, type Ctx } from "./engine-port";
 
 /** The streak flame, drawn lit or unlit, with the freeze crystal when one is banked. */
 export function FlameIcon({ lit, freezes }: { lit: boolean; freezes: number }) {
@@ -36,9 +36,9 @@ export function RingIcon({ fraction, met }: { fraction: number; met: boolean }) 
 }
 
 /** Streak, daily goal and rank in three tiles. The rank card with its XP bar sits under them. */
-export function StatusRail({ progress, now, showRank = true }: { progress: Progress; now: Date; showRank?: boolean }) {
-  const flame = flameState(progress, now);
-  const ring = dailyRing(progress);
+export function StatusRail({ progress, ctx, showRank = true }: { progress: Progress; ctx: Ctx; showRank?: boolean }) {
+  const flame = flameState(progress, ctx);
+  const ring = dailyRing(progress, ctx);
   const rank = rankInfo(progress.xp);
   return (
     <section className="gx-rail" aria-label="Your status">

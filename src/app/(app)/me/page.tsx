@@ -8,6 +8,7 @@ import { EmptyRun, ErrorState, MapSkeleton } from "@/components/game/StateViews"
 import { conceptMastery, GOAL_CHOICES, streakCalendar } from "@/components/game/profile-model";
 import { useSettings } from "@/components/game/settings";
 import { subjectIdOfRun } from "@/components/game/game-client";
+import { clockNow, setDailyGoal, streakStatus } from "@/components/game/engine-port";
 import type { Progress, Run } from "@/lib/game/types";
 
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
@@ -48,7 +49,7 @@ function Settings({ progress, onGoal }: { progress: Progress | null; onGoal: (m:
 }
 
 function Profile({ run, progress, commit }: { run: Run; progress: Progress; commit: (p: Progress) => void }) {
-  const now = useMemo(() => new Date(), []);
+  const ctx = useMemo(() => clockNow(), []);
   const [names, setNames] = useState<Record<string, string>>({});
   useEffect(() => {
     let live = true;
@@ -63,11 +64,12 @@ function Profile({ run, progress, commit }: { run: Run; progress: Progress; comm
     };
   }, [run.id]);
 
-  const cal = streakCalendar(progress, now);
+  const status = streakStatus(progress, ctx);
+  const cal = streakCalendar({ streakDays: status.days, lastPlayedDay: progress.lastPlayedDay }, ctx.now);
   const rows = conceptMastery(run, progress, names);
   return (
     <>
-      <StatusRail progress={progress} now={now} />
+      <StatusRail progress={progress} ctx={ctx} />
       <section className="gx-card" style={{ padding: 22, display: "grid", gap: 14 }} aria-labelledby="gx-cal">
         <h2 id="gx-cal" className="gx-h2">Streak</h2>
         <div className="gx-cal" role="img" aria-label={`${progress.streakDays} day streak. ${progress.freezes} freezes banked.`}>
@@ -91,7 +93,7 @@ function Profile({ run, progress, commit }: { run: Run; progress: Progress; comm
         </div>
         <p className="gx-note">Stars are the best you have on each level that covers the concept. Missed concepts come back as Recall levels.</p>
       </section>
-      <Settings progress={progress} onGoal={(m) => commit({ ...progress, dailyGoalMinutes: m })} />
+      <Settings progress={progress} onGoal={(m) => commit(setDailyGoal(progress, m, ctx))} />
     </>
   );
 }

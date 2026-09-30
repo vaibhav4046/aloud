@@ -9,13 +9,13 @@ import { StatusRail } from "@/components/game/StatusRail";
 import { ErrorState, MapSkeleton, OfflineBanner } from "@/components/game/StateViews";
 import { useRunData } from "@/components/game/useRunData";
 import { currentLevel, isWon } from "@/components/game/map-model";
-import { HEAD_START_XP } from "@/components/game/engine-port";
+import { clockNow, ENDOWED_XP } from "@/components/game/engine-port";
 
 export default function RunPage() {
   const { id } = useParams<{ id: string }>();
   const runId = decodeURIComponent(id);
   const data = useRunData(runId);
-  const now = useMemo(() => new Date(), []);
+  const ctx = useMemo(() => clockNow(), []);
 
   if (data.status === "loading") {
     return (
@@ -46,7 +46,7 @@ export default function RunPage() {
   const { run, progress } = data;
   const cleared = run.levels.filter((l) => isWon(progress, l.id)).length;
   const cur = currentLevel(run, progress);
-  const fresh = cleared === 0 && progress.xp === HEAD_START_XP;
+  const fresh = cleared === 0 && progress.xp === ENDOWED_XP;
 
   return (
     <Stage>
@@ -61,9 +61,9 @@ export default function RunPage() {
                 <p className="gx-lede" style={{ marginTop: 8 }}>
                   <span className="gx-mono">{cleared}</span> of <span className="gx-mono">{run.size}</span> levels cleared
                 </p>
-                {fresh ? <p className="gx-note" style={{ marginTop: 6 }}>You start with a {HEAD_START_XP} XP head start. Level 1 is open.</p> : null}
+                {fresh ? <p className="gx-note" style={{ marginTop: 6 }}>You start with a {ENDOWED_XP} XP head start. Level 1 is open.</p> : null}
               </div>
-              <StatusRail progress={progress} now={now} />
+              <StatusRail progress={progress} ctx={ctx} />
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <Link href="/proofs" className="gx-btn gx-btn--ghost gx-btn--sm">Proofs</Link>
                 <Link href="/me" className="gx-btn gx-btn--ghost gx-btn--sm">Profile</Link>

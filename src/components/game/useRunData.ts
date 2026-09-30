@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Progress, Run } from "@/lib/game/types";
 import { GameApiError, loadRun, subjectIdOfRun, syncProgress } from "./game-client";
-import { loadProgress, saveProgress } from "./engine-port";
+import { loadProgress, mergeProgress, saveProgress } from "./engine-port";
 
 export type RunData =
   | { status: "loading" }
@@ -31,7 +31,7 @@ export function lastRunId(): string | null {
  * Load a run and the player's progress for it. The run comes from the server
  * (or the copy this browser kept when offline), progress from localStorage,
  * then the server merge is applied in the background and adopted only when it
- * has at least as much XP, so a slow or failed sync never moves the player back.
+ * merged with the engine's rules, so a slow or failed sync never moves the player back.
  */
 export function useRunData(runId: string): RunData & { reload: () => void; commit: (p: Progress) => void } {
   const [data, setData] = useState<RunData>({ status: "loading" });
@@ -49,8 +49,10 @@ export function useRunData(runId: string): RunData & { reload: () => void; commi
         const local = loadProgress(run);
         setData({ status: "ready", run, progress: local, offline });
         if (offline) return;
-        void syncProgress(subjectIdOfRun(run.id), local).then((merged) => {
-          if (!live || merged === local || merged.xp < local.xp) return;
+        void syncProgress(subjectIdOfRun(run.id), local).then((serverCopy) => {
+          if (!live || serverCopy === local) return;
+          // The engine's merge never lowers XP and keeps the better result of each level.
+          const merged = mergeProgress(local, serverCopy, run);
           saveProgress(merged);
           setData((d) => (d.status === "ready" ? { ...d, progress: merged } : d));
         });

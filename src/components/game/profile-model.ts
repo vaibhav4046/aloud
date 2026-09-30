@@ -1,5 +1,9 @@
 import type { Progress, Run } from "@/lib/game/types";
-import { localDay } from "./map-model";
+/** Local calendar day of a Date as YYYY-MM-DD, the shape Progress.lastPlayedDay uses. */
+function localDay(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 
 /** Pure models for the profile screen: the streak calendar and per-concept mastery. */
 

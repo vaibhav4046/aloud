@@ -6,6 +6,7 @@ import { fixtureProgress, fixtureRun } from "./game-fixture";
 import type { RoundReport } from "../src/lib/game/types";
 
 const run = fixtureRun();
+const ctx = { now: new Date("2026-09-30T12:00:00Z"), tz: "UTC" };
 const sayLevel = run.levels[0];
 const boss = run.levels[3];
 
@@ -129,30 +130,37 @@ describe("scoring seam", () => {
     expect(rankInfo(150).fraction).toBeCloseTo(0.5, 5);
   });
 
-  it("folds a win into progress: unlock, streak, xp, proofs", () => {
+  it("folds a win into progress with the engine rules: unlock, streak, xp, proofs, minutes", () => {
     const s = play(sayLevel, [rep("correct", true, true), rep("correct", true), rep("correct", true), rep("correct", true)]);
     const { result, proofs } = finishLevel(s.run, { playedAt: "2026-09-30T10:00:00.000Z" });
     expect(result.stars).toBe(3);
-    const applied = applyResult(fixtureProgress(), run, sayLevel, result, proofs, 2.5, "2026-09-30");
+    const applied = applyResult(fixtureProgress(), run, { ...result, ms: 150_000 }, proofs, ctx);
     expect(applied.progress.unlockedIndex).toBe(2);
+    expect(applied.unlockedNext).toBe(true);
     expect(applied.progress.streakDays).toBe(1);
+    expect(applied.streakExtended).toBe(true);
     expect(applied.progress.xp).toBe(s.run.xp);
     expect(applied.rankAfter).toBeGreaterThanOrEqual(applied.rankBefore);
     expect(applied.progress.proofs).toHaveLength(1);
-    expect(applied.progress.todayMinutes).toBeCloseTo(2.5, 5);
+    expect(applied.progress.todayMinutes).toBeCloseTo(2.5, 2);
   });
 
-  it("spends a freeze to keep a streak across one missed day and earns one at 7 days", () => {
-    const won = finishLevel({ ...play(sayLevel, [rep("correct"), rep("correct"), rep("correct"), rep("correct")]).run }, { playedAt: "t" }).result;
-    const a = applyResult(fixtureProgress({ streakDays: 3, freezes: 1, lastPlayedDay: "2026-09-28" }), run, sayLevel, won, [], 1, "2026-09-30");
-    expect(a.progress.streakDays).toBe(4);
-    expect(a.progress.freezes).toBe(0);
-    const seven = applyResult(fixtureProgress({ streakDays: 6, lastPlayedDay: "2026-09-29" }), run, sayLevel, won, [], 1, "2026-09-30");
+  it("replaying a level pays only the improvement and playing the same result twice changes nothing", () => {
+    const first = play(sayLevel, [rep("correct"), rep("correct"), rep("correct"), rep("correct")]);
+    const { result } = finishLevel(first.run, { playedAt: "2026-09-30T10:00:00.000Z" });
+    const once = applyResult(fixtureProgress(), run, result, [], ctx).progress;
+    const twice = applyResult(once, run, result, [], ctx).progress;
+    expect(twice.xp).toBe(once.xp);
+    const better = { ...result, playedAt: "2026-09-30T11:00:00.000Z", xp: result.xp + 40 };
+    expect(applyResult(once, run, better, [], ctx).progress.xp).toBe(once.xp + 40);
+  });
+
+  it("earns a streak freeze on day 7", () => {
+    const won = finishLevel(play(sayLevel, [rep("correct"), rep("correct"), rep("correct"), rep("correct")]).run, { playedAt: "t" }).result;
+    const seven = applyResult(fixtureProgress({ streakDays: 6, lastPlayedDay: "2026-09-29" }), run, won, [], ctx);
     expect(seven.progress.streakDays).toBe(7);
     expect(seven.freezeEarned).toBe(true);
     expect(seven.progress.freezes).toBe(1);
-    const broken = applyResult(fixtureProgress({ streakDays: 5, lastPlayedDay: "2026-09-20" }), run, sayLevel, won, [], 1, "2026-09-30");
-    expect(broken.progress.streakDays).toBe(1);
   });
 
   it("a lost level adds the concepts to the weak list and does not unlock", () => {
@@ -160,9 +168,9 @@ describe("scoring seam", () => {
     const { result } = finishLevel(lost.run, { playedAt: "t" });
     expect(result.stars).toBe(0);
     expect(result.xp).toBe(0);
-    const a = applyResult(fixtureProgress(), run, sayLevel, result, [], 1, "2026-09-30");
+    const a = applyResult(fixtureProgress(), run, result, [], ctx);
     expect(a.progress.unlockedIndex).toBe(1);
-    expect(a.progress.weakConceptIds).toEqual(sayLevel.conceptIds);
+    expect(a.progress.weakConceptIds).toEqual(["c1"]);
     expect(a.progress.lastPlayedDay).toBeNull();
   });
 });

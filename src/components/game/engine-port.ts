@@ -1,14 +1,15 @@
-import type { Level, LevelResult, Progress, ProofCard, Run } from "@/lib/game/types";
+import type { LevelResult, Progress, ProofCard, Run } from "@/lib/game/types";
 import { rankProgress } from "@/lib/game/scoring";
+import { applyLevelResult, ENDOWED_XP, localDay, mergeProgress, newProgress, rebaseProgress, setDailyGoal, streakStatus, dailyGoalFraction, type Ctx, type StreakStatus } from "@/lib/game/progress";
 
 /**
  * The seam between the game screens and the game engine.
  *
- * The screens import scoring, progress and the run fetch from this one file and
- * from nowhere else in src/lib/game. Scoring comes straight from the engine
- * (src/lib/game/scoring.ts). The progress adapters in the second half are the
- * one part that was still a local rule when the screens were written; each is
- * marked `local rule` and is replaced by the engine's progress.ts export.
+ * The screens import scoring and progress from this one file and from nowhere
+ * else in src/lib/game. Everything here is the engine's own code (scoring.ts,
+ * progress.ts); the only additions are the browser pieces the engine leaves out
+ * on purpose: the time zone, localStorage, and a summary of what a finished
+ * level changed, for the result screen.
  */
 
 export {
@@ -38,38 +39,32 @@ export function rankInfo(xp: number): RankInfo {
 /* --------------------------------- progress ------------------------------- */
 
 const PROGRESS_PREFIX = "aloud.progress.";
-/** local rule: the head start a new run begins with (endowed progress). */
-export const HEAD_START_XP = 60;
 
-export function emptyProgress(run: Run, now: Date): Progress {
-  return {
-    runId: run.id,
-    xp: HEAD_START_XP,
-    rank: 1,
-    unlockedIndex: 1,
-    streakDays: 0,
-    lastPlayedDay: null,
-    freezes: 0,
-    results: {},
-    proofs: [],
-    weakConceptIds: [],
-    dailyGoalMinutes: 10,
-    todayMinutes: 0,
-    updatedAt: now.toISOString(),
-  };
+export { ENDOWED_XP, localDay, mergeProgress, setDailyGoal, streakStatus, dailyGoalFraction };
+export type { Ctx, StreakStatus };
+
+/** The player's clock: now, in the time zone their browser reports. */
+export function clockNow(): Ctx {
+  let tz = "UTC";
+  try {
+    tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    /* no Intl time zone: UTC */
+  }
+  return { now: new Date(), tz };
 }
 
-export function loadProgress(run: Run, now = new Date()): Progress {
+export function loadProgress(run: Run, ctx: Ctx = clockNow()): Progress {
   try {
     const raw = window.localStorage.getItem(PROGRESS_PREFIX + run.id);
     if (raw) {
       const p = JSON.parse(raw) as Progress;
-      if (p && p.runId === run.id && typeof p.xp === "number") return p;
+      if (p && p.runId === run.id && typeof p.xp === "number") return rebaseProgress(p, run);
     }
   } catch {
     /* private mode or a corrupt entry: start fresh */
   }
-  return emptyProgress(run, now);
+  return newProgress(run.id, ctx);
 }
 
 export function saveProgress(p: Progress): void {
@@ -89,55 +84,16 @@ export type Applied = {
   streakExtended: boolean;
 };
 
-/** local rule: fold one finished level into progress (streak, freeze, unlock, weak concepts). */
-export function applyResult(p: Progress, run: Run, level: Level, result: LevelResult, proofs: ProofCard[], minutes: number, today: string): Applied {
-  const prevBest = p.results[level.id];
-  const keep = prevBest && prevBest.outcome === "won" && prevBest.stars >= result.stars ? prevBest : result;
-  const xp = p.xp + result.xp;
-  const won = result.outcome === "won";
-  const sameDay = p.lastPlayedDay === today;
-  let streakDays = p.streakDays;
-  let freezes = p.freezes;
-  let streakExtended = false;
-  let freezeEarned = false;
-  if (won && !sameDay) {
-    const gap = p.lastPlayedDay ? dayGap(p.lastPlayedDay, today) : 0;
-    if (!p.lastPlayedDay || gap === 1) streakDays += 1;
-    else if (gap === 2 && freezes > 0) {
-      freezes -= 1;
-      streakDays += 1;
-    } else streakDays = 1;
-    streakExtended = true;
-    if (streakDays > 0 && streakDays % 7 === 0) {
-      freezes += 1;
-      freezeEarned = true;
-    }
-  }
-  const weak = new Set(p.weakConceptIds);
-  if (won) level.conceptIds.forEach((c) => weak.delete(c));
-  else level.conceptIds.forEach((c) => weak.add(c));
-  const next = run.levels.find((l) => l.index === level.index + 1);
-  const unlockedNext = won && !!next && next.index > p.unlockedIndex;
-  const seen = new Set(p.proofs.map((x) => x.id));
-  const merged: Progress = {
-    ...p,
-    xp,
-    rank: rankInfo(xp).rank,
-    unlockedIndex: unlockedNext && next ? next.index : p.unlockedIndex,
-    streakDays,
-    freezes,
-    lastPlayedDay: won ? today : p.lastPlayedDay,
-    results: { ...p.results, [level.id]: keep },
-    proofs: [...p.proofs, ...proofs.filter((x) => !seen.has(x.id))],
-    weakConceptIds: [...weak],
-    todayMinutes: (p.lastPlayedDay === today || !p.lastPlayedDay ? p.todayMinutes : 0) + minutes,
-    updatedAt: new Date().toISOString(),
+/** Fold one finished level into progress with the engine's rules and say what changed. */
+export function applyResult(p: Progress, run: Run, result: LevelResult, proofs: ProofCard[], ctx: Ctx): Applied {
+  const next = applyLevelResult(p, run, result, proofs, ctx);
+  const streakExtended = next.streakDays > p.streakDays || (p.lastPlayedDay === null && next.lastPlayedDay !== null);
+  return {
+    progress: next,
+    rankBefore: p.rank,
+    rankAfter: next.rank,
+    unlockedNext: next.unlockedIndex > p.unlockedIndex,
+    freezeEarned: next.freezes > p.freezes && next.streakDays > p.streakDays,
+    streakExtended,
   };
-  return { progress: merged, rankBefore: p.rank, rankAfter: merged.rank, unlockedNext, freezeEarned, streakExtended };
-}
-
-function dayGap(from: string, to: string): number {
-  const a = Date.parse(from + "T00:00:00Z");
-  const b = Date.parse(to + "T00:00:00Z");
-  return Math.round((b - a) / 86_400_000);
 }
