@@ -15,6 +15,7 @@ import { resolveConceptId } from "@/lib/oral/debrief";
 import { err } from "@/lib/types";
 import { loadRun } from "@/lib/game/service";
 import { findLevel } from "@/lib/game/run";
+import { focusFor, type GradeFocus } from "@/lib/oral/grade-target";
 
 /**
  * POST /api/oral/tool, run one grounded tool on the caller's behalf.
@@ -143,11 +144,20 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
 
+    // The Say item this answer belongs to, from the stored run (never from the
+    // client), so a generated question is graded on its own concept.
+    let focus: GradeFocus | null = null;
+    if (levelId && name === "grade_my_answer" && typeof args?.question === "string") {
+      const { run } = await loadRun(store, identity.userId, subject, { now: new Date() });
+      focus = focusFor(findLevel(run, levelId)?.items ?? [], args.question);
+    }
+
     const { result, isError } = await runOralTool(
       {
         subject,
         course,
         chunks,
+        focus,
         onVerdict: async (v: OralVerdict) => {
           if (examinerClaim) return;
           // The learner's map is written from the verdict a tool returned, with the

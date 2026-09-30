@@ -104,3 +104,37 @@ describe("grade_my_answer on an uploaded subject", () => {
     expect(out.result.verdict).not.toBe("correct");
   });
 });
+
+describe("generated Say items are graded against their own concept", () => {
+  const generated = (): { level: Level; item: SayItem } => {
+    const first = subject.examQuestions[0].conceptId;
+    for (const level of run.levels) {
+      for (const item of (level.items ?? []) as SayItem[]) {
+        if (item.type === "say" && item.focus === "why" && item.conceptId !== first) return { level, item };
+      }
+    }
+    throw new Error("no generated why question on a later concept");
+  };
+
+  it("a right answer to a generated why question is graded correct, on its own concept's marking words", async () => {
+    const { level, item } = generated();
+    expect(subject.examQuestions.some((q) => q.question === item.question)).toBe(false);
+    const out = await callTool("grade_my_answer", { question: item.question, answer: descriptionOf(item.conceptId) }, level.id);
+    expect(out.result.verdict).toBe("correct");
+    const own = subject.examQuestions.find((q) => q.conceptId === item.conceptId)!;
+    expect(out.result.full_answer_covers).toEqual(own.requiredKeywords);
+  });
+
+  it("the same answer is not correct for a question about a different concept", async () => {
+    const { level, item } = generated();
+    const other = subject.concepts.find((c) => c.id !== item.conceptId && c.id !== subject.examQuestions[0].conceptId)!;
+    const out = await callTool("grade_my_answer", { question: item.question, answer: descriptionOf(other.id) }, level.id);
+    expect(out.result.verdict).not.toBe("correct");
+  });
+
+  it("finds the item when the agent rephrases the question", async () => {
+    const { level, item } = generated();
+    const out = await callTool("grade_my_answer", { question: item.question.replace(/^Why does /, "Tell me why "), answer: descriptionOf(item.conceptId) }, level.id);
+    expect(out.result.verdict).toBe("correct");
+  });
+});

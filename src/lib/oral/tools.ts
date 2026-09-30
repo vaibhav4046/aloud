@@ -7,6 +7,7 @@ import type { SourceChunk } from "@/lib/types";
 import { rid, serverLog } from "@/lib/observe";
 import { stripInjection } from "./sanitize";
 import { verifyClaim } from "./verify-claim";
+import { gradeTarget, type GradeFocus } from "./grade-target";
 
 /**
  * The tools the oral exam gives the agent.
@@ -56,6 +57,8 @@ export type ToolContext = {
   subject: Subject;
   course: Course | null;
   chunks: SourceChunk[];
+  /** The Say item of a game level the answer belongs to, resolved by the server from the stored run. */
+  focus?: GradeFocus | null;
   /** The agent may only ask about material the caller actually owns. */
   onNote?: (note: { claim: string; conceptId: string | null; correct: boolean }) => Promise<void>;
   /**
@@ -339,9 +342,10 @@ const gradeSpec: ToolSpec = {
     // question, so the grade degrades to a less targeted one rather than
     // failing. The agent is told the marking key in the result, so a
     // rephrased question still gets feedback about the right points.
-    const question = ctx.course.examQuestions.find((q) => q.question === args.data.question) ?? null;
-    const baseline = assessAnswer(question?.id ?? ctx.course.examQuestions[0].id, args.data.answer, {
-      course: ctx.course,
+    const question = gradeTarget(ctx.course, args.data.question, ctx.focus ?? null);
+    const target = question ?? ctx.course.examQuestions[0];
+    const baseline = assessAnswer(target.id, args.data.answer, {
+      course: { ...ctx.course, examQuestions: [target, ...ctx.course.examQuestions.filter((q) => q.id !== target.id)] },
     });
     const requiredKeywords = question?.requiredKeywords ?? baseline.fullAnswerCovers;
     const graded = await gradeAnswer({
