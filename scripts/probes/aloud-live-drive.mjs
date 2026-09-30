@@ -11,6 +11,9 @@
  * Options:   --greet <sec>  click-to-end-of-greeting, from a calibrate run (default 14)
  *            --gap <sec>    silence between spoken answers (default 40)
  *            --level <id>   override the level id
+ *            --inject       event-driven answers: the page's getUserMedia is replaced by a stream the driver
+ *                           plays each synthetic utterance into once the examiner has finished and is listening.
+ *                           Same AudioContext, worklet and socket path as a real microphone.
  *
  * Output: docs/evidence/probes/aloud-<scenario><tag>.<date>.json with the timeline
  * of socket events, tool HTTP calls and screen snapshots, plus derived checks.
@@ -28,7 +31,7 @@ const tag = opt("--tag", "");
 const greetSec = Number(opt("--greet", 14));
 const gapSec = Number(opt("--gap", 40));
 const RUN_ID = "run_course_transformers_w4";
-const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1" };
+const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", "bargein-say": "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1" };
 const levelId = opt("--level", LEVELS[scenario]);
 const audioDir = "fixtures/audio/live";
 const date = new Date().toISOString().slice(0, 10);
@@ -86,8 +89,12 @@ if (scenario === "bargein") {
   totalSec = 60;
 }
 const voice = !scenario.startsWith("typed");
+const inject = argv.includes("--inject") || scenario === "bargein-say";
+let answered = 0;
+let lastAnswerAt = -1e9;
+const ANSWERS = { "bargein-say": ["interrupt", "say-weight", "say-why"], say: ["say-weight", "say-why"], catch: ["claim-real", "claim-real", "claim-bluff"] }[scenario] ?? [];
 let fakeArgs = [];
-if (voice) {
+if (voice && !inject) {
   const wavPath = path.join(os.tmpdir(), `aloud-live-${scenario}.wav`);
   plan = compose(plan, totalSec, wavPath);
   fakeArgs = [`--use-file-for-fake-audio-capture=${wavPath}%noloop`];
@@ -97,6 +104,34 @@ if (voice) {
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required", ...fakeArgs] });
 const ctx = await browser.newContext({ viewport: { width: 430, height: 900 }, permissions: ["microphone"] });
 const page = await ctx.newPage();
+if (inject) {
+  await page.addInitScript(() => {
+    const orig = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = async (c) => {
+      if (!c || !c.audio) return orig(c);
+      const ac = new AudioContext();
+      const dest = ac.createMediaStreamDestination();
+      const silent = ac.createConstantSource();
+      silent.offset.value = 0;
+      silent.connect(dest);
+      silent.start();
+      window.__ac = ac;
+      window.__dest = dest;
+      return dest.stream;
+    };
+    window.__say = async (b64) => {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const buf = await window.__ac.decodeAudioData(bytes.buffer);
+      const src = window.__ac.createBufferSource();
+      src.buffer = buf;
+      src.connect(window.__dest);
+      src.start();
+      return buf.duration;
+    };
+  });
+}
 const errors = [];
 page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 200)));
 page.on("pageerror", (e) => errors.push(String(e).slice(0, 200)));
@@ -225,7 +260,7 @@ try {
   else await page.getByRole("button", { name: /Play by typing/ }).click();
   doc.clickAt = t0;
 
-  const limitMs = (voice ? totalSec + 30 : 240) * 1000;
+  const limitMs = (voice && !inject ? totalSec + 30 : 240) * 1000;
   const isDone = () => dom.at(-1)?.phase === "result";
   let shots = 0;
   while (T() < limitMs && !isDone()) {
@@ -235,6 +270,7 @@ try {
     // A player taps Continue on the answer card and Keep going on the proof card.
     if (s?.reveal) { await page.waitForTimeout(1500); await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-reveal-${++shots}-430.png` }).catch(() => {}); doc.revealClicks = (doc.revealClicks ?? 0) + 1; await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2000 }).catch(() => {}); }
     if (s?.proof) { await page.waitForTimeout(1200); await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-proof-${++shots}-430.png` }).catch(() => {}); await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2000 }).catch(() => {}); }
+    if (voice && inject) await injectStep(s);
     if (!voice) await typedStep(page, s);
     await page.waitForTimeout(300);
   }
@@ -243,6 +279,19 @@ try {
   stop = true;
   await poller;
   doc.localProgress = await page.evaluate((id) => { try { const p = JSON.parse(localStorage.getItem(`aloud.progress.${id}`)); return { xp: p.xp, rank: p.rank, unlockedIndex: p.unlockedIndex, results: Object.fromEntries(Object.entries(p.results).filter(([, r]) => r.rounds.length).map(([k, r]) => [k, { stars: r.stars, xp: r.xp, heartsLeft: r.heartsLeft, rounds: r.rounds, outcome: r.outcome, proofIds: r.proofIds }])), proofs: p.proofs.map((x) => ({ quote: x.quote.slice(0, 120), page: x.page, passageId: x.passageId })) }; } catch { return null; } }, RUN_ID);
+  // Streak and daily ring: read what the app itself shows on the profile and map after the level, and what the server holds.
+  if (isDone()) {
+    doc.localStreak = await page.evaluate((id) => { const p = JSON.parse(localStorage.getItem(`aloud.progress.${id}`)); return { streakDays: p.streakDays, lastPlayedDay: p.lastPlayedDay, freezes: p.freezes, todayMinutes: p.todayMinutes, todayDay: p.todayDay, dailyGoalMinutes: p.dailyGoalMinutes, weakConceptIds: p.weakConceptIds }; }, RUN_ID);
+    doc.serverProgress = await page.evaluate(async () => { const r = await fetch("/api/game/progress?subjectId=course_transformers_w4", { cache: "no-store" }); const j = await r.json(); const p = j.progress; return { status: r.status, persisted: j.persisted, xp: p.xp, rank: p.rank, streakDays: p.streakDays, lastPlayedDay: p.lastPlayedDay, todayMinutes: p.todayMinutes, results: Object.keys(p.results).length, proofs: p.proofs.length }; });
+    await page.goto(`${base}/me`, { waitUntil: "networkidle" });
+    await page.waitForTimeout(1200);
+    doc.profileText = await page.evaluate(() => document.querySelector("main")?.innerText?.replace(/\s+/g, " ").slice(0, 700) ?? null);
+    await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-profile-430.png`, fullPage: true }).catch(() => {});
+    await page.goto(`${base}/run/${RUN_ID}`, { waitUntil: "networkidle" });
+    await page.waitForTimeout(1500);
+    doc.mapText = await page.evaluate(() => document.querySelector('[data-testid="run-map"]')?.innerText?.replace(/\s+/g, " ").slice(0, 500) ?? null);
+    await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-map-430.png` }).catch(() => {});
+  }
 } catch (e) {
   failure = String(e).slice(0, 400);
   await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-failure-430.png` }).catch(() => {});
@@ -261,6 +310,34 @@ console.log("scenario", scenario, "level", levelId, "failure:", failure ?? "none
 console.log("session.ready ms", at("session.ready"), "| first reply.audio ms", at("reply.audio"), "| first reply.done ms", at("reply.done"), "| examiner audio sec", doc.examinerAudioSec);
 console.log("agent turns:", ws.filter((e) => e.type === "transcript.agent").length, "| user turns:", ws.filter((e) => e.type === "transcript.user").length, "| tool.call:", ws.filter((e) => e.type === "tool.call").map((e) => e.name).join(","), "| tool.result sent:", ws.filter((e) => e.type === "tool.result").length);
 console.log("last phase:", dom.at(-1)?.phase, "| hearts:", dom.at(-1)?.hearts, "| out:", outFile);
+
+/* ---------- injected spoken answers, event-driven ---------- */
+async function injectStep(s) {
+  if (answered >= ANSWERS.length || s?.phase !== "live") return;
+  if (scenario === "bargein-say" && answered === 0) {
+    // Cut in while the examiner is still reading the opening question.
+    if (!/^Speaking/.test(s.state ?? "") || T() < Number(opt("--at", 2000))) return;
+    const at = T();
+    const secs = await page.evaluate((b) => window.__say(b), fs.readFileSync(`${audioDir}/interrupt.wav`).toString("base64"));
+    lastAnswerAt = at;
+    answered = 1;
+    (doc.injected ??= []).push({ wav: "interrupt", atMs: at, durSec: +secs.toFixed(2), whileExaminerSpeaking: true });
+    return;
+  }
+  if (!/^Listening/.test(s.state ?? "")) return;
+  const lastDone = ws.filter((e) => e.type === "reply.done").at(-1);
+  const calls = ws.filter((e) => e.type === "tool.call").length;
+  const results = ws.filter((e) => e.type === "tool.result").length;
+  if (!lastDone || calls !== results) return;
+  if (T() - lastDone.t < 900 || T() - lastAnswerAt < 4000 || lastDone.t < lastAnswerAt) return;
+  const name = ANSWERS[answered];
+  const b64 = fs.readFileSync(`${audioDir}/${name}.wav`).toString("base64");
+  const at = T();
+  const secs = await page.evaluate((b) => window.__say(b), b64);
+  lastAnswerAt = at;
+  answered += 1;
+  (doc.injected ??= []).push({ wav: name, atMs: at, durSec: +secs.toFixed(2), afterReplyDoneMs: at - lastDone.t });
+}
 
 /* ---------- typed play (same UI, the real grader) ---------- */
 async function typedStep(page, s) {

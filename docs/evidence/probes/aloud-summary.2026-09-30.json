@@ -1,0 +1,120 @@
+{
+ "measuredOn": "2026-09-30T13:50:13.749Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "learnerVoice": "synthetic (Windows System.Speech), not a human voice",
+ "service": "AssemblyAI Voice Agent, real socket, dev server on localhost, sample course (course_transformers_w4)",
+ "sourceFiles": [
+  "aloud-bargein-say-r1.2026-09-30.json",
+  "aloud-bargein-say-r2.2026-09-30.json",
+  "aloud-bargein-say-r3.2026-09-30.json",
+  "aloud-bargein-say.2026-09-30.json",
+  "aloud-bargein.2026-09-30.json",
+  "aloud-calibrate.2026-09-30.json",
+  "aloud-catch-fixed.2026-09-30.json",
+  "aloud-catch-inject.2026-09-30.json",
+  "aloud-catch-inject2.2026-09-30.json",
+  "aloud-catch.2026-09-30.json",
+  "aloud-say-fixed.2026-09-30.json",
+  "aloud-say-inject.2026-09-30.json",
+  "aloud-say.2026-09-30.json",
+  "aloud-typed-catch.2026-09-30.json",
+  "aloud-typed-say.2026-09-30.json"
+ ],
+ "voiceRuns": 13,
+ "sessionReadyMsAfterClick": {
+  "n": 13,
+  "median": 910,
+  "min": 825,
+  "max": 11007
+ },
+ "firstExaminerAudioMsAfterClick": {
+  "n": 13,
+  "median": 1423,
+  "min": 1323,
+  "max": 11517
+ },
+ "learnerFinalTranscriptToToolCallMs": {
+  "n": 23,
+  "median": 4315,
+  "min": 2165,
+  "max": 7539
+ },
+ "toolCallToToolResultSentMs": {
+  "n": 23,
+  "median": 777,
+  "min": 261,
+  "max": 2345
+ },
+ "toolResultSentToNextExaminerAudioMs": {
+  "n": 22,
+  "median": 512,
+  "min": 475,
+  "max": 749
+ },
+ "toolHttpMs": {
+  "grade_my_answer": {
+   "n": 16,
+   "median": 836,
+   "min": 626,
+   "max": 2343
+  },
+  "verify_claim": {
+   "n": 38,
+   "median": 605,
+   "min": 261,
+   "max": 1001
+  }
+ },
+ "typedGradeHttpMs": {
+  "n": 2,
+  "median": 626,
+  "min": 626,
+  "max": 2333
+ },
+ "lastExaminerReplyDoneToResultScreenMs": {
+  "n": 2,
+  "median": 85,
+  "min": 85,
+  "max": 114
+ },
+ "bargeIn": {
+  "learnerSpeechStartedToInterruptedReplyDoneMs": {
+   "n": 4,
+   "median": 86,
+   "min": 5,
+   "max": 1386
+  },
+  "injectedAudioToSpeechStartedMs": {
+   "n": 3,
+   "median": 3180,
+   "min": 1769,
+   "max": 3497
+  }
+ },
+ "levelsPlayedToResult": 13,
+ "roundOutcomes": {
+  "correct": 18,
+  "partial": 8,
+  "bluff_caught": 5
+ },
+ "verifyCatch": {
+  "file": "aloud-verify-catch.2026-09-30.json",
+  "real": {
+   "n": 26,
+   "matches": 26,
+   "supported": 26,
+   "contradicted": 0,
+   "not_in_material": 0,
+   "other": 0
+  },
+  "bluff": {
+   "n": 32,
+   "matches": 20,
+   "supported": 6,
+   "contradicted": 20,
+   "not_in_material": 6,
+   "other": 0
+  }
+ }
+}

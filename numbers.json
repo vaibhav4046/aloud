@@ -128,11 +128,133 @@
     "evidence": "docs/evidence/probes/verify-claim-live-2026-09-29.json",
     "cmd": "npx tsx --env-file=.env.local scripts/probes/oral-verify-eval.mts"
   },
-  "landingGzipJsKB": { "value": 139.5, "n": 5, "date": "2026-09-29", "evidence": "docs/evidence/perf/perf.2026-09-29.json", "cmd": "npm run build && node scripts/perf.mjs" },
-  "landingCls": { "value": 0.0001, "n": 5, "date": "2026-09-29", "evidence": "docs/evidence/perf/perf.2026-09-29.json", "cmd": "npm run build && node scripts/perf.mjs" },
-  "landingLcpMsThrottled": { "value": 1080, "n": 5, "date": "2026-09-29", "evidence": "docs/evidence/perf/perf.2026-09-29.json", "cmd": "npm run build && node scripts/perf.mjs" },
-  "oralGzipJsKB": { "value": 178.4, "n": 5, "date": "2026-09-29", "evidence": "docs/evidence/perf/perf.2026-09-29.json", "cmd": "npm run build && node scripts/perf.mjs" },
-  "oralCls": { "value": 0, "n": 5, "date": "2026-09-29", "evidence": "docs/evidence/perf/perf.2026-09-29.json", "cmd": "npm run build && node scripts/perf.mjs" },
-  "oral.memory.runsOpenedOnStoredWeakest": { "value": 3, "n": 3, "date": "2026-09-29", "evidence": "docs/evidence/probes/oral-memory-live.2026-09-29.json", "cmd": "ORAL_PROBE_BASE=http://localhost:3161 npx tsx scripts/probes/oral-memory-live.mts --runs 3" },
-  "oral.followup.runsNamingChosenConcept": { "value": 2, "n": 3, "date": "2026-09-29", "evidence": "docs/evidence/probes/oral-memory-live.2026-09-29.json", "cmd": "ORAL_PROBE_BASE=http://localhost:3161 npx tsx scripts/probes/oral-memory-live.mts --runs 3" }
+  "landingGzipJsKB": {
+    "value": 139.5,
+    "n": 5,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/perf/perf.2026-09-29.json",
+    "cmd": "npm run build && node scripts/perf.mjs"
+  },
+  "landingCls": {
+    "value": 0.0001,
+    "n": 5,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/perf/perf.2026-09-29.json",
+    "cmd": "npm run build && node scripts/perf.mjs"
+  },
+  "landingLcpMsThrottled": {
+    "value": 1080,
+    "n": 5,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/perf/perf.2026-09-29.json",
+    "cmd": "npm run build && node scripts/perf.mjs"
+  },
+  "oralGzipJsKB": {
+    "value": 178.4,
+    "n": 5,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/perf/perf.2026-09-29.json",
+    "cmd": "npm run build && node scripts/perf.mjs"
+  },
+  "oralCls": {
+    "value": 0,
+    "n": 5,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/perf/perf.2026-09-29.json",
+    "cmd": "npm run build && node scripts/perf.mjs"
+  },
+  "oral.memory.runsOpenedOnStoredWeakest": {
+    "value": 3,
+    "n": 3,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/probes/oral-memory-live.2026-09-29.json",
+    "cmd": "ORAL_PROBE_BASE=http://localhost:3161 npx tsx scripts/probes/oral-memory-live.mts --runs 3"
+  },
+  "oral.followup.runsNamingChosenConcept": {
+    "value": 2,
+    "n": 3,
+    "date": "2026-09-29",
+    "evidence": "docs/evidence/probes/oral-memory-live.2026-09-29.json",
+    "cmd": "ORAL_PROBE_BASE=http://localhost:3161 npx tsx scripts/probes/oral-memory-live.mts --runs 3"
+  },
+  "aloud.live.sessionReadyMs": {
+    "value": 910,
+    "n": 13,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median click on Start talking to session.ready, dev server (some runs include a route compile). Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.live.firstExaminerAudioMs": {
+    "value": 1423,
+    "n": 13,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median click to first examiner audio frame. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.live.toolCallToResultMs": {
+    "value": 777,
+    "n": 23,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median tool.call received to tool.result sent, includes the real grader or page check. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.live.gradeToolHttpMs": {
+    "value": 836,
+    "n": 16,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median /api/oral/tool grade_my_answer round trip seen by the browser. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.live.verifyToolHttpMs": {
+    "value": 605,
+    "n": 38,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median /api/oral/tool verify_claim round trip seen by the browser. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.live.bargeInInterruptedMs": {
+    "value": 86,
+    "n": 4,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median input.speech.started to reply.done interrupted inside a level. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.live.finalReplyToResultScreenMs": {
+    "value": 85,
+    "n": 2,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Median last examiner reply.done to the result screen rendering (runs after the end-of-level wait fix only). Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.verifyCatch.realSupported": {
+    "value": 26,
+    "n": 26,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-verify-catch.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Real catch claims that the live page check returned supported. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.verifyCatch.bluffContradicted": {
+    "value": 20,
+    "n": 32,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-verify-catch.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Planted bluff claims that the live page check returned contradicted. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "aloud.verifyCatch.bluffSupported": {
+    "value": 6,
+    "n": 32,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/aloud-verify-catch.2026-09-30.json",
+    "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
+    "note": "Planted bluff claims that the live page check wrongly returned supported. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  }
 }
