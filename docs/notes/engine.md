@@ -6,6 +6,8 @@ Status of each section is marked. Anything marked PLANNED is written here first 
 
 ## 1. Types (src/lib/game/types.ts), what was added
 
+Also `Run.thin?: boolean` (the material was too thin for 12 levels; the run is returned short, never padded).
+
 Additive only. Nothing existing was renamed or removed.
 
 - `Level.items?: LevelItem[]` (always set by `generateRun`). `LevelItem = SayItem | CatchItem`.
@@ -93,29 +95,35 @@ Persistence: the client keeps `Progress` in localStorage (key is the UI worker's
 ```ts
 // prompt.ts
 export const LEVEL_PROMPT_VERSION: string
-export function buildLevelPrompt(level: Level): string              // appended to the examiner system prompt
-export function levelGreeting(level: Level): string                 // spoken first line, code-written, never hints at a bluff
+buildOralSystemPrompt({ ..., level?: Level }): string   // level block appended after the learner brief
+buildLevelPrompt(level: Level): string
+levelGreeting(level: Level): string     // spoken first line, code-written; a catch level opens by stating its first claim, real or bluff, identically
 
 // session.ts
-export type Stance = "real" | "bluff"
-export function stanceOf(transcript: string): Stance | null         // null = could not tell; ask the player to tap Real or Bluff
-export type ToolEvent = { name: string; args?: Record<string, unknown>; result: Record<string, unknown>; isError?: boolean }
-export type RoundDraft = { itemIndex: number; startedAtMs: number; stance: Stance | null; hinted: boolean; verify: VerifySnapshot | null; grade: GradeSnapshot | null }
-beginRound(level: Level, itemIndex: number, nowMs: number): RoundDraft
-noteUserSpeech(draft: RoundDraft, level: Level, transcript: string): RoundDraft   // catch rounds: sets stance from words
-setStance(draft: RoundDraft, stance: Stance): RoundDraft                            // typed fallback buttons
-noteHint(draft: RoundDraft): RoundDraft
-noteToolEvent(draft: RoundDraft, level: Level, ev: ToolEvent, chunks: SourceChunk[]): RoundDraft   // verify_claim / grade_my_answer results
-isRoundReady(draft: RoundDraft, level: Level): boolean
-closeRound(draft: RoundDraft, level: Level, nowMs: number): RoundReport            // outcome decided here, from code only
+type Stance = "real" | "bluff"
+stanceOf(transcript: string): Stance | null      // null = could not tell; show the Real and Bluff buttons
+type ToolEvent = { name: string; args?: Record<string, unknown>; result: Record<string, unknown>; isError?: boolean }
+type RoundDraft = { itemIndex; startedAtMs; stance; hinted; claimCheck; playerCheck; grade }
+beginRound(level: Level, itemIndex: number, nowMs: number): RoundDraft     // throws RangeError for a bad index
+noteUserSpeech(draft, level, transcript: string): RoundDraft                // claim rounds: sets stance from words
+setStance(draft, stance: Stance): RoundDraft                                // typed fallback buttons
+noteHint(draft): RoundDraft
+noteToolEvent(draft, level, ev: ToolEvent): RoundDraft                      // verify_claim / grade_my_answer results
+isRoundReady(draft, level): boolean          // claim: stance and check; question: grade
+closeRound(draft, level, chunks: SourceChunk[], nowMs: number): RoundReport // outcome decided here
 ```
 
-Where outcomes come from:
-- Say, boss say-items, recall: the `grade_my_answer` tool result (`correct | partial | incorrect`). A `verify_claim` result of `contradicted` on the player's own words caps the round at `partial`. `grounded` is true only when a `verify_claim` result carried a code-checked quote for this round.
-- Catch: truth is the item's `isBluff` flag. The player's stance comes from `stanceOf` on their words, or the Real/Bluff buttons. Bluff and called bluff = `bluff_caught`; bluff and called real = `bluff_missed`; real and called real = `correct`; real and called bluff = `incorrect`; no stance = `skipped`. `verify_claim` on the stated claim only supplies the proof: it counts when it agrees with the flag (bluff with `contradicted`, real with `supported`) and the quote is a verbatim substring of a passage in `chunks`. It never changes the outcome.
-- Model prose is never read.
+Flow for the UI: for each item `i` of `level.items`, `beginRound`, feed it the player's transcript (`noteUserSpeech`) and each tool result the oral client received (`noteToolEvent`, with the call's `arguments`), then `closeRound` and `applyRound` (scoring.ts). `chunks` is the subject's passages (the client can get them from the course or the source pane); it is used to re-check every proof quote.
 
-Server side: `GET /api/oral/session?subjectId=&levelId=` returns the usual oral session config with the level block appended to `system_prompt` and `greeting` replaced by `levelGreeting`. `POST /api/oral/tool` accepts an extra optional `levelId`. With it, a `verify_claim` on one of the level's own catch claims does not write to the learner's mastery (the examiner said it, not the player).
+Where outcomes come from:
+- Say, the question rounds of a Boss, and Recall: the `grade_my_answer` result (`correct | partial | incorrect`). A `verify_claim` result of `contradicted` on the player's own words caps a `correct` round at `partial`. `grounded` is true only when a `verify_claim` result of `supported` carried a quote that is a verbatim substring of the named passage (checked again here with `quoteInPassage`). No grade closes the round as `skipped`.
+- Catch (and the claim rounds of a Boss): truth is the item's `isBluff` flag. The stance comes from `stanceOf` on the player's words or from the buttons. Bluff and called bluff = `bluff_caught`; bluff and called real = `bluff_missed`; real and called real = `correct`; real and called bluff = `incorrect`; no stance = `skipped`. A `verify_claim` on the exact stated claim only supplies the proof, and only when it agrees with the flag (bluff with `contradicted`, real with `supported`) and its quote is verbatim in the passage. It never changes the outcome.
+- Model prose is never read. There is no function that takes examiner text.
+
+Server side:
+- `GET /api/oral/session?subjectId=&levelId=` returns the usual session config with the level block appended to `system_prompt`, `greeting` replaced by `levelGreeting`, plus `levelId` and `levelPromptVersion`. The level is looked up in the caller's own stored run (404 `LEVEL_NOT_FOUND` otherwise). Without `levelId` nothing changes.
+- `POST /api/oral/tool` accepts an optional `levelId`. When it is set and a `verify_claim` states one of the level's own catch claims, the route still checks it and returns the verdict, but does not write it to the player's mastery map or return `next_focus` (the examiner said it, not the player). The client should pass `levelId` on every tool call of a level.
+- The system prompt of a catch level contains the marks (which claims are bluffs). It is returned to the browser like the rest of the prompt, so a player who opens the network tab can read it. That only spoils their own game; scoring never trusts the model, only the flag in the run.
 
 ## 6. API (src/app/api/game/*)
 
@@ -132,9 +140,9 @@ All routes resolve the caller from the identity cookie (`viva_did`), scope every
   -> 200 `{ progress: Progress, persisted: boolean }` (a fresh endowed Progress with `persisted: false` when none is stored).
 
 `POST /api/game/progress`  body one of
-  - `{ subjectId: string, progress: Progress }`: merge the client copy into the stored one.
-  - `{ subjectId: string, result: LevelResult, proofs?: ProofCard[], tz?: string }`: apply one finished level (bounded: `xp <= maxXpForLevel`, `rounds.length <= level.rounds`, level id must be in the run).
+  - `{ subjectId: string, progress: Progress, tz?: string }`: merge the client copy into the stored one. Results for levels not in the run, or that the level cannot have paid, are dropped first.
+  - `{ subjectId: string, result: LevelResult, proofs?: ProofCard[], tz?: string }`: apply one finished level. Bounds: level id in the run, `xp <= maxXpForLevel`, `rounds.length <= level.rounds`, `heartsLeft <= level.hearts`, only a won level has stars or XP. Proof cards are kept only when their quote is verbatim in the passage they name. The server clock decides the streak day; `tz` only names the zone.
   -> 200 `{ progress: Progress }` (merged). Posting the same body twice returns the same progress.
   -> 400 `BAD_REQUEST` (malformed or out of bounds), 413 `PAYLOAD_TOO_LARGE`, 429 `RATE_LIMITED`, 404 `SUBJECT_NOT_FOUND`.
 
-Storage: two new `EventStore` methods, `getGameDoc(userId, key)` and `putGameDoc(userId, key, doc)`, implemented for the file store and Postgres (table `game_docs`, created lazily and in `migrations/006_game_docs.sql`). Keys: `run:<subjectId>` and `progress:<subjectId>`.
+Bodies are zod validated (every string, number and list is bounded). Storage: two new `EventStore` methods, `getGameDoc(userId, key)` and `putGameDoc(userId, key, doc)`, implemented for the file store and Postgres (table `game_docs`, created lazily and in `migrations/006_game_docs.sql`). Keys: `run:<subjectId>` and `progress:<subjectId>`.

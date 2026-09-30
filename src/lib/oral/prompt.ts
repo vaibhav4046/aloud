@@ -1,3 +1,5 @@
+import type { CatchItem, Level, LevelItem, SayItem } from "@/lib/game/types";
+import { promptClaim, promptLabel } from "./sanitize";
 import { briefPromptLines, type LearnerBrief } from "./learner-brief";
 
 /**
@@ -37,6 +39,8 @@ export function buildOralSystemPrompt(input: {
   languages: string[];
   sourceTitles: string[];
   brief: LearnerBrief;
+  /** When set, the examiner hosts one game level and the level rules override the general question steering. */
+  level?: Level;
 }): string {
   return [
     ORAL_EXAMINER_RULES,
@@ -47,6 +51,7 @@ export function buildOralSystemPrompt(input: {
     input.sourceTitles.length ? `THEIR SOURCES: ${input.sourceTitles.join("; ")}` : "",
     "",
     ...briefPromptLines(input.brief),
+    ...(input.level ? ["", buildLevelPrompt(input.level)] : []),
   ]
     .filter((line, i, all) => line !== "" || all[i - 1] !== "")
     .join("\n");
@@ -66,4 +71,73 @@ export function oralGreeting(brief: LearnerBrief): string {
     return `${start} I will start with ${brief.opening.name}, ${why}. In your own words, what is it?`;
   }
   return `${start} Tell me what you want to be asked on, and I'll start there.`;
+}
+
+/**
+ * The game level block, versioned separately from the base rules so the
+ * reviewed base prompt stays byte for byte the same. Change the text and the
+ * snapshot in tests/game-level-prompt.test.ts fails until this is bumped.
+ */
+export const LEVEL_PROMPT_VERSION = "2026-09-30.1";
+
+export const LEVEL_RULES = `
+GAME LEVEL RULES. You are hosting one level of a spoken game. These rules override the general question steering above, including next_focus: ask the items below in the listed order and nothing else.
+Never say how many hearts the player has, never announce points, and never say a round is won or lost. The screen shows all of that.
+The verdict of a tool is the only source for what you tell the player about their answer. Never decide a grade yourself.
+After the last item, say one short closing line and stop.
+`.trim();
+
+export const CATCH_RULES = `
+CATCH RULES. Some claims below are real sentences from the player's pages and some are planted bluffs with one changed fact. The marks are for you only.
+State each claim word for word, in the same calm level voice whether it is real or a bluff, then ask: real or bluff? Never say, hint at, or signal which it is until the player has answered. If asked for a hint or whether you are sure, stay neutral and repeat the claim.
+When the player answers, call verify_claim with the exact claim text you stated, not the player's words, and pass the concept name as concept. Then reveal. If it is a bluff, say it was a bluff and say what the page says, using the quote from the tool result and the page number said aloud. If it is real, say it is real and give the page. If the tool result and the mark disagree, say only what the tool result quotes. Then go to the next claim.
+`.trim();
+
+export const SAY_RULES = `
+SAY RULES. Ask each question as written or in your own words, one at a time. After each answer, call grade_my_answer with your question and their answer, then react in one short sentence using only the returned verdict and feedback. If the player claims a specific fact, you may also call verify_claim on their exact words.
+`.trim();
+
+const KIND_LINE: Record<Level["kind"], string> = {
+  say: "SAY IT. The player explains each concept in their own words.",
+  catch: "CATCH IT. The player decides whether each claim is real or a bluff.",
+  boss: "BOSS. A fast round across a whole world. Keep every turn under twelve words except a reveal. Questions and claims are mixed.",
+  recall: "RECALL. A review of concepts the player missed earlier. Keep it brief and kind.",
+};
+
+function itemLine(item: LevelItem, n: number): string {
+  if (item.type === "say") return `ITEM ${n} (question): ${promptClaim((item as SayItem).question, 400)}`;
+  const c = item as CatchItem;
+  const page = c.page != null ? `, page ${c.page}` : "";
+  const mark = c.isBluff ? `bluff, the page says: "${promptClaim(c.source, 400)}"${page}` : `real${page}`;
+  return `ITEM ${n} (claim, ${mark}): "${promptClaim(c.claim, 400)}"`;
+}
+
+/** The level block appended to the examiner system prompt. Sanitised: item text comes from the player's material. */
+export function buildLevelPrompt(level: Level): string {
+  const items = level.items ?? [];
+  const hasClaims = items.some((i) => i.type === "catch");
+  const hasQuestions = items.some((i) => i.type === "say");
+  return [
+    `LEVEL: ${promptLabel(level.title, 80)}. ${KIND_LINE[level.kind]}`,
+    `There are ${items.length} items. Ask them in this order.`,
+    LEVEL_RULES,
+    hasClaims ? CATCH_RULES : "",
+    hasQuestions ? SAY_RULES : "",
+    ...items.map((it, i) => itemLine(it, i + 1)),
+  ].filter((l) => l !== "").join("\n");
+}
+
+/**
+ * The first line the examiner speaks for a level. Written in code so it can
+ * never hint at a bluff: a catch level opens by stating its first claim, real
+ * or planted, in the same words and the same voice.
+ */
+export function levelGreeting(level: Level): string {
+  const first = level.items?.[0];
+  const title = promptLabel(level.title, 80);
+  if (!first) return `${title}. Ready when you are.`;
+  if (first.type === "catch") {
+    return `${title}. I will state some claims from your pages. Some are real and some are planted. Here is the first: ${promptClaim(first.claim, 400)} Real or bluff?`;
+  }
+  return `${title}. First question: ${promptClaim(first.question, 400)}`;
 }

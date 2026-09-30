@@ -3,7 +3,10 @@ import { withIdentityCookie } from "@/lib/http";
 import { getStore, storeDurability } from "@/lib/store";
 import { resolveSubject, subjectMissing, keytermsFrom } from "@/lib/courses/subject";
 import { toolDefsForWire } from "@/lib/oral/tools";
-import { buildOralSystemPrompt, oralGreeting, ORAL_PROMPT_VERSION } from "@/lib/oral/prompt";
+import { buildOralSystemPrompt, levelGreeting, oralGreeting, LEVEL_PROMPT_VERSION, ORAL_PROMPT_VERSION } from "@/lib/oral/prompt";
+import { findLevel } from "@/lib/game/run";
+import { loadRun } from "@/lib/game/service";
+import type { Level } from "@/lib/game/types";
 import { buildLearnerBrief } from "@/lib/oral/learner-brief";
 import { promptLabel } from "@/lib/oral/sanitize";
 import { err } from "@/lib/types";
@@ -35,7 +38,12 @@ const MAX_SOURCES = 12;
 
 export async function GET(req: Request): Promise<Response> {
   const { identity, setCookie } = await resolveIdentity(req);
-  const subjectId = new URL(req.url).searchParams.get("subjectId");
+  const params = new URL(req.url).searchParams;
+  const subjectId = params.get("subjectId");
+  const levelId = params.get("levelId");
+  if (levelId !== null && levelId.length > 120) {
+    return withIdentityCookie(err("BAD_REQUEST", "That level id is too long.", false, 400), setCookie);
+  }
 
   try {
     const store = getStore();
@@ -59,12 +67,22 @@ export async function GET(req: Request): Promise<Response> {
       durable: durability.durable,
     });
 
+    // A game level: the caller's own stored run names it, so a level id from
+    // another subject or another learner does not resolve.
+    let level: Level | null = null;
+    if (levelId) {
+      const { run } = await loadRun(store, identity.userId, subject, { now: new Date() });
+      level = findLevel(run, levelId);
+      if (!level) return withIdentityCookie(err("LEVEL_NOT_FOUND", "That level is not in this run.", false, 404), setCookie);
+    }
+
     const system_prompt = buildOralSystemPrompt({
       subjectTitle: promptLabel(subject.title, MAX_LABEL),
       concepts,
       languages: (subject.languageCodes ?? ["en"]).map((l) => promptLabel(l, 12)),
       sourceTitles: (subject.sources ?? []).slice(0, MAX_SOURCES).map((s) => promptLabel(s.title, MAX_LABEL)),
       brief,
+      level: level ?? undefined,
     });
 
     return withIdentityCookie(
@@ -73,8 +91,10 @@ export async function GET(req: Request): Promise<Response> {
           subjectId: subject.id,
           system_prompt,
           promptVersion: ORAL_PROMPT_VERSION,
+          levelPromptVersion: level ? LEVEL_PROMPT_VERSION : null,
+          levelId: level?.id ?? null,
           memory: { status: brief.status, durable: brief.durable, note: brief.note, opening: brief.opening?.name ?? null },
-          greeting: oralGreeting(brief),
+          greeting: level ? levelGreeting(level) : oralGreeting(brief),
           // Only the fields the turn-detection reference documents. An earlier
           // version sent undocumented names (silence_duration_ms, interrupt_*),
           // which the service accepted and ignored, so the settings looked
