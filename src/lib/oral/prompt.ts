@@ -41,6 +41,8 @@ export function buildOralSystemPrompt(input: {
   brief: LearnerBrief;
   /** When set, the examiner hosts one game level and the level rules override the general question steering. */
   level?: Level;
+  /** Rounds of `level` already closed on screen when the session is reopened mid-level. */
+  levelFrom?: number;
 }): string {
   return [
     ORAL_EXAMINER_RULES,
@@ -51,7 +53,7 @@ export function buildOralSystemPrompt(input: {
     input.sourceTitles.length ? `THEIR SOURCES: ${input.sourceTitles.join("; ")}` : "",
     "",
     ...briefPromptLines(input.brief),
-    ...(input.level ? ["", buildLevelPrompt(input.level)] : []),
+    ...(input.level ? ["", buildLevelPrompt(input.level, input.levelFrom ?? 0)] : []),
   ]
     .filter((line, i, all) => line !== "" || all[i - 1] !== "")
     .join("\n");
@@ -112,14 +114,26 @@ function itemLine(item: LevelItem, n: number): string {
   return `ITEM ${n} (claim, ${mark}): "${promptClaim(c.claim, 400)}"`;
 }
 
+/**
+ * The level as the examiner should see it when the session opens mid-level:
+ * only the items the player has not finished. `from` is the number of rounds
+ * already closed on screen; 0 leaves the level untouched.
+ */
+export function remainingLevel(level: Level, from: number): Level {
+  return from > 0 ? { ...level, items: (level.items ?? []).slice(from) } : level;
+}
+
 /** The level block appended to the examiner system prompt. Sanitised: item text comes from the player's material. */
-export function buildLevelPrompt(level: Level): string {
+export function buildLevelPrompt(rawLevel: Level, from = 0): string {
+  const level = remainingLevel(rawLevel, from);
   const items = level.items ?? [];
   const hasClaims = items.some((i) => i.type === "catch");
   const hasQuestions = items.some((i) => i.type === "say");
   return [
     `LEVEL: ${promptLabel(level.title, 80)}. ${KIND_LINE[level.kind]}`,
-    `There are ${items.length} items. Ask them in this order.`,
+    from > 0
+      ? `The player has already answered ${from} of this level's items on screen and the session was reconnected. There are ${items.length} items left. Ask them in this order and do not go back.`
+      : `There are ${items.length} items. Ask them in this order.`,
     LEVEL_RULES,
     hasClaims ? CATCH_RULES : "",
     hasQuestions ? SAY_RULES : "",
@@ -132,10 +146,16 @@ export function buildLevelPrompt(level: Level): string {
  * never hint at a bluff: a catch level opens by stating its first claim, real
  * or planted, in the same words and the same voice.
  */
-export function levelGreeting(level: Level): string {
+export function levelGreeting(rawLevel: Level, from = 0): string {
+  const level = remainingLevel(rawLevel, from);
   const first = level.items?.[0];
   const title = promptLabel(level.title, 80);
   if (!first) return `${title}. Ready when you are.`;
+  if (from > 0) {
+    return first.type === "catch"
+      ? `${title}, picking up where we left off. Here is the next claim: ${promptClaim(first.claim, 400)} Real or bluff?`
+      : `${title}, picking up where we left off. Next question: ${promptClaim(first.question, 400)}`;
+  }
   if (first.type === "catch") {
     return `${title}. I will state some claims from your pages. Some are real and some are planted. Here is the first: ${promptClaim(first.claim, 400)} Real or bluff?`;
   }

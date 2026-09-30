@@ -4,6 +4,7 @@ import type { Level, Run, RoundReport, CatchItem } from "@/lib/game/types";
 import type { SourceChunk } from "@/lib/types";
 import { initialMachine, type OralMachine } from "@/lib/oral/machine";
 import { voiceMessage } from "@/lib/audio/messages";
+import { levelSessionUrl, sessionEndedView } from "./resume";
 import { runLevelTool, runLevelToolStrict, toolFailed, type ToolResult } from "./level-tool";
 import { mintVoiceAgentToken, startOralExam, type MicHandle } from "@/components/oral/mic";
 import { CONNECT_TIMEOUT_MS } from "@/components/oral/useOralSession";
@@ -178,7 +179,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         setConnection("idle");
       };
       try {
-        const res = await fetch(`/api/oral/session?subjectId=${encodeURIComponent(subjectId)}&levelId=${encodeURIComponent(level.id)}`, { cache: "no-store", signal: AbortSignal.timeout(SESSION_TIMEOUT_MS) });
+        const res = await fetch(levelSessionUrl(subjectId, level.id, c.index), { cache: "no-store", signal: AbortSignal.timeout(SESSION_TIMEOUT_MS) });
         const body = (await res.json().catch(() => null)) as (Record<string, unknown> & { error?: { code?: string; message?: string } }) | null;
         if (attempt.current !== my) return;
         if (!res.ok || typeof body?.system_prompt !== "string") {
@@ -232,6 +233,8 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
               mic.current?.cancel();
               mic.current = null;
               setConnection("ended");
+              // The service closed the session mid-level: say so, and offer to resume at the next round.
+              if (attempt.current === my && playRef.current.phase === "live") setFailure(sessionEndedView(c.index, level.rounds));
             },
           },
           {

@@ -45,6 +45,13 @@ export async function GET(req: Request): Promise<Response> {
     return withIdentityCookie(err("BAD_REQUEST", "That level id is too long.", false, 400), setCookie);
   }
 
+  // Rounds already closed on screen when the player reconnects mid-level.
+  const fromRaw = params.get("from");
+  const from = fromRaw === null ? 0 : Number(fromRaw);
+  if (!Number.isInteger(from) || from < 0 || from > 30 || (from > 0 && !levelId)) {
+    return withIdentityCookie(err("BAD_REQUEST", "That resume point is not valid.", false, 400), setCookie);
+  }
+
   try {
     const store = getStore();
     const subject = await resolveSubject(store, identity.userId, subjectId ?? null);
@@ -74,6 +81,7 @@ export async function GET(req: Request): Promise<Response> {
       const { run } = await loadRun(store, identity.userId, subject, { now: new Date() });
       level = findLevel(run, levelId);
       if (!level) return withIdentityCookie(err("LEVEL_NOT_FOUND", "That level is not in this run.", false, 404), setCookie);
+      if (from >= level.rounds) return withIdentityCookie(err("BAD_REQUEST", "That resume point is past the last round.", false, 400), setCookie);
     }
 
     const system_prompt = buildOralSystemPrompt({
@@ -83,6 +91,7 @@ export async function GET(req: Request): Promise<Response> {
       sourceTitles: (subject.sources ?? []).slice(0, MAX_SOURCES).map((s) => promptLabel(s.title, MAX_LABEL)),
       brief,
       level: level ?? undefined,
+      levelFrom: from,
     });
 
     return withIdentityCookie(
@@ -93,8 +102,9 @@ export async function GET(req: Request): Promise<Response> {
           promptVersion: ORAL_PROMPT_VERSION,
           levelPromptVersion: level ? LEVEL_PROMPT_VERSION : null,
           levelId: level?.id ?? null,
+          levelFrom: level ? from : null,
           memory: { status: brief.status, durable: brief.durable, note: brief.note, opening: brief.opening?.name ?? null },
-          greeting: level ? levelGreeting(level) : oralGreeting(brief),
+          greeting: level ? levelGreeting(level, from) : oralGreeting(brief),
           // Only the fields the turn-detection reference documents. An earlier
           // version sent undocumented names (silence_duration_ms, interrupt_*),
           // which the service accepted and ignored, so the settings looked
