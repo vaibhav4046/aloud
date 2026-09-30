@@ -113,7 +113,7 @@ export function burstParticles(stars: number, perStar = 10): BurstParticle[] {
 /** The line under the stars. States what was earned, never flatters a lost level. */
 export function starsCopy(stars: 0 | 1 | 2 | 3, won: boolean): string {
   if (!won) return "Not cleared. The retry is free.";
-  if (stars === 3) return "Three stars. Every round held up.";
+  if (stars === 3) return "Three stars. No hearts lost.";
   if (stars === 2) return "Two stars. One heart lost. Replay for the third.";
   return "Cleared. Replay it for more stars.";
 }
