@@ -256,5 +256,58 @@
     "evidence": "docs/evidence/probes/aloud-verify-catch.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
     "note": "Planted bluff claims that the live page check wrongly returned supported. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
+  },
+  "tests.vitest.passed": {
+    "value": 1670,
+    "n": 1,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/vitest.2026-09-30.txt",
+    "cmd": "npx vitest run",
+    "note": "100 test files, 1 skipped."
+  },
+  "tests.vitest.files": {
+    "value": 100,
+    "n": 1,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/vitest.2026-09-30.txt",
+    "cmd": "npx vitest run"
+  },
+  "game.sampleRun.levels": {
+    "value": 22,
+    "n": 1,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/run-shape.2026-09-30.txt",
+    "cmd": "npx tsx scripts/run-shape.mts",
+    "note": "course_transformers_w4: 10 say, 7 catch, 5 boss levels in 5 worlds. Deterministic."
+  },
+  "game.sampleRun.worlds": {
+    "value": 5,
+    "n": 1,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/run-shape.2026-09-30.txt",
+    "cmd": "npx tsx scripts/run-shape.mts"
+  },
+  "game.catch.realProofOk": {
+    "value": 8,
+    "n": 8,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/game-claims-live.2026-09-30.json",
+    "cmd": "node scripts/probes/game-claims-live.mjs --base http://localhost:3000 --out docs/evidence/probes/game-claims-live.2026-09-30.json",
+    "note": "Real claims in the sample run's 7 catch levels that verify_claim returned supported with a quote and page."
+  },
+  "game.catch.bluffProofOk": {
+    "value": 7,
+    "n": 11,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/game-claims-live.2026-09-30.json",
+    "cmd": "node scripts/probes/game-claims-live.mjs --base http://localhost:3000 --out docs/evidence/probes/game-claims-live.2026-09-30.json",
+    "note": "Bluffs returned contradicted with a quote and page. 3 not_in_material, 1 wrongly supported."
+  },
+  "game.catch.bluffWronglySupported": {
+    "value": 1,
+    "n": 11,
+    "date": "2026-09-30",
+    "evidence": "docs/evidence/probes/game-claims-live.2026-09-30.json",
+    "cmd": "node scripts/probes/game-claims-live.mjs --base http://localhost:3000 --out docs/evidence/probes/game-claims-live.2026-09-30.json"
   }
 }

@@ -1,0 +1,29 @@
+Command: npx tsx scripts/run-shape.mts
+Run 2026-09-30 about 09:12 UTC, cwd D:\project\aloud. Columns: subject id, levels, worlds, count per kind, thin flag.
+
+course_transformers_w4 22 5 {"say":10,"catch":7,"boss":5} false
+course_probability 29 6 {"say":11,"catch":12,"boss":6} false
+course_os_alg 25 5 {"say":11,"catch":9,"boss":5} false
+course_os_anat 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_astro 29 6 {"say":12,"catch":11,"boss":6} false
+course_os_bio 29 6 {"say":11,"catch":12,"boss":6} false
+course_os_bonding 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_chem 27 6 {"say":12,"catch":9,"boss":6} false
+course_os_ecology 30 6 {"say":12,"catch":12,"boss":6} false
+course_os_econ 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_emag 30 6 {"say":12,"catch":12,"boss":6} false
+course_os_energy 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_evolution 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_gov 29 6 {"say":12,"catch":11,"boss":6} false
+course_os_heart 30 6 {"say":10,"catch":14,"boss":6} false
+course_os_immune 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_learn 30 6 {"say":14,"catch":10,"boss":6} false
+course_os_photo 30 6 {"say":15,"catch":9,"boss":6} false
+course_os_phys 30 6 {"say":12,"catch":12,"boss":6} false
+course_os_psych 30 6 {"say":12,"catch":12,"boss":6} false
+course_os_soc 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_solarsys 30 6 {"say":14,"catch":10,"boss":6} false
+course_os_stars 30 6 {"say":13,"catch":11,"boss":6} false
+course_os_stats 30 6 {"say":12,"catch":12,"boss":6} false
+course_os_thermo 30 6 {"say":12,"catch":12,"boss":6} false
+course_os_waves 30 6 {"say":12,"catch":12,"boss":6} false
