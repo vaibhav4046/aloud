@@ -7,8 +7,8 @@ Versions are the ones in `package-lock.json` at the time of writing.
 
 | Font | Use | Licence |
 |---|---|---|
-| Newsreader | Display type and the exam question | SIL Open Font License 1.1 |
-| IBM Plex Sans | Interface text | SIL Open Font License 1.1 |
+| Fraunces | Display type, headlines and questions | SIL Open Font License 1.1 |
+| Onest | Interface text | SIL Open Font License 1.1 |
 | IBM Plex Mono | Page numbers, timings, passage ids | SIL Open Font License 1.1 |
 
 ## Runtime libraries

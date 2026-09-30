@@ -57,7 +57,7 @@
 .oral-prep { display: grid; gap: var(--space-2); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-1); }
 
 /* The primary control sits at the bottom, above the phone's tab bar and home indicator. */
-.oral-controls { position: sticky; bottom: calc(57px + env(safe-area-inset-bottom)); z-index: var(--z-nav); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3) 0; background: var(--canvas); border-top: 1px solid var(--border); }
+.oral-controls { position: sticky; bottom: calc(57px + env(safe-area-inset-bottom)); z-index: var(--z-nav); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3) var(--space-3); background: color-mix(in srgb, var(--surface-1) 90%, transparent); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); }
 @media (min-width: 768px) { .oral-controls { bottom: 0; } }
 .oral-controls .btn-primary { flex: 1 1 9rem; min-height: 52px; font-size: 1rem; }
 .oral-controls .btn-ghost { flex: 0 1 auto; min-height: 52px; }

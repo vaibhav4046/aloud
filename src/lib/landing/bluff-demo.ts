@@ -82,7 +82,7 @@ export function buildBluffDemo(): BluffRound[] {
       because: spec.because,
       proof: {
         page: chunk.locator.page ?? 0,
-        section: chunk.locator.section ?? "",
+        section: (chunk.locator.section ?? "").replace(/^\d+\s*\u00b7\s*/, ""),
         before: (trimStart > 0 ? "…" : "") + chunk.text.slice(trimStart, at),
         quote: spec.quote,
         after: chunk.text.slice(at + spec.quote.length, trimEnd) + (trimEnd < chunk.text.length ? "…" : ""),
