@@ -16,6 +16,8 @@ import {
   rebaseProgress,
   setDailyGoal,
   streakStatus,
+  grantCrateXp,
+  grantFreeze,
   touchStreak,
   type Ctx,
 } from "@/lib/game/progress";
@@ -355,10 +357,36 @@ describe("mergeProgress", () => {
     expect(m.streakDays).toBe(b.streakDays);
   });
 
-  it("takes the lower freeze count when both copies played the same day, so a freeze is not spent twice for free", () => {
-    const a = { ...applyLevelResult(base(), run, result(L(1)), [], day(10)), freezes: 2 };
-    const b = { ...applyLevelResult(base(), run, result(L(2)), [], day(10)), freezes: 1 };
-    expect(mergeProgress(a, b).freezes).toBe(1);
+  it("keeps a freeze earned on one copy when the other copy played the same day", () => {
+    const server = applyLevelResult(base(), run, result(L(1)), [], day(10));
+    const device = grantFreeze(applyLevelResult(base(), run, result(L(2)), [], day(10)));
+    expect(device.freezes).toBe(1);
+    expect(mergeProgress(server, device).freezes).toBe(1);
+    expect(mergeProgress(device, server).freezes).toBe(1);
+  });
+
+  it("does not hand a spent freeze back, and does not spend it twice", () => {
+    // Earned once and held by both copies, then spent by the one that missed a day.
+    const held = grantFreeze(applyLevelResult(base(), run, result(L(1)), [], day(10)));
+    const spentCopy = touchStreak({ ...held, streakDays: 3 }, day(12));
+    expect(spentCopy.freezes).toBe(0);
+    expect(mergeProgress(held, spentCopy).freezes).toBe(0);
+    expect(mergeProgress(spentCopy, held).freezes).toBe(0);
+  });
+
+  it("counts a freeze from a crate once each and never past the cap", () => {
+    let p = base();
+    for (let i = 0; i < 5; i++) p = grantFreeze(p);
+    expect(p.freezes).toBe(MAX_FREEZES);
+    expect(p.freezesEarned).toBe(MAX_FREEZES);
+    expect(mergeProgress(p, base()).freezes).toBe(MAX_FREEZES);
+  });
+
+  it("keeps crate XP through a merge", () => {
+    const withCrate = grantCrateXp(applyLevelResult(base(), run, result(L(1)), [], day(10)), 50);
+    const m = mergeProgress(withCrate, applyLevelResult(base(), run, result(L(1)), [], day(10)));
+    expect(m.xp).toBe(withCrate.xp);
+    expect(m.crateXp).toBe(50);
   });
 
   it("unions weak concepts but drops ones the newer copy cleared", () => {

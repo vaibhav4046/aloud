@@ -1,6 +1,6 @@
 import type { LevelResult, Progress, ProofCard, Run } from "@/lib/game/types";
 import { rankProgress } from "@/lib/game/scoring";
-import { applyLevelResult, ENDOWED_XP, localDay, mergeProgress, newProgress, rebaseProgress, setDailyGoal, streakStatus, dailyGoalFraction, type Ctx, type StreakStatus } from "@/lib/game/progress";
+import { applyLevelResult, ENDOWED_XP, grantCrateXp, grantFreeze, localDay, mergeProgress, newProgress, rebaseProgress, setDailyGoal, streakStatus, dailyGoalFraction, type Ctx, type StreakStatus } from "@/lib/game/progress";
 
 /**
  * The seam between the game screens and the game engine.
@@ -40,7 +40,7 @@ export function rankInfo(xp: number): RankInfo {
 
 const PROGRESS_PREFIX = "aloud.progress.";
 
-export { ENDOWED_XP, localDay, mergeProgress, setDailyGoal, streakStatus, dailyGoalFraction };
+export { ENDOWED_XP, grantCrateXp, grantFreeze, localDay, mergeProgress, setDailyGoal, streakStatus, dailyGoalFraction };
 export type { Ctx, StreakStatus };
 
 /** The player's clock: now, in the time zone their browser reports. */

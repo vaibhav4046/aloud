@@ -56,6 +56,9 @@ export function newProgress(runId: string, ctx: Ctx): Progress {
     streakDays: 0,
     lastPlayedDay: null,
     freezes: 0,
+    freezesEarned: 0,
+    freezesSpent: 0,
+    crateXp: 0,
     results: {},
     proofs: [],
     weakConceptIds: [],
@@ -90,22 +93,52 @@ export function streakStatus(p: Progress, ctx: Ctx): StreakStatus {
   return { ...base, missedDays: missed, freezesNeeded: missed, days: covered ? p.streakDays : 0, state: covered ? "at_risk" : "broken", playedToday: false };
 }
 
+/**
+ * Freezes are two monotonic counters, earned and spent, and the number held is
+ * earned minus spent (at most MAX_FREEZES). Counters merge by taking the larger
+ * of each side, so a freeze earned on one device is never dropped by a merge
+ * and a freeze spent on one is never handed back. A copy from before the
+ * counters existed starts from the freezes it holds.
+ */
+export function freezeLedger(p: Pick<Progress, "freezes" | "freezesEarned" | "freezesSpent">): { earned: number; spent: number } {
+  const spent = p.freezesSpent ?? 0;
+  // A copy that was edited without its counters still holds what it says it holds.
+  return { earned: Math.max(p.freezesEarned ?? 0, spent + p.freezes), spent };
+}
+
+const heldFreezes = (earned: number, spent: number): number => Math.max(0, Math.min(MAX_FREEZES, earned - spent));
+
+function withLedger(p: Progress, earned: number, spent: number): Progress {
+  return { ...p, freezesEarned: earned, freezesSpent: spent, freezes: heldFreezes(earned, spent) };
+}
+
+/** A freeze earned outside the streak (a crate). Nothing is counted when the player already holds the most. */
+export function grantFreeze(p: Progress): Progress {
+  const { earned, spent } = freezeLedger(p);
+  return heldFreezes(earned, spent) >= MAX_FREEZES ? withLedger(p, earned, spent) : withLedger(p, earned + 1, spent);
+}
+
+/** Bonus XP from a crate. Kept in its own counter so the server can tell it from XP a level paid. */
+export function grantCrateXp(p: Progress, amount: number): Progress {
+  return { ...p, xp: p.xp + amount, rank: rankForXp(p.xp + amount), crateXp: (p.crateXp ?? 0) + amount };
+}
+
 /** Record that a level was finished today. Returns the same object when nothing changes. */
 export function touchStreak(p: Progress, ctx: Ctx): Progress {
   const today = localDay(ctx.now, ctx.tz);
   if (p.lastPlayedDay === null) return { ...p, streakDays: 1, lastPlayedDay: today };
   const gap = dayDiff(p.lastPlayedDay, today);
   if (gap <= 0) return p;
+  let { earned, spent } = freezeLedger(p);
   let streakDays = 1;
-  let freezes = p.freezes;
   if (gap === 1) {
     streakDays = p.streakDays + 1;
   } else if (p.freezes >= gap - 1) {
     streakDays = p.streakDays + 1;
-    freezes = p.freezes - (gap - 1);
+    spent += gap - 1;
   }
-  if (streakDays > p.streakDays && streakDays % FREEZE_EVERY === 0) freezes = Math.min(MAX_FREEZES, freezes + 1);
-  return { ...p, streakDays, freezes, lastPlayedDay: today };
+  if (streakDays > p.streakDays && streakDays % FREEZE_EVERY === 0 && heldFreezes(earned, spent) < MAX_FREEZES) earned += 1;
+  return withLedger({ ...p, streakDays, lastPlayedDay: today }, earned, spent);
 }
 
 /* ---------- daily goal ---------- */
@@ -207,8 +240,10 @@ export function mergeProgress(a: Progress, b: Progress, run?: Run): Progress {
   const aLast = a.lastPlayedDay ?? "";
   const bLast = b.lastPlayedDay ?? "";
   const streakSource = aLast > bLast ? a : bLast > aLast ? b : a.streakDays >= b.streakDays ? a : b;
-  const sameDay = aLast === bLast;
-  const freezes = sameDay ? Math.min(a.freezes, b.freezes) : streakSource.freezes;
+  const ledgerA = freezeLedger(a);
+  const ledgerB = freezeLedger(b);
+  const earned = Math.max(ledgerA.earned, ledgerB.earned);
+  const spent = Math.max(ledgerA.spent, ledgerB.spent);
 
   const clearedByWinner = new Set(Object.values(winner.results).flatMap((r) => r.clearedConceptIds ?? []));
   const weak = capTail([...winner.weakConceptIds, ...loser.weakConceptIds.filter((id) => !clearedByWinner.has(id) && !winner.weakConceptIds.includes(id))], MAX_WEAK);
@@ -230,7 +265,10 @@ export function mergeProgress(a: Progress, b: Progress, run?: Run): Progress {
     unlockedIndex: Math.max(a.unlockedIndex, b.unlockedIndex),
     streakDays: streakSource.streakDays,
     lastPlayedDay: aLast >= bLast ? a.lastPlayedDay : b.lastPlayedDay,
-    freezes,
+    freezes: heldFreezes(earned, spent),
+    freezesEarned: earned,
+    freezesSpent: spent,
+    crateXp: Math.max(a.crateXp ?? 0, b.crateXp ?? 0),
     results,
     proofs,
     weakConceptIds: weak,

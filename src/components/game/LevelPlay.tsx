@@ -5,8 +5,8 @@ import type { Level, LevelResult, Progress, ProofCard, Run } from "@/lib/game/ty
 import { PlayScreen } from "./PlayScreen";
 import { ResultView } from "./ResultView";
 import { useLevelSession } from "./useLevelSession";
-import { applyResult, clockNow, finishLevel, mergeProgress, rankInfo } from "./engine-port";
-import { rollCrate, XP_CRATE, MAX_FREEZES, type Crate } from "./result-model";
+import { applyResult, clockNow, finishLevel, grantCrateXp, grantFreeze, mergeProgress } from "./engine-port";
+import { rollCrate, XP_CRATE, type Crate } from "./result-model";
 import { prefersReducedMotion, useSettings } from "./settings";
 import { subjectIdOfRun, syncProgress } from "./game-client";
 import { OfflineBanner } from "./StateViews";
@@ -75,8 +75,8 @@ export function LevelPlay({ run, level, progress, commit, onRetry }: { run: Run;
   const onCrate = useCallback(
     (c: Crate) => {
       const p = progressRef.current;
-      if (c.kind === "freeze") commit({ ...p, freezes: Math.min(MAX_FREEZES, p.freezes + 1) });
-      else if (c.kind === "xp") commit({ ...p, xp: p.xp + XP_CRATE, rank: rankInfo(p.xp + XP_CRATE).rank });
+      if (c.kind === "freeze") commit(grantFreeze(p));
+      else if (c.kind === "xp") commit(grantCrateXp(p, XP_CRATE));
     },
     [commit]
   );

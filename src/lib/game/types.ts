@@ -142,6 +142,11 @@ export type Progress = {
   lastPlayedDay: string | null;
   /** One streak freeze earned per 7-day streak, spent automatically. */
   freezes: number;
+  /** Freezes earned and spent so far. `freezes` is earned minus spent. Optional on copies from before the counters. */
+  freezesEarned?: number;
+  freezesSpent?: number;
+  /** XP that came from crates rather than from a level's own payout. */
+  crateXp?: number;
   results: Record<string, LevelResult>;
   proofs: ProofCard[];
   /** Concept ids the player missed and not yet redeemed; feeds recall levels. */
