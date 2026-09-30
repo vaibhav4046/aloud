@@ -83,13 +83,22 @@ export class LevelController {
     this.tryClose();
   }
 
+  /** Give up on the round in progress: it closes as skipped, with whatever the draft already holds. */
+  skip(): void {
+    if (this.done) return;
+    this.close();
+  }
+
   /** The level ended (won, lost or left): later events are ignored. */
   stop(): void {
     this.done = true;
   }
 
   private tryClose(): void {
-    if (!isRoundReady(this.draft, this.level)) return;
+    if (isRoundReady(this.draft, this.level)) this.close();
+  }
+
+  private close(): void {
     const report = closeRound(this.draft, this.level, this.chunks, this.now());
     const closed: RoundClosed = { report, item: this.item, source: this.source };
     this.index += 1;

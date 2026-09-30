@@ -40,6 +40,8 @@ export type LevelView = {
   notice: string | null;
   /** True while an answer is being checked against the pages. */
   pending: boolean;
+  /** A typed answer could not be checked; the player may retry it or skip the question. */
+  canSkip: boolean;
   stance: Stance | null;
   reveal: CatchReveal | null;
   proofView: ProofView | null;
@@ -50,6 +52,7 @@ export type LevelView = {
     startTyped: () => void;
     switchToTyped: () => void;
     submitTyped: (text: string) => void;
+    skip: () => void;
     choose: (s: Stance, correction?: string) => void;
     hint: () => void;
     peek: () => void;

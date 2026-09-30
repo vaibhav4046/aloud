@@ -7,6 +7,7 @@ import { rid, serverLog } from "@/lib/observe";
 import { getStore } from "@/lib/store";
 import { resolveSubject, subjectMissing, keytermsFrom } from "@/lib/courses/subject";
 import { getCourse } from "@/lib/courses";
+import type { Course } from "@/lib/courses/types";
 import { runOralTool, toolDefsForWire, MAX_ANSWER, type OralVerdict } from "@/lib/oral/tools";
 import { turnResultOf, type Turn } from "@/lib/oral/next-concept";
 import { nextFocusFor } from "@/lib/oral/steering";
@@ -123,9 +124,11 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const store = getStore();
     const subject = await resolveSubject(store, identity.userId, subjectId ?? null);
-    // The starter courses live in the registry, not in the caller's store, so
-    // this is the only path that can hand a demo session its material.
-    const course = subject.origin === "starter" || subject.demo ? getCourse(subject.id) : null;
+    // The starter courses live in the registry, not in the caller's store. A
+    // subject the learner built is a Course too (its own concepts, exam
+    // questions and passages), so it is the grading context as it stands; a
+    // null here made grade_my_answer refuse every answer on uploaded notes.
+    const course: Course = subject.origin === "starter" || subject.demo ? getCourse(subject.id) : subject;
     const chunks = await store.getCourseChunks(identity.userId, subject.id);
     // The answer this call checked, if it checked one: the next question is chosen from it.
     let current: Turn | null = null;

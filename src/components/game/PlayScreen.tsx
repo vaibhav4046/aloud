@@ -97,6 +97,9 @@ function TypedBox({ v, label, placeholder, submitLabel }: { v: LevelView; label:
       />
       <div className="gx-typed-row">
         <span id={`${id}-h`} className="gx-note">Ctrl+Enter sends. It is checked against your pages, the same as a spoken answer.</span>
+        {v.canSkip && !v.pending ? (
+          <button type="button" className="gx-btn gx-btn--ghost" onClick={v.actions.skip}>Skip this question</button>
+        ) : null}
         <button type="submit" className="gx-btn" disabled={!text.trim() || v.pending} aria-busy={v.pending}>
           {v.pending ? "Checking your page" : submitLabel}
         </button>

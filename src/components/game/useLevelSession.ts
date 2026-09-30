@@ -4,6 +4,7 @@ import type { Level, Run, RoundReport, CatchItem } from "@/lib/game/types";
 import type { SourceChunk } from "@/lib/types";
 import { initialMachine, type OralMachine } from "@/lib/oral/machine";
 import { voiceMessage } from "@/lib/audio/messages";
+import { runLevelTool, runLevelToolStrict, toolFailed, type ToolResult } from "./level-tool";
 import { mintVoiceAgentToken, startOralExam, type MicHandle } from "@/components/oral/mic";
 import { CONNECT_TIMEOUT_MS } from "@/components/oral/useOralSession";
 import { failureViewFor, failureViewFromCode, failureViewFromMessage, stateHint, stateLine, type FailureView } from "@/components/oral/model";
@@ -17,24 +18,8 @@ import type { GameSettings } from "./settings";
 import { playCue, type Cue } from "./sound";
 
 const SESSION_TIMEOUT_MS = 15_000;
-const TOOL_TIMEOUT_MS = 12_000;
 /** A tap on Real or Bluff waits at most this long for the prefetched page check. */
 const PREFETCH_WAIT_MS = 1_500;
-
-type ToolResult = Record<string, unknown>;
-
-/** Run one tool on our server, scoped to the level so the examiner's own claims never touch the player's mastery. */
-async function runLevelTool(name: string, args: Record<string, unknown>, callId: string, ctx: { subjectId: string; levelId: string; sessionId: string | null }): Promise<ToolResult> {
-  const res = await fetch("/api/oral/tool", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ callId, name, arguments: args, subjectId: ctx.subjectId, sessionId: ctx.sessionId, levelId: ctx.levelId }),
-    signal: AbortSignal.timeout(TOOL_TIMEOUT_MS),
-  });
-  const body = (await res.json().catch(() => null)) as { result?: ToolResult; error?: { code?: string } } | null;
-  if (!res.ok) throw new Error(voiceMessage(body?.error?.code));
-  return body?.result ?? {};
-}
 
 const CUE: Record<RoundReport["outcome"], Cue> = {
   correct: "good",
@@ -87,6 +72,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
   const [failure, setFailure] = useState<FailureView | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [canSkip, setCanSkip] = useState(false);
   const [stance, setStance] = useState<Stance | null>(null);
   const [reveal, setReveal] = useState<CatchReveal | null>(null);
   const [proofView, setProofView] = useState<ProofView | null>(null);
@@ -106,6 +92,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
   const onClosed = useCallback((c: RoundClosed) => {
     dispatch({ type: "round", report: c.report, now: new Date().toISOString() });
     setPending(false);
+    setCanSkip(false);
     setStance(null);
     setPeekPassageId(null);
     playCue(CUE[c.report.outcome], settingsRef.current.sound);
@@ -174,7 +161,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
     if (c.index !== idx) return;
     // The engine closes a claim round on a stance plus a page check. If the check did not arrive in time, "not_in_material"
     // says so honestly: the round still scores from the flag and the stance, and earns no proof card.
-    c.tool("verify_claim", { claim: it.claim, concept: it.conceptId }, result ?? { verdict: "not_in_material" });
+    c.tool("verify_claim", { claim: it.claim, concept: it.conceptId }, result && !toolFailed(result) ? result : { verdict: "not_in_material" });
   }, []);
 
   /* ---- voice ---- */
@@ -321,6 +308,8 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
       const it = c?.item;
       if (!c || !it || it.type !== "say" || pending) return;
       setPending(true);
+      setCanSkip(false);
+      setNotice(null);
       setYouText(text);
       const idx = c.index;
       const ids = { subjectId, levelId: level.id, sessionId: sessionId.current };
@@ -330,11 +319,13 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         if (c.index !== idx) return;
         if (verify) c.tool("verify_claim", { claim: text, concept: it.conceptId }, verify);
         try {
-          const grade = await runLevelTool("grade_my_answer", { question: it.question, answer: text }, `tg_${level.id}_${idx}`, ids);
+          const grade = await runLevelToolStrict("grade_my_answer", { question: it.question, answer: text }, `tg_${level.id}_${idx}`, ids);
           if (c.index === idx) c.tool("grade_my_answer", { question: it.question, answer: text }, grade);
         } catch {
+          if (c.index !== idx) return;
           setPending(false);
-          setNotice("That answer could not be checked. Your text is still here. Try again.");
+          setCanSkip(true);
+          setNotice("That answer could not be checked. Your text is still here. Send it again, or skip this question.");
         }
       })();
     },
@@ -353,6 +344,13 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
     },
     [pending, applyPrefetch]
   );
+
+  /** The typed check failed and the player would rather move on: the round closes as skipped, which scores nothing. */
+  const skip = useCallback(() => {
+    const c = ctl.current;
+    if (!c || pending) return;
+    c.skip();
+  }, [pending]);
 
   const noteHint = useCallback(() => {
     ctl.current?.hint();
@@ -391,6 +389,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
       failure,
       notice,
       pending: pending || voicePending,
+      canSkip,
       stance,
       reveal,
       proofView,
@@ -401,6 +400,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         startTyped,
         switchToTyped,
         submitTyped,
+        skip,
         choose,
         hint: noteHint,
         peek: noteHint,
@@ -409,7 +409,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         end,
       },
     };
-  }, [level, subjectId, play, mode, connection, machine.state, pending, examinerText, examinerCut, youText, failure, notice, stance, reveal, proofView, peekPassageId, readLevels, startVoice, startTyped, switchToTyped, submitTyped, choose, noteHint, end]);
+  }, [level, subjectId, play, mode, connection, machine.state, pending, canSkip, examinerText, examinerCut, youText, failure, notice, stance, reveal, proofView, peekPassageId, readLevels, startVoice, startTyped, switchToTyped, submitTyped, skip, choose, noteHint, end]);
 
   return view;
 }

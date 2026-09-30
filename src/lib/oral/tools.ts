@@ -331,13 +331,16 @@ const gradeSpec: ToolSpec = {
     const args = gradeArgs.safeParse(raw);
     if (!args.success) return bad("I need both the question and the answer.");
     if (!ctx.course) return bad("I cannot grade that without the subject's map.");
+    // A subject with no exam question has nothing for assessAnswer to mark
+    // against, and it reads the first one unconditionally.
+    if (ctx.course.examQuestions.length === 0) return bad("This subject has no question to grade against.");
     // Match on the question text the agent read back. A miss is normal, it may
     // have rephrased, and `assessAnswer` falls back to the course's first
     // question, so the grade degrades to a less targeted one rather than
     // failing. The agent is told the marking key in the result, so a
     // rephrased question still gets feedback about the right points.
     const question = ctx.course.examQuestions.find((q) => q.question === args.data.question) ?? null;
-    const baseline = assessAnswer(question?.id ?? ctx.course.examQuestions[0]?.id ?? "", args.data.answer, {
+    const baseline = assessAnswer(question?.id ?? ctx.course.examQuestions[0].id, args.data.answer, {
       course: ctx.course,
     });
     const requiredKeywords = question?.requiredKeywords ?? baseline.fullAnswerCovers;
