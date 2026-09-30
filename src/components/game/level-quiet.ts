@@ -11,8 +11,8 @@ import type { OralState } from "@/lib/oral/machine";
 
 const BUSY: ReadonlySet<OralState> = new Set<OralState>(["THINKING", "CHECKING_SOURCE", "SPEAKING"]);
 
-/** The most a level waits for the examiner after its last round before it closes the session. */
-export const END_GRACE_MAX_MS = 15_000;
+/** The longest a level waits without any examiner activity after its last round before it closes the session. */
+export const END_GRACE_MAX_MS = 20_000;
 /** Without any sign of a reply the wait is much shorter. */
 export const END_GRACE_IDLE_MS = 4_000;
 

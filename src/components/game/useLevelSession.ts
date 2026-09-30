@@ -133,9 +133,10 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
   }, [ended, liveVoice, machine.state]);
   useEffect(() => {
     if (!ended || !liveVoice) return;
+    // The window restarts on every examiner state change, so a slow examiner that is still progressing is not cut.
     const id = setTimeout(() => setExaminerDone(true), busySeen.current ? END_GRACE_MAX_MS : END_GRACE_IDLE_MS);
     return () => clearTimeout(id);
-  }, [ended, liveVoice]);
+  }, [ended, liveVoice, machine.state]);
   const releaseMic = ended && (!liveVoice || examinerDone);
   useEffect(() => {
     if (!releaseMic) return;
