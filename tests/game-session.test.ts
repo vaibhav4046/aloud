@@ -237,7 +237,7 @@ describe("a whole level through the fake socket harness", () => {
     }
     const { result, proofs } = scoreLevel(catchLevel, reports, { playedAt: "2026-09-30T09:00:00.000Z" });
     expect(reports.every((r) => r.outcome === "bluff_caught" || r.outcome === "correct")).toBe(true);
-    expect(result).toMatchObject({ outcome: "won", stars: 3, heartsLeft: 3 });
+    expect(result).toMatchObject({ outcome: "won", stars: 3, heartsLeft: catchLevel.hearts });
     expect(result.xp).toBeGreaterThan(0);
     expect(proofs.length).toBeGreaterThan(0);
     expect(proofs.every((p) => chunks.find((c) => c.id === p.passageId)!.text.includes(p.quote.split(" ... ")[0].slice(0, 20)))).toBe(true);

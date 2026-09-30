@@ -33,6 +33,18 @@ export function heartsFor(kind: LevelKind): number {
   return kind === "boss" ? HEARTS_BOSS : HEARTS_DEFAULT;
 }
 
+/**
+ * Hearts a level of this size starts with. A level must be losable: with as
+ * many hearts as rounds, a player who misses every round still "won" (a
+ * two-round level with three hearts). Bosses keep their four hearts unless the
+ * level is shorter than that; every other level keeps at least one round the
+ * player has to get through with a heart in hand.
+ */
+export function heartsForLevel(kind: LevelKind, rounds: number): number {
+  const base = heartsFor(kind);
+  return kind === "boss" ? Math.max(1, Math.min(base, rounds)) : Math.max(1, Math.min(base, rounds - 1));
+}
+
 /** A miss costs a heart and resets the combo. */
 export function isMiss(outcome: RoundOutcome): boolean {
   return outcome === "incorrect" || outcome === "bluff_missed";

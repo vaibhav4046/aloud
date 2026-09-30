@@ -4,6 +4,7 @@ import type { Course } from "@/lib/courses/types";
 import { synthetic } from "./game-fixtures";
 import { guardBacksBluff, guardBacksReal, sentencesOf } from "@/lib/game/claims";
 import { MAX_LEVELS, MIN_LEVELS, findLevel, generateRun, withRecall } from "@/lib/game/run";
+import { heartsForLevel } from "@/lib/game/scoring";
 import type { CatchItem, Level, Progress, Run } from "@/lib/game/types";
 
 const ALL = Object.values(COURSES);
@@ -58,7 +59,7 @@ describe("generateRun on every shipped subject", () => {
 
       // hearts and rounds
       for (const l of run.levels) {
-        expect(l.hearts).toBe(l.kind === "boss" ? 4 : 3);
+        expect(l.hearts).toBe(heartsForLevel(l.kind, l.rounds));
         expect(l.items).toBeDefined();
         expect(l.rounds).toBe(l.items?.length);
         expect(l.rounds).toBeGreaterThanOrEqual(l.kind === "boss" ? 3 : 2);
@@ -221,7 +222,7 @@ describe("recall levels", () => {
     const recalls = run.levels.filter((l) => l.kind === "recall");
     expect(recalls.length).toBe(1);
     expect(recalls[0].conceptIds).toEqual(weakIds);
-    expect(recalls[0].hearts).toBe(3);
+    expect(recalls[0].hearts).toBe(Math.min(3, recalls[0].rounds - 1));
     expect(recalls[0].items?.every((i) => i.type === "say")).toBe(true);
     expect(recalls[0].rounds).toBeGreaterThanOrEqual(2);
     const world = run.worlds.find((w) => w.index === recalls[0].world)!;

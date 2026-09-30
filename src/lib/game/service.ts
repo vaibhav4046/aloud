@@ -3,7 +3,7 @@ import { quoteInPassage } from "@/lib/oral/verify-claim";
 import type { EventStore } from "@/lib/store/repo";
 import { newProgress, rebaseProgress, type Ctx } from "./progress";
 import { generateRun, withRecall } from "./run";
-import { maxXpForLevel } from "./scoring";
+import { heartsForLevel, maxXpForLevel } from "./scoring";
 import { ProgressSchema } from "./schema";
 import type { Level, LevelResult, Progress, ProofCard, Run } from "./types";
 
@@ -16,6 +16,18 @@ import type { Level, LevelResult, Progress, ProofCard, Run } from "./types";
 
 export const runKey = (subjectId: string): string => `run:${subjectId}`;
 export const progressKey = (subjectId: string): string => `progress:${subjectId}`;
+
+/** A run stored before hearts followed the round count: give each level the hearts it would get today. */
+function withCurrentHearts(run: Run): Run {
+  let changed = false;
+  const levels = run.levels.map((l) => {
+    const hearts = heartsForLevel(l.kind, l.rounds);
+    if (hearts === l.hearts) return l;
+    changed = true;
+    return { ...l, hearts };
+  });
+  return changed ? { ...run, levels } : run;
+}
 
 function looksLikeRun(doc: unknown, subjectId: string): doc is Run {
   if (!doc || typeof doc !== "object") return false;
@@ -51,7 +63,8 @@ export async function loadRun(
     await store.putGameDoc(userId, runKey(subject.id), run);
     return { run, created: true, progress };
   }
-  const run = progress ? withRecall(stored, subject, progress) : stored;
+  const current = withCurrentHearts(stored);
+  const run = progress ? withRecall(current, subject, progress) : current;
   if (run !== stored) await store.putGameDoc(userId, runKey(subject.id), run);
   return { run, created: false, progress };
 }

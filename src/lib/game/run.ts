@@ -2,7 +2,7 @@ import type { ConceptDef, Course } from "@/lib/courses/types";
 import type { SourceChunk } from "@/lib/types";
 import { alterSentence, assignChunks, bluffItem, realClaims, realItem, trapClaim, type RealClaim } from "./claims";
 import { seeded, shortHash, shuffled } from "./hash";
-import { heartsFor } from "./scoring";
+import { heartsForLevel } from "./scoring";
 import type { CatchItem, Difficulty, Level, LevelItem, LevelKind, Progress, Run, SayItem, World } from "./types";
 
 /**
@@ -298,7 +298,7 @@ function baseRun(subject: RunSource, createdAt: string): Run {
     blurb: d.blurb,
     conceptIds: d.conceptIds,
     difficulty: difficultyAt(i, size),
-    hearts: heartsFor(d.kind),
+    hearts: heartsForLevel(d.kind, d.items.length),
     rounds: d.items.length,
     items: d.items,
   }));
@@ -375,7 +375,7 @@ export function withRecall(run: Run, subject: RunSource, progress: Progress): Ru
       blurb: `Say again what slipped: ${names.slice(0, 3).join(", ")}.`,
       conceptIds: ids,
       difficulty: 1,
-      hearts: heartsFor("recall"),
+      hearts: heartsForLevel("recall", padded.length),
       rounds: padded.length,
       items: padded,
     };
