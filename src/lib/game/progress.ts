@@ -211,9 +211,15 @@ export function applyLevelResult(p: Progress, run: Run, result: LevelResult, pro
   return addMinutes(next, (result.ms ?? 0) / 60_000, ctx);
 }
 
-/** Recompute the fields derived from the run: the unlock frontier and the rank. */
+/**
+ * Recompute the fields derived from the run: the unlock frontier and the rank.
+ * Results for levels that are not in the run (a regenerated run drops some) are
+ * removed; the XP they paid stays, so nothing already earned is lost.
+ */
 export function rebaseProgress(p: Progress, run: Run): Progress {
-  return { ...p, unlockedIndex: unlockedIndexFor(run.levels, p.results), rank: rankForXp(p.xp) };
+  const ids = new Set(run.levels.map((l) => l.id));
+  const results = Object.fromEntries(Object.entries(p.results).filter(([id]) => ids.has(id)));
+  return { ...p, results, unlockedIndex: unlockedIndexFor(run.levels, results), rank: rankForXp(p.xp) };
 }
 
 /* ---------- merge ---------- */

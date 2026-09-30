@@ -1,10 +1,12 @@
 import type { Subject } from "@/lib/courses/types";
 import { quoteInPassage } from "@/lib/oral/verify-claim";
+import { rid, serverLog } from "@/lib/observe";
 import type { EventStore } from "@/lib/store/repo";
 import { newProgress, rebaseProgress, type Ctx } from "./progress";
 import { generateRun, withRecall } from "./run";
 import { heartsForLevel, maxXpForLevel } from "./scoring";
 import { ProgressSchema } from "./schema";
+import { checkResultByReplay } from "./trust";
 import type { Level, LevelResult, Progress, ProofCard, Run } from "./types";
 
 /**
@@ -35,12 +37,24 @@ function looksLikeRun(doc: unknown, subjectId: string): doc is Run {
   return r.id === `run_${subjectId}` && r.subjectId === subjectId && Array.isArray(r.levels) && r.levels.length > 0 && Array.isArray(r.worlds);
 }
 
-/** The stored progress for a subject, or null when there is none or it no longer parses. */
+/**
+ * The stored progress for a subject, or null when there is none. A stored copy
+ * that no longer parses is not thrown away silently: it is kept under
+ * `<key>.unreadable` (once) and logged, then the player starts from a fresh copy.
+ */
 export async function loadProgress(store: EventStore, userId: string, subjectId: string): Promise<Progress | null> {
   const doc = await store.getGameDoc(userId, progressKey(subjectId));
   if (doc === null) return null;
   const parsed = ProgressSchema.safeParse(doc);
-  return parsed.success ? (parsed.data as Progress) : null;
+  if (parsed.success) return parsed.data as Progress;
+  const backupKey = `${progressKey(subjectId)}.unreadable`;
+  try {
+    if ((await store.getGameDoc(userId, backupKey)) === null) await store.putGameDoc(userId, backupKey, doc);
+  } catch (e) {
+    serverLog("game_progress.backup_failed", rid(), { err: (e as Error).message?.slice(0, 160) ?? "unknown" });
+  }
+  serverLog("game_progress.unreadable", rid(), { issue: parsed.error.issues[0]?.path.join(".") ?? "body" });
+  return null;
 }
 
 export type LoadedRun = { run: Run; created: boolean; progress: Progress | null };
@@ -74,22 +88,6 @@ export function progressFor(progress: Progress | null, run: Run, ctx: Ctx): { pr
   return progress ? { progress: rebaseProgress(progress, run), persisted: true } : { progress: newProgress(run.id, ctx), persisted: false };
 }
 
-/**
- * A client copy of progress reduced to what this run can have produced: results
- * only for levels in the run, XP per level no higher than the level can pay,
- * proofs only for this run's levels.
- */
-export function sanitizeForRun(p: Progress, run: Run): Progress {
-  const byId = new Map(run.levels.map((l) => [l.id, l]));
-  const results: Progress["results"] = {};
-  for (const [id, r] of Object.entries(p.results)) {
-    const level = byId.get(id);
-    if (!level || r.levelId !== id || checkResultAgainstLevel(r, level) !== null) continue;
-    results[id] = r;
-  }
-  return { ...p, runId: run.id, results, proofs: p.proofs.filter((c) => byId.has(c.levelId)) };
-}
-
 /** Null when a reported result is possible for the level, otherwise why it is not. */
 export function checkResultAgainstLevel(result: LevelResult, level: Level): string | null {
   if (result.xp > maxXpForLevel(level)) return "xp above what the level can pay";
@@ -97,7 +95,7 @@ export function checkResultAgainstLevel(result: LevelResult, level: Level): stri
   if (result.heartsLeft > level.hearts) return "more hearts than the level starts with";
   if (result.outcome === "won" && result.stars < 1) return "a won level has at least one star";
   if (result.outcome !== "won" && (result.stars > 0 || result.xp > 0)) return "only a won level earns stars or XP";
-  return null;
+  return checkResultByReplay(result, level);
 }
 
 /** Keep the proof cards whose quote is verbatim in the passage they name, in this subject's own pages. */

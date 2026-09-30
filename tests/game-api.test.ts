@@ -5,6 +5,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { __resetLimits } from "@/lib/limits";
 import type { Level, LevelResult, Progress, ProofCard, Run } from "@/lib/game/types";
 import { FileEventStore } from "@/lib/store/file";
+import { scoreLevel } from "@/lib/game/scoring";
 import { ownedSubject } from "./game-fixtures";
 
 /**
@@ -58,11 +59,11 @@ async function json<T>(res: Response): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** A result a real play of the level could have produced: every round correct and not page-checked, scored by the engine. */
 function result(level: Level, over: Partial<LevelResult> = {}): LevelResult {
-  return {
-    levelId: level.id, stars: 3, xp: 200, heartsLeft: level.hearts, bestCombo: 2, rounds: Array.from({ length: level.rounds }, () => "correct" as const),
-    proofIds: [], outcome: "won", playedAt: "2026-09-30T10:00:00.000Z", ms: 90_000, missedConceptIds: [], clearedConceptIds: [], ...over,
-  };
+  const rounds = Array.from({ length: level.rounds }, () => "correct" as const);
+  const played = scoreLevel({ id: level.id, kind: level.kind ?? "say", hearts: level.hearts, rounds: level.rounds }, rounds.map((outcome) => ({ conceptId: "c", outcome, grounded: false, ms: 0 })), { playedAt: "2026-09-30T10:00:00.000Z" }).result;
+  return { ...played, ms: 90_000, missedConceptIds: [], clearedConceptIds: [], ...over };
 }
 
 const errCode = async (res: Response) => (await json<{ error: { code: string } }>(res)).error.code;
@@ -313,12 +314,12 @@ describe("POST /api/game/progress, merging a device copy", () => {
     const [l1, l2] = r.levels;
     await postProgress({ subjectId: SAMPLE, result: result(l1, { xp: 200 }) });
     const local: Progress = (await json<{ progress: Progress }>(await getProgress())).progress;
-    const device: Progress = { ...local, xp: 60 + 150, results: { [l2.id]: result(l2, { xp: 150, playedAt: "2026-09-30T11:00:00.000Z" }) }, updatedAt: new Date(Date.now() + 1000).toISOString() };
+    const device: Progress = { ...local, xp: 60 + 200, results: { [l2.id]: result(l2, { playedAt: "2026-09-30T11:00:00.000Z" }) }, updatedAt: new Date(Date.now() + 1000).toISOString() };
     const res = await postProgress({ subjectId: SAMPLE, progress: device });
     expect(res.status).toBe(200);
     const { progress: m } = await json<{ progress: Progress }>(res);
     expect(Object.keys(m.results).sort()).toEqual([l1.id, l2.id].sort());
-    expect(m.xp).toBe(60 + 200 + 150);
+    expect(m.xp).toBe(60 + 200 + result(l2).xp);
     expect(m.unlockedIndex).toBe(3);
   });
 

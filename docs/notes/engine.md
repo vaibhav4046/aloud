@@ -140,9 +140,21 @@ All routes resolve the caller from the identity cookie (`viva_did`), scope every
   -> 200 `{ progress: Progress, persisted: boolean }` (a fresh endowed Progress with `persisted: false` when none is stored).
 
 `POST /api/game/progress`  body one of
-  - `{ subjectId: string, progress: Progress, tz?: string }`: merge the client copy into the stored one. Results for levels not in the run, or that the level cannot have paid, are dropped first.
-  - `{ subjectId: string, result: LevelResult, proofs?: ProofCard[], tz?: string }`: apply one finished level. Bounds: level id in the run, `xp <= maxXpForLevel`, `rounds.length <= level.rounds`, `heartsLeft <= level.hearts`, only a won level has stars or XP. Proof cards are kept only when their quote is verbatim in the passage they name. The server clock decides the streak day; `tz` only names the zone.
+  - `{ subjectId: string, progress: Progress, tz?: string }`: merge the client copy into the stored one. The copy is reduced first (see "What the server trusts" below): its xp, rank, streak and freezes are not read, results the level could not have produced are dropped, and proof cards are checked against the pages.
+  - `{ subjectId: string, result: LevelResult, proofs?: ProofCard[], tz?: string }`: apply one finished level. The result is replayed through `scoreLevel` from its `rounds` (see below), the level must be unlocked (`level.index <= unlockedIndex`), and proof cards are kept only when their quote is verbatim in the passage they name. The server clock decides the streak day; `tz` only names the zone.
   -> 200 `{ progress: Progress }` (merged). Posting the same body twice returns the same progress.
   -> 400 `BAD_REQUEST` (malformed or out of bounds), 413 `PAYLOAD_TOO_LARGE`, 429 `RATE_LIMITED`, 404 `SUBJECT_NOT_FOUND`.
 
 Bodies are zod validated (every string, number and list is bounded). Storage: two new `EventStore` methods, `getGameDoc(userId, key)` and `putGameDoc(userId, key, doc)`, implemented for the file store and Postgres (table `game_docs`, created lazily and in `migrations/006_game_docs.sql`). Keys: `run:<subjectId>` and `progress:<subjectId>`.
+
+### What the server trusts (src/lib/game/trust.ts)
+
+Each round is graded in the player's browser: the browser holds the run (marks included), runs the tools, and folds the outcomes into a `LevelResult`. The server cannot see how a level was played. It does this instead:
+
+- Replays `result.rounds` through `scoreLevel`. The stars, hearts left and best combo must equal the replay. XP must sit between the replay with every round page-checked and no hints (top) and the replay with none page-checked and every scoring round hinted (bottom). A won level has every round; a lost level ends when hearts reach zero and has no rounds after that; a quit level has rounds left. A result that fails any of these is a 400.
+- Rejects a result for a level whose index is above the stored `unlockedIndex`.
+- On the device-copy merge, derives xp (endowment, plus what the results paid, plus crate XP up to 50 per won level), rank, streak (consecutive days of won results, never after today) and freezes (the earned and spent counters, capped by what the results and streak could have earned) from the results. What the client says about those is not read.
+- Checks proof quotes against the pages on both paths (a quote must be a verbatim substring of the passage it names, in the subject's own sources).
+- Drops results for levels that are not in the run whenever progress is read or written. The XP they paid stays. A stored copy that no longer parses is saved under `progress:<subjectId>.unreadable` before a fresh one replaces it.
+
+What is still client-trusted: which outcome each round had. A player can report all rounds correct and every page check as passed; the server will accept any result an honest play of that level could have produced, including three stars and the full XP. Combo, hints and page checks are not verifiable from a result. The game is single-player, so this costs the player nothing but their own score. The landing Limits section says so.

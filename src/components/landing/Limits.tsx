@@ -6,6 +6,8 @@ const NOT_FOR = [
   ["You want a grade a school will accept.", "Aloud scores practice. It issues nothing an exam board or a tutor can count."],
   ["Your notes are thin or wrong.", "It checks answers against your pages. Thin notes make a thin run, and a page that is wrong is treated as right."],
   ["You cannot speak out loud right now.", "Typed answers work on every level, but the point of the game is saying it."],
+  ["You want a score that proves anything to anyone.", "Each round is marked in your browser and the server only checks that the result is possible for that level. It cannot replay how you played, so stars and XP are yours to keep honest."],
+  ["You want a game you cannot peek at.", "The marks on each bluff travel with the level, and the examiner's level prompt names them. Anyone who opens the network tab can read them. That only spoils your own game."],
   ["You want to be entertained without reading.", "Every question comes from material you have to know. The game adds pressure, not answers."],
 ];
 

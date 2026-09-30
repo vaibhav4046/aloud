@@ -1,9 +1,10 @@
 import { resolveIdentity } from "@/lib/auth/identity";
 import { resolveSubject, subjectMissing } from "@/lib/courses/subject";
 import { noStore, rateLimited, readJson } from "@/lib/game/http";
-import { applyLevelResult, mergeProgress, newProgress } from "@/lib/game/progress";
+import { applyLevelResult, mergeProgress, newProgress, rebaseProgress } from "@/lib/game/progress";
 import { ProgressPostBody } from "@/lib/game/schema";
-import { checkResultAgainstLevel, loadRun, progressFor, progressKey, sanitizeForRun, verifiedProofs } from "@/lib/game/service";
+import { checkResultAgainstLevel, loadRun, progressFor, progressKey, verifiedProofs } from "@/lib/game/service";
+import { cleanClientProgress } from "@/lib/game/trust";
 import { withIdentityCookie } from "@/lib/http";
 import { rid, serverLog } from "@/lib/observe";
 import { getStore } from "@/lib/store";
@@ -77,10 +78,12 @@ export async function POST(req: Request): Promise<Response> {
       if (!level) return done(err("BAD_REQUEST", "That level is not in this run.", false, 400));
       const problem = checkResultAgainstLevel(input.result, level);
       if (problem) return done(NOT_ALLOWED(problem));
+      if (level.index > rebaseProgress(current, run).unlockedIndex) return done(NOT_ALLOWED("that level is still locked"));
       const proofs = verifiedProofs(input.proofs ?? [], subject, level.id);
-      next = applyLevelResult(current, run, input.result, proofs, ctx);
+      next = rebaseProgress(applyLevelResult(current, run, input.result, proofs, ctx), run);
     } else {
-      next = mergeProgress(current, sanitizeForRun(input.progress, run), run);
+      const clean = cleanClientProgress(input.progress, run, subject, ctx, (r, l) => checkResultAgainstLevel(r, l) === null);
+      next = mergeProgress(current, clean, run);
     }
     await store.putGameDoc(identity.userId, progressKey(subject.id), next);
     // Recall levels depend on the weak list, so refresh the stored run with it.
