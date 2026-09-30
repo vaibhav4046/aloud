@@ -106,12 +106,24 @@ const KIND_LINE: Record<Level["kind"], string> = {
   recall: "RECALL. A review of concepts the player missed earlier. Keep it brief and kind.",
 };
 
+/**
+ * Text that goes between double quotes in the level block. A claim comes from
+ * the player's notes and can hold quote characters of its own; left as they are
+ * they close the quote early and the rest of the sentence reads as an
+ * instruction. Straight and curly double quotes and backslashes are escaped.
+ */
+export function inQuotes(text: string, max: number): string {
+  return promptClaim(text, max)
+    .replace(/\\/g, "\\\\")
+    .replace(/["“”„]/g, '\\"');
+}
+
 function itemLine(item: LevelItem, n: number): string {
   if (item.type === "say") return `ITEM ${n} (question): ${promptClaim((item as SayItem).question, 400)}`;
   const c = item as CatchItem;
   const page = c.page != null ? `, page ${c.page}` : "";
-  const mark = c.isBluff ? `bluff, the page says: "${promptClaim(c.source, 400)}"${page}` : `real${page}`;
-  return `ITEM ${n} (claim, ${mark}): "${promptClaim(c.claim, 400)}"`;
+  const mark = c.isBluff ? `bluff, the page says: "${inQuotes(c.source, 400)}"${page}` : `real${page}`;
+  return `ITEM ${n} (claim, ${mark}): "${inQuotes(c.claim, 400)}"`;
 }
 
 /**
