@@ -61,6 +61,8 @@ function TypedBox({ v, label, placeholder, submitLabel }: { v: LevelView; label:
   const roundKey = v.play.roundIndex;
   useEffect(() => {
     setText("");
+    // A new round hands the keyboard to the answer box, as the written exam does.
+    ref.current?.focus();
   }, [roundKey]);
   const send = () => {
     if (!text.trim() || v.pending) return;

@@ -79,7 +79,7 @@ export type ResultProps = {
 export function ResultView(p: ResultProps) {
   const won = p.result.outcome === "won";
   const shown = useCountUp(p.xpFrom, p.xpTo, p.reduced);
-  const gained = p.result.xp;
+  const gained = p.xpTo - p.xpFrom;
   const particles = useRef(burstParticles(p.result.stars)).current;
   const rankUp = p.rankAfter > p.rankBefore;
 

@@ -37,17 +37,17 @@ export default function NotFound() {
           <h1 className="heading mt-2 text-2xl">This page isn&apos;t here.</h1>
           <p className="prose-measure mt-3 text-sm leading-relaxed" style={{ color: "var(--color-mist)" }}>
             The address may have a typo in it, or the link may be older than the page it points at.
-            Nothing you have said is lost, your subjects, your notes and your map are where you
+            Nothing you have said is lost, your run, your notes and your proofs are where you
             left them.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             {/* One primary. The paper pill is what "start talking" looks like
                 on the landing hero and on /today; lime belongs to the mic. */}
-            <Link href="/study" className="btn-primary">
-              Go to Study
+            <Link href="/run" className="btn-primary">
+              Back to your run
             </Link>
-            <Link href="/subjects" className="btn-ghost">
-              Pick a subject
+            <Link href="/run/new" className="btn-ghost">
+              Build a run
             </Link>
           </div>
         </section>

@@ -105,12 +105,13 @@ export function ClaimCard({
   disabled: boolean;
 }) {
   return (
-    <section className="gx-claim" aria-labelledby="gx-claim-q">
+    <section className="gx-claim" aria-labelledby="gx-claim-h">
+      <h1 id="gx-claim-h" className="gx-sr">Catch it, claim {Math.min(round, total)} of {total}</h1>
       <div className="gx-prompt-kind">
         <span className="gx-chip">Catch it</span>
         <span className="gx-eyebrow">Claim {Math.min(round, total)} of {total}</span>
       </div>
-      <p className="gx-eyebrow" id="gx-claim-q">The examiner says</p>
+      <p className="gx-eyebrow">The examiner says</p>
       <q>{claim}</q>
       <div className="gx-claim-choices" role="group" aria-label="Is the claim true">
         <button type="button" className="gx-btn gx-btn--peach" aria-pressed={choice === "bluff"} disabled={disabled} onClick={() => onChoose("bluff")}>
