@@ -211,7 +211,7 @@ export function PlayScreen({ v, worldName, reduced }: { v: LevelView; worldName:
 
             {isCatch ? (
               <label style={{ display: "grid", gap: 6 }}>
-                <span className="gx-eyebrow">If you catch it, say or type the correct version</span>
+                <span className="gx-eyebrow">If you catch it, say or type the correct version (practice, not scored)</span>
                 <input className="gx-field" style={{ minHeight: 52 }} value={correction} onChange={(e) => setCorrection(e.target.value)} placeholder="The page says that..." maxLength={400} />
               </label>
             ) : null}
