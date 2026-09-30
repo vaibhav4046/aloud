@@ -31,4 +31,8 @@ a few days; this is a one-person hackathon project and there is no on-call.
 
 The identity boundary, SSRF guards, deletion behaviour, token expiry and the oral tool protocol have unit tests in
 `tests/` (for example `idor.test.ts`, `security-ssrf.test.ts`, `security-hardening.test.ts`,
-`oral-security.test.ts`). `npx vitest run` runs them.
+`oral-security.test.ts`). The game routes have their own tests in `tests/game-api.test.ts`. `npx vitest run` runs them all.
+
+Known and accepted: a catch level's prompt names which claims are bluffs and is returned to the browser, so a player
+can read it in the network tab. It spoils only their own game and changes no score, because scoring uses the flag in
+the stored run and never the model's words.
