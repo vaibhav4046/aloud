@@ -21,7 +21,7 @@ const sessionReady = [], firstAudio = [], userToCall = [], callToResult = [], re
 const toolHttp = { grade_my_answer: [], verify_claim: [] };
 const bargeSpeechToInterrupted = [], bargeInjectToSpeech = [];
 // Drives after the final end-of-level wait (activity-reset window): the catch inject2 run, the injected say run and the barge-in level runs.
-const afterFinalFix = (f) => /^aloud-(catch-inject2|say-inject|bargein-say-rd)./.test(f);
+const afterFinalFix = (f) => /^aloud-(catch-inject2|say-inject|bargein-say-rd|catch-rebased|say-rebased)./.test(f);
 for (const { f, d } of voice) {
   const ws = d.ws;
   const ready = ws.find((e) => e.type === "session.ready");
@@ -54,8 +54,8 @@ for (const { f, d } of voice) {
 for (const { d } of docs) for (const h of d.http) if (/oral\/tool/.test(h.url) && h.name in toolHttp && h.status === 200) toolHttp[h.name].push(h.ms);
 const typedGrade = docs.filter(({ d }) => d.scenario === "typed-say").flatMap(({ d }) => d.http.filter((h) => h.name === "grade_my_answer").map((h) => h.ms));
 
-const levels = docs.filter(({ d }) => d.localProgress && Object.keys(d.localProgress.results).length && !d.failure);
-const outcomeRounds = levels.flatMap(({ d }) => Object.values(d.localProgress.results).flatMap((r) => r.rounds));
+const levels = docs.filter(({ d }) => d.localProgress?.results?.[d.levelId] && !d.failure);
+const outcomeRounds = levels.flatMap(({ d }) => d.localProgress.results[d.levelId].rounds);
 const vcFile = fs.readdirSync(dir).filter((f) => /^aloud-verify-catch\.\d{4}/.test(f)).sort().at(-1);
 const vc = JSON.parse(fs.readFileSync(`${dir}/${vcFile}`, "utf8"));
 

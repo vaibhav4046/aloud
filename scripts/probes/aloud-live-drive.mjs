@@ -193,7 +193,8 @@ page.on("response", async (res) => {
     try { const j = await res.json(); e.result = { verdict: j.result?.verdict, quote: j.result?.quote?.slice?.(0, 160), page: j.result?.page, passage_id: j.result?.passage_id, next_focus: !!j.result?.next_focus, feedback: j.result?.feedback?.slice?.(0, 160) }; } catch { /* ignore */ }
     try { const b = JSON.parse(p.body); e.name = b.name; e.levelId = b.levelId; e.args = b.arguments; delete e.body; } catch { /* ignore */ }
   }
-  if (/game\/progress/.test(p.url)) delete e.body;
+  if (res.status() >= 400) e.errorBody = (await res.text().catch(() => "")).slice(0, 400);
+  else if (/game\/progress/.test(p.url)) delete e.body;
   http.push(e);
 });
 
@@ -235,10 +236,12 @@ try {
     await page.evaluate(({ run, upto }) => {
       const key = `aloud.progress.${run.id}`;
       const p = JSON.parse(localStorage.getItem(key));
-      for (const l of run.levels.filter((x) => x.index < upto)) p.results[l.id] = { levelId: l.id, stars: 3, xp: 200, heartsLeft: l.hearts, bestCombo: 2, rounds: [], proofIds: [], outcome: "won", playedAt: new Date().toISOString(), ms: 60000 };
+      for (const l of run.levels.filter((x) => x.index < upto)) p.results[l.id] = { levelId: l.id, stars: 3, xp: 100, heartsLeft: l.hearts, bestCombo: 2, rounds: Array(l.rounds).fill("correct"), proofIds: [], outcome: "won", playedAt: new Date().toISOString(), ms: 60000 };
       p.unlockedIndex = upto;
       localStorage.setItem(key, JSON.stringify(p));
-    }, { run, upto: lvl.index });
+      // The server checks that a finished level was unlocked, so it must hold the same earlier results.
+      return fetch("/api/game/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subjectId: run.subjectId, progress: p, tz: "UTC" }) }).then((r) => r.status);
+    }, { run, upto: lvl.index }).then((st) => (doc.seedStatus = st));
   }
   await page.goto(`${base}/play/${encodeURIComponent(levelId)}?run=${RUN_ID}`, { waitUntil: "networkidle" });
   await page.waitForSelector('[data-testid="play-screen"]', { timeout: 30000 });

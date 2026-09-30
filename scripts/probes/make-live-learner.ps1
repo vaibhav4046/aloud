@@ -5,7 +5,7 @@ New-Item -ItemType Directory -Force -Path $out | Out-Null
 $lines = [ordered]@{
   'say-weight'   = 'An attention weight says how much one token listens to another token before the value vectors are averaged.'
   'say-why'      = 'Without self attention a token could not compare itself with every other token, so the model would lose context across the sequence.'
-  'claim-real'   = 'That one is real.'
+  'claim-real'   = 'I think this claim is real. It matches what my notes say.'
   'claim-bluff'  = 'That is a bluff. It is self attention, not backpropagation, that is permutation equivariant.'
   'interrupt'    = 'Wait, can you repeat the question?'
 }

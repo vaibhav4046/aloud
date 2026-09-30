@@ -1,5 +1,5 @@
 {
- "measuredOn": "2026-09-30T13:50:13.749Z",
+ "measuredOn": "2026-09-30T14:05:58.255Z",
  "node": "v24.12.0",
  "chromium": "153.0.8010.12",
  "learnerVoice": "synthetic (Windows System.Speech), not a human voice",
@@ -14,69 +14,74 @@
   "aloud-catch-fixed.2026-09-30.json",
   "aloud-catch-inject.2026-09-30.json",
   "aloud-catch-inject2.2026-09-30.json",
+  "aloud-catch-rebased-misheard.2026-09-30.json",
+  "aloud-catch-rebased.2026-09-30.json",
   "aloud-catch.2026-09-30.json",
   "aloud-say-fixed.2026-09-30.json",
   "aloud-say-inject.2026-09-30.json",
+  "aloud-say-rebased.2026-09-30.json",
   "aloud-say.2026-09-30.json",
+  "aloud-typed-catch-rebased.2026-09-30.json",
   "aloud-typed-catch.2026-09-30.json",
+  "aloud-typed-say-rebased.2026-09-30.json",
   "aloud-typed-say.2026-09-30.json"
  ],
- "voiceRuns": 13,
+ "voiceRuns": 16,
  "sessionReadyMsAfterClick": {
-  "n": 13,
-  "median": 910,
+  "n": 16,
+  "median": 880,
   "min": 825,
   "max": 11007
  },
  "firstExaminerAudioMsAfterClick": {
-  "n": 13,
-  "median": 1423,
+  "n": 16,
+  "median": 1399,
   "min": 1323,
   "max": 11517
  },
  "learnerFinalTranscriptToToolCallMs": {
-  "n": 23,
-  "median": 4315,
+  "n": 31,
+  "median": 4320,
   "min": 2165,
   "max": 7539
  },
  "toolCallToToolResultSentMs": {
-  "n": 23,
+  "n": 31,
   "median": 777,
   "min": 261,
   "max": 2345
  },
  "toolResultSentToNextExaminerAudioMs": {
-  "n": 22,
+  "n": 30,
   "median": 512,
-  "min": 475,
+  "min": 443,
   "max": 749
  },
  "toolHttpMs": {
   "grade_my_answer": {
-   "n": 16,
-   "median": 836,
-   "min": 626,
+   "n": 20,
+   "median": 829,
+   "min": 492,
    "max": 2343
   },
   "verify_claim": {
-   "n": 38,
-   "median": 605,
+   "n": 56,
+   "median": 626,
    "min": 261,
    "max": 1001
   }
  },
  "typedGradeHttpMs": {
-  "n": 2,
+  "n": 4,
   "median": 626,
-  "min": 626,
+  "min": 492,
   "max": 2333
  },
  "lastExaminerReplyDoneToResultScreenMs": {
-  "n": 2,
-  "median": 85,
+  "n": 4,
+  "median": 106,
   "min": 85,
-  "max": 114
+  "max": 208
  },
  "bargeIn": {
   "learnerSpeechStartedToInterruptedReplyDoneMs": {
@@ -92,11 +97,11 @@
    "max": 3497
   }
  },
- "levelsPlayedToResult": 13,
+ "levelsPlayedToResult": 17,
  "roundOutcomes": {
-  "correct": 18,
-  "partial": 8,
-  "bluff_caught": 5
+  "correct": 24,
+  "partial": 10,
+  "bluff_caught": 7
  },
  "verifyCatch": {
   "file": "aloud-verify-catch.2026-09-30.json",

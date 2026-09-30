@@ -1,1 +1,1 @@
-﻿Synthetic speech, generated with Windows System.Speech. Spoken text: That one is real.
+﻿Synthetic speech, generated with Windows System.Speech. Spoken text: I think this claim is real. It matches what my notes say.

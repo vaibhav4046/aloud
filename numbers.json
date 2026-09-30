@@ -178,16 +178,16 @@
     "cmd": "ORAL_PROBE_BASE=http://localhost:3161 npx tsx scripts/probes/oral-memory-live.mts --runs 3"
   },
   "aloud.live.sessionReadyMs": {
-    "value": 910,
-    "n": 13,
+    "value": 880,
+    "n": 16,
     "date": "2026-09-30",
     "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
     "note": "Median click on Start talking to session.ready, dev server (some runs include a route compile). Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
   },
   "aloud.live.firstExaminerAudioMs": {
-    "value": 1423,
-    "n": 13,
+    "value": 1399,
+    "n": 16,
     "date": "2026-09-30",
     "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
@@ -195,23 +195,23 @@
   },
   "aloud.live.toolCallToResultMs": {
     "value": 777,
-    "n": 23,
+    "n": 31,
     "date": "2026-09-30",
     "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
     "note": "Median tool.call received to tool.result sent, includes the real grader or page check. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
   },
   "aloud.live.gradeToolHttpMs": {
-    "value": 836,
-    "n": 16,
+    "value": 829,
+    "n": 20,
     "date": "2026-09-30",
     "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
     "note": "Median /api/oral/tool grade_my_answer round trip seen by the browser. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
   },
   "aloud.live.verifyToolHttpMs": {
-    "value": 605,
-    "n": 38,
+    "value": 626,
+    "n": 56,
     "date": "2026-09-30",
     "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
@@ -226,8 +226,8 @@
     "note": "Median input.speech.started to reply.done interrupted inside a level. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
   },
   "aloud.live.finalReplyToResultScreenMs": {
-    "value": 85,
-    "n": 2,
+    "value": 106,
+    "n": 4,
     "date": "2026-09-30",
     "evidence": "docs/evidence/probes/aloud-summary.2026-09-30.json",
     "cmd": "node scripts/probes/aloud-numbers.mjs (after the drives in scripts/probes/aloud-live-drive.mjs)",
