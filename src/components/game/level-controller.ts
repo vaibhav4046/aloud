@@ -38,12 +38,16 @@ export type RoundClosed = {
  */
 export const REVEAL_GRACE_MS = 2_500;
 
+const norm = (s: string): string => s.replace(/\s+/g, " ").trim().toLowerCase();
+
 export class LevelController {
   index = 0;
   draft: RoundDraft;
   private source: SourceCard | null = null;
   private done = false;
   private heldUntil = 0;
+  private lastClosedAt = 0;
+  private waiters: (() => void)[] = [];
 
   constructor(
     readonly level: Level,
@@ -62,9 +66,15 @@ export class LevelController {
     return this.draft.stance;
   }
 
-  /** What the player said, as a transcript. Catch rounds read the stance from the words. */
-  speech(text: string): void {
+  /**
+   * What the player said, as a transcript. Catch rounds read the stance from the words.
+   * `startedAtMs` is when that speech began: a turn that began before the last round
+   * closed belongs to that round (a late final transcript, a correction) and is not
+   * read for the round now on screen.
+   */
+  speech(text: string, startedAtMs?: number): void {
     if (this.done || this.now() < this.heldUntil) return;
+    if (startedAtMs !== undefined && startedAtMs < this.lastClosedAt) return;
     this.draft = noteUserSpeech(this.draft, this.level, text);
     this.tryClose();
   }
@@ -74,6 +84,32 @@ export class LevelController {
     if (this.done) return;
     this.draft = setStance(this.draft, stance);
     this.tryClose();
+  }
+
+  /** The index of the catch claim the examiner stated, or -1 when the level holds no such claim. */
+  claimIndex(claim: string): number {
+    const want = norm(claim);
+    return (this.level.items ?? []).findIndex((i) => i.type === "catch" && norm(i.claim) === want);
+  }
+
+  /** True once the round of item `idx` has closed on the game's side. */
+  isClosed(idx: number): boolean {
+    return this.done || idx < this.index;
+  }
+
+  /** Resolves when the round of item `idx` closes, or after `graceMs`, whichever comes first. */
+  whenClosed(idx: number, graceMs: number): Promise<void> {
+    if (this.isClosed(idx) || graceMs <= 0) return Promise.resolve();
+    return new Promise((resolve) => {
+      const finish = () => {
+        clearTimeout(timer);
+        this.waiters = this.waiters.filter((w) => w !== check);
+        resolve();
+      };
+      const check = () => this.isClosed(idx) && finish();
+      const timer = setTimeout(finish, graceMs);
+      this.waiters.push(check);
+    });
   }
 
   /** The player dismissed the reveal: what they say from here is about the next claim. */
@@ -116,10 +152,12 @@ export class LevelController {
     const report = closeRound(this.draft, this.level, this.chunks, this.now());
     const closed: RoundClosed = { report, item: this.item, source: this.source };
     this.index += 1;
+    this.lastClosedAt = this.now();
     this.source = null;
     if (closed.item?.type === "catch") this.heldUntil = this.now() + REVEAL_GRACE_MS;
     if (this.index < this.level.rounds) this.draft = beginRound(this.level, this.index, this.now());
     else this.done = true;
     this.onClosed(closed);
+    for (const w of [...this.waiters]) w();
   }
 }

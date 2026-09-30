@@ -23,6 +23,7 @@ import { END_GRACE_IDLE_MS, END_GRACE_MAX_MS, quietStep } from "./level-quiet";
 const SESSION_TIMEOUT_MS = 15_000;
 /** A tap on Real or Bluff waits at most this long for the prefetched page check. */
 const PREFETCH_WAIT_MS = 1_500;
+const ROUND_OPEN_NOTICE = "The game did not catch your answer. Tap Catch it or That is true, or say it again.";
 
 const CUE: Record<RoundReport["outcome"], Cue> = {
   correct: "good",
@@ -80,12 +81,15 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
   const [reveal, setReveal] = useState<CatchReveal | null>(null);
   const [proofView, setProofView] = useState<ProofView | null>(null);
   const [peekPassageId, setPeekPassageId] = useState<string | null>(null);
+  const [resync, setResync] = useState(0);
 
   const ctl = useRef<LevelController | null>(null);
   const mic = useRef<MicHandle | null>(null);
   const attempt = useRef(0);
   const sessionId = useRef<string | null>(null);
   const reply = useRef("");
+  const speechStart = useRef(0);
+  const lastState = useRef<OralMachine["state"]>("IDLE" as OralMachine["state"]);
   const prefetch = useRef<Map<number, Promise<ToolResult | null>>>(new Map());
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -96,6 +100,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
     dispatch({ type: "round", report: c.report, now: new Date().toISOString() });
     setPending(false);
     setCanSkip(false);
+    setNotice(null);
     setStance(null);
     setPeekPassageId(null);
     playCue(CUE[c.report.outcome], settingsRef.current.sound);
@@ -226,6 +231,8 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
             onState: (m) => {
               if (attempt.current !== my) return;
               if (m.sessionId) sessionId.current = m.sessionId;
+              if (m.state === "USER_SPEAKING" && lastState.current !== "USER_SPEAKING") speechStart.current = Date.now();
+              lastState.current = m.state;
               if (m.state === "LISTENING" || m.state === "SPEAKING") setConnection("live");
               setMachine(m);
             },
@@ -234,7 +241,8 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
                 setYouText(turn.text);
                 // Catch rounds: the page check for the claim goes in first so the proof is in the draft when the words close the round.
                 const idx = c.index;
-                void applyPrefetch(c).then(() => c.index === idx && c.speech(turn.text));
+                const began = speechStart.current;
+                void applyPrefetch(c).then(() => c.index === idx && c.speech(turn.text, began));
               } else {
                 setExaminerText(turn.text);
                 setExaminerCut(!!turn.interrupted);
@@ -263,8 +271,12 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
           },
           {
             getToken: mintVoiceAgentToken,
-            runTool: (name, args, callId) =>
-              runVoiceTool(c, name, args, callId, (n, a, id) => runLevelTool(n, a, id, { subjectId, levelId: level.id, sessionId: sessionId.current })),
+            runTool: async (name, args, callId) => {
+              const result = await runVoiceTool(c, name, args, callId, (n, a, id) => runLevelTool(n, a, id, { subjectId, levelId: level.id, sessionId: sessionId.current }));
+              // The examiner asked about a claim the game has no answer for: the buttons are the way to answer it.
+              if (result.round === "open" && attempt.current === my) setNotice(ROUND_OPEN_NOTICE);
+              return result;
+            },
           }
         );
         if (attempt.current !== my) {
@@ -291,6 +303,15 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
     }, CONNECT_TIMEOUT_MS);
     return () => clearTimeout(id);
   }, [connection]);
+
+  useEffect(() => {
+    const c = ctl.current;
+    if (resync === 0 || !c || ended || c.index >= level.rounds) return;
+    mic.current?.cancel();
+    mic.current = null;
+    void connectVoice(c);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a tap (resync) reopens the session
+  }, [resync]);
 
   /* ---- actions ---- */
   const startVoice = useCallback(() => {
@@ -364,9 +385,15 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
       setStance(s);
       setPending(true);
       const idx = c.index;
-      void applyPrefetch(c).then(() => c.index === idx && c.choose(s));
+      void applyPrefetch(c).then(() => {
+        if (c.index !== idx) return;
+        c.choose(s);
+        // A tap closes the round on the screen only. The examiner is still waiting on this claim, so a live
+        // session is reopened at the next round: the game decides where the level is, the examiner follows.
+        if (c.index > idx && mode === "voice" && connection === "live") setResync((n) => n + 1);
+      });
     },
-    [pending, applyPrefetch]
+    [pending, applyPrefetch, mode, connection]
   );
 
   /** The typed check failed and the player would rather move on: the round closes as skipped, which scores nothing. */

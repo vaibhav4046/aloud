@@ -16,7 +16,31 @@ import type { LevelController } from "./level-controller";
 export type ToolResult = Record<string, unknown>;
 export type ToolRunner = (name: string, args: Record<string, unknown>, callId: string) => Promise<ToolResult>;
 
-export async function runVoiceTool(c: LevelController, name: string, args: Record<string, unknown>, callId: string, run: ToolRunner): Promise<ToolResult> {
+/** How long a verify_claim on a stated claim waits for a transcript that is still on its way. */
+export const OPEN_ROUND_GRACE_MS = 1_200;
+
+const ROUND_OPEN = {
+  round: "open",
+  instruction:
+    "The game has not closed this round: it did not catch a real or bluff answer from the player. Do not reveal, do not say which it is, and do not go to the next claim. Say only: real or bluff? Then wait. Call verify_claim again on the same claim after the player answers.",
+};
+
+/**
+ * The game, not the examiner, decides when a claim round is over. The examiner's
+ * verify_claim on a stated claim comes back with `round: "closed"` and the verdict
+ * once the game holds the player's stance, and with `round: "open"` and no verdict
+ * before that. The examiner's rules say to reveal and go on only after "closed".
+ */
+async function runClaimTool(c: LevelController, args: Record<string, unknown>, callId: string, run: ToolRunner, graceMs: number): Promise<ToolResult> {
+  const idx = c.claimIndex(String(args.claim ?? ""));
+  const result = await run("verify_claim", args, callId);
+  if (idx >= 0 && idx === c.index) c.tool("verify_claim", args, result);
+  await c.whenClosed(idx, graceMs);
+  return c.isClosed(idx) ? { ...result, round: "closed" } : ROUND_OPEN;
+}
+
+export async function runVoiceTool(c: LevelController, name: string, args: Record<string, unknown>, callId: string, run: ToolRunner, graceMs = OPEN_ROUND_GRACE_MS): Promise<ToolResult> {
+  if (name === "verify_claim" && typeof args.claim === "string" && c.claimIndex(args.claim) >= 0) return runClaimTool(c, args, callId, run, graceMs);
   const item = c.item;
   const answer = typeof args.answer === "string" ? args.answer.trim() : "";
   const wantCheck = name === "grade_my_answer" && item?.type === "say" && answer.length > 0;
