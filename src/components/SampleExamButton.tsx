@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { selectSampleCourse } from "@/lib/sample-course";
@@ -12,7 +12,7 @@ export function SampleExamButton({ children = "Try a sample exam" }: { children?
   const [busy, setBusy] = useState(false);
   return (
     <a
-      href="/oral?subjectId=course_transformers_w4"
+      href="/run/new?sample=1"
       className="btn-primary"
       aria-busy={busy || undefined}
       onClick={(e) => {

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { ReactNode } from "react";
 import { Wordmark } from "@/components/ui/Wordmark";
 
@@ -15,7 +15,7 @@ export function PublicShell({ children, width = "prose" }: { children: ReactNode
           <Wordmark href="/" size={26} />
           <div className="flex items-center gap-0.5">
             <Link href="/" className="nav-link">Home</Link>
-            <Link href="/subjects" className="nav-link">Your notes</Link>
+            <Link href="/run/new" className="nav-link">Your notes</Link>
           </div>
         </nav>
       </header>
