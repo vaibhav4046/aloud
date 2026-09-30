@@ -13,7 +13,9 @@ const run = generateRun(course as never, { now: "2026-09-30T00:00:00.000Z" });
 const chunks = course.sources.flatMap((s) => s.chunks);
 const sayLevel = run.levels.find((l) => l.kind === "say")!;
 const catchLevel = run.levels.find((l) => l.kind === "catch")!;
-const now = () => 1_000;
+// Each read moves the clock on, as real seconds pass between a player's rounds.
+let clock = 1_000;
+const now = () => (clock += 3_000);
 
 const quoteOf = (passageId: string) => {
   const c = chunks.find((x) => x.id === passageId)!;

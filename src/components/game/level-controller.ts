@@ -30,11 +30,20 @@ export type RoundClosed = {
   source: SourceCard | null;
 };
 
+/**
+ * After a Catch round closes the player reads the reveal and reacts to it out
+ * loud ("oh right, I thought so"). That reaction is not the answer to the next
+ * claim, so speech is not read as a stance until this long has passed or the
+ * player has dismissed the reveal, whichever comes first.
+ */
+export const REVEAL_GRACE_MS = 2_500;
+
 export class LevelController {
   index = 0;
   draft: RoundDraft;
   private source: SourceCard | null = null;
   private done = false;
+  private heldUntil = 0;
 
   constructor(
     readonly level: Level,
@@ -55,7 +64,7 @@ export class LevelController {
 
   /** What the player said, as a transcript. Catch rounds read the stance from the words. */
   speech(text: string): void {
-    if (this.done) return;
+    if (this.done || this.now() < this.heldUntil) return;
     this.draft = noteUserSpeech(this.draft, this.level, text);
     this.tryClose();
   }
@@ -65,6 +74,11 @@ export class LevelController {
     if (this.done) return;
     this.draft = setStance(this.draft, stance);
     this.tryClose();
+  }
+
+  /** The player dismissed the reveal: what they say from here is about the next claim. */
+  release(): void {
+    this.heldUntil = 0;
   }
 
   /** A hint or a peek: the round pays half from here on. */
@@ -103,6 +117,7 @@ export class LevelController {
     const closed: RoundClosed = { report, item: this.item, source: this.source };
     this.index += 1;
     this.source = null;
+    if (closed.item?.type === "catch") this.heldUntil = this.now() + REVEAL_GRACE_MS;
     if (this.index < this.level.rounds) this.draft = beginRound(this.level, this.index, this.now());
     else this.done = true;
     this.onClosed(closed);

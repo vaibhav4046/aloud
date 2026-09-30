@@ -29,19 +29,26 @@ const RANK_PHRASE = /\b(?:real or (?:a )?bluff|bluff or (?:a )?real|true or fals
 const NOT_BLUFF = /\b(?:not (?:a )?bluff|no bluff|isn'?t (?:a )?bluff|is not (?:a )?bluff|not (?:a )?fake|not false|isn'?t false|is not false)\b/g;
 const NOT_REAL = /\b(?:not (?:a )?real|not true|not right|not correct|isn'?t (?:real|true|right|correct)|is not (?:real|true|right|correct)|not accurate|not legit)\b/g;
 const BLUFF_WORD = /\b(?:bluff|bluffing|false|fake|lie|lying|wrong|incorrect|untrue|made up|planted|altered|changed|tampered)\b/g;
-const REAL_WORD = /\b(?:real|true|correct|right|legit|genuine|accurate|agree)\b/g;
+/** "right" alone is an interjection ("oh right"); it is a verdict only after a copula ("that's right"). */
+const REAL_WORD = /\b(?:real|true|correct|legit|genuine|accurate|agree)\b|(?<=\b(?:that'?s|that is|it'?s|it is|this is|is|looks|seems|sounds)\s(?:(?:totally|absolutely|definitely|pretty|quite|all|exactly|completely)\s)?)right\b/g;
+/** The correction after a verdict ("the correct version says ...") names the truth; it is not a second verdict. */
+const CORRECTION = /\b(?:(?:the|a|an|its|their)\s+)?(?:correct|real|right|true|actual|proper|original)\s+(?:version|value|answer|figure|number|fact|statement|wording|reading|quote|line|result|definition|name|word|term)\b/g;
+/** "no, actually", "wait", "I mean": the words before a verdict that takes back the one before. */
+const RETRACT = /\b(?:no|nope|wait|actually|sorry|scratch that|i mean|on second thought|hold on|correction|make that)\b/;
+/** A sentence that asks something, with or without its question mark. */
+const QUESTION_START = /^\s*(?:(?:um+|uh+|hmm+|so|well|wait|ok|okay|and|but)[,\s]+)*(?:is|are|was|were|does|do|did|can|could|would|should|will|what|why|how|which|who|when|where|really|isn'?t|aren'?t|doesn'?t|wasn'?t)\b/;
+/** A reaction to the reveal, not an answer to anything. */
+const ASIDE = /\bi (?:thought|figured|knew|guessed|suspected) so\b|\bknew it\b|\bmakes sense\b|\bgot it\b|\bi see\b|\bfair enough\b|\bgood (?:one|catch)\b|\bnice one\b|\bthank(?:s| you)\b|\binteresting\b|\bas expected\b|\bnoted\b/;
 
-/**
- * The stance in a player's words, or null when it cannot be told. The latest
- * decisive cue wins, so "hmm, real... no, actually a bluff" reads as bluff.
- * The examiner's own question phrasing ("real or bluff") is ignored.
- */
-export function stanceOf(transcript: string): Stance | null {
-  let text = transcript.toLowerCase().replace(/[’]/g, "'").replace(RANK_PHRASE, " ");
-  const cues: { at: number; stance: Stance }[] = [];
+type Cue = { stance: Stance; retracts: boolean };
+
+/** The verdict cues of one clause, in the order spoken. */
+function cuesIn(clause: string): Cue[] {
+  let text = clause.replace(CORRECTION, (m) => " ".repeat(m.length));
+  const found: { at: number; stance: Stance }[] = [];
   const take = (re: RegExp, stance: Stance) => {
     text = text.replace(re, (m, offset: number) => {
-      cues.push({ at: offset, stance });
+      found.push({ at: offset, stance });
       return " ".repeat(m.length);
     });
   };
@@ -49,8 +56,36 @@ export function stanceOf(transcript: string): Stance | null {
   take(NOT_REAL, "bluff");
   take(BLUFF_WORD, "bluff");
   take(REAL_WORD, "real");
-  if (cues.length === 0) return null;
-  return cues.sort((a, b) => a.at - b.at).at(-1)!.stance;
+  return found
+    .sort((a, b) => a.at - b.at)
+    .map((f) => ({ stance: f.stance, retracts: RETRACT.test(clause.slice(0, f.at)) }));
+}
+
+/**
+ * The stance in a player's words, or null when it cannot be told.
+ *
+ * The verdict is what they say first. What follows it ("The correct version
+ * says ...") is a correction and is not read as a second verdict. Questions
+ * ("is that true?") and reactions ("oh right, I thought so") are not answers.
+ * A later verdict of the other kind counts only when a retraction sits before
+ * it ("real... no, actually a bluff"); words that carry both kinds with no
+ * retraction return null so the Real and Bluff buttons decide, not a guess.
+ * The examiner's own question phrasing ("real or bluff") is ignored.
+ */
+export function stanceOf(transcript: string): Stance | null {
+  const text = transcript.toLowerCase().replace(/[’]/g, "'").replace(RANK_PHRASE, " ");
+  let stance: Stance | null = null;
+  for (const [, body = "", end = ""] of text.matchAll(/([^.!?;\n]+)([.!?;\n]*)/g)) {
+    if (end.includes("?") || QUESTION_START.test(body) || ASIDE.test(body)) continue;
+    for (const cue of cuesIn(body)) {
+      if (stance === null) stance = cue.stance;
+      else if (cue.stance !== stance) {
+        if (!cue.retracts) return null;
+        stance = cue.stance;
+      }
+    }
+  }
+  return stance;
 }
 
 export type ToolEvent = {

@@ -405,7 +405,10 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         hint: noteHint,
         peek: noteHint,
         dismissProof: () => setProofView(null),
-        dismissReveal: () => setReveal(null),
+        dismissReveal: () => {
+          ctl.current?.release();
+          setReveal(null);
+        },
         end,
       },
     };
