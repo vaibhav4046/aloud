@@ -1,0 +1,3769 @@
+{
+ "scenario": "calibrate",
+ "tag": "",
+ "measuredOn": "2026-09-30T09:14:36.598Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "base": "http://localhost:3261",
+ "levelId": "l_say_c_self_attention_1",
+ "learnerVoice": "synthetic (Windows System.Speech)",
+ "plan": [],
+ "greetSecAssumed": 14,
+ "gapSec": 40,
+ "ws": [
+  {
+   "t": 1420,
+   "dir": "out",
+   "type": "session.update"
+  },
+  {
+   "t": 1677,
+   "dir": "in",
+   "type": "session.updated"
+  },
+  {
+   "t": 1705,
+   "dir": "in",
+   "type": "session.ready",
+   "session_id": "sess_a52"
+  },
+  {
+   "t": 1705,
+   "dir": "out",
+   "type": "input.audio.first"
+  },
+  {
+   "t": 1711,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 2209,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2210,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2211,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2214,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2224,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2234,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2244,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2253,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2264,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2275,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2285,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2294,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2304,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2313,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2324,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2335,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2343,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2354,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2364,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2381,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2384,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2394,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2404,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2413,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2424,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2434,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2445,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2454,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2464,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2474,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2483,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2499,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2504,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2514,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2524,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2535,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2544,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2555,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2564,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2573,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2584,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2594,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2604,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2614,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2624,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2634,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2644,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2654,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2663,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2674,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2684,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2696,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2708,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2722,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2726,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2734,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2743,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2753,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2764,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2773,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2784,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2798,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2804,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2814,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2823,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2833,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2843,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2855,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2864,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2874,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2883,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2895,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2933,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2933,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2933,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2946,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2946,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2960,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2980,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 2980,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3000,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3010,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3010,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3022,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3038,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3038,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3051,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3054,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3064,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3074,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3084,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3094,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3104,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3114,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3126,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3134,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3144,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3154,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3167,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3174,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3184,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3194,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3206,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3214,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3223,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3234,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3243,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3254,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3265,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3277,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3284,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3299,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3305,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3313,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3325,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3333,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3344,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3354,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3364,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3374,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3388,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3394,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3410,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3416,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3424,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3436,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3444,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3454,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3466,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3474,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3484,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3495,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3503,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3517,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3523,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3534,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3543,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3554,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3566,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3574,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3597,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3597,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3604,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3614,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3624,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3636,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3643,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3654,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3664,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3674,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3684,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3709,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3709,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3726,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3726,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3734,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3744,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3755,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3765,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3784,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3791,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3795,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3806,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3820,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3823,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3834,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3843,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3854,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3863,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3874,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3886,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3893,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3903,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3915,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3925,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3934,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3944,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3954,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3965,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3974,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3983,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 3993,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4003,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4014,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4027,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4034,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4043,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4055,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4063,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4075,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4089,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4093,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4103,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4113,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4124,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4134,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4144,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4154,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4163,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4187,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4187,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4202,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4217,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4217,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4232,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4248,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4248,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4263,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4264,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4273,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4284,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4293,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4304,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4314,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4324,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4334,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4343,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4354,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4370,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4374,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4385,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4394,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4403,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4413,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4424,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4434,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4446,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4454,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4464,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4474,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4486,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4494,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4507,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4514,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4529,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4536,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4544,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4560,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4564,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4573,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4587,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4594,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4605,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4617,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4624,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4633,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4645,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4667,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4667,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4674,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4686,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4694,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4704,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4714,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4724,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4735,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4743,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4754,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4764,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4773,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4784,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4793,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4804,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4813,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4825,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4834,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4843,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4854,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4863,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4875,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4884,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4893,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4903,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4913,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4924,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4934,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4945,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4953,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4964,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4974,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4984,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 4994,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5003,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5020,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5024,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5034,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5043,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5054,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5064,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5074,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5084,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5093,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5111,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5113,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5124,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5138,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5144,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5153,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5163,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5173,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5186,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5194,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5203,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5221,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5223,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5234,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5244,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5253,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5263,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5273,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5283,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5293,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5303,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5313,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5323,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5334,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5343,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5353,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5363,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5380,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5383,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5394,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5403,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5413,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5424,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5433,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5444,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5457,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5465,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5474,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5484,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5493,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5504,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5514,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5524,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5536,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5544,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5555,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5564,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5574,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5584,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5594,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5603,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5615,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5624,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5635,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5645,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5654,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5663,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5674,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5683,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5694,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5707,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5721,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5738,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5738,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5753,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5769,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5769,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5784,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5784,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5799,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5818,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5818,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5831,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5846,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5846,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5860,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5875,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5875,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5891,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5908,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5908,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5914,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5923,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5934,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5947,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5956,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5964,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5973,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5984,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 5993,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6003,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6013,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6023,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6034,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6060,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6060,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6068,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6075,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6084,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6102,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6103,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6113,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6124,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6134,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6145,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6154,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6163,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6174,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6184,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6195,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6203,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6214,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6223,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6234,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6243,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6254,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6264,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6273,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6284,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6293,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6304,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6313,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6325,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6333,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6344,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6354,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6364,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6374,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6383,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6395,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6403,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6413,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6424,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6434,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6450,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6464,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6464,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6479,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6497,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6497,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6511,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6527,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6527,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6534,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6544,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6553,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6564,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6573,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6586,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6596,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6603,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6614,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6630,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6634,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6644,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6653,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6665,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6679,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6683,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6695,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6704,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6721,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6724,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6734,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6743,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6753,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6764,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6793,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6793,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6805,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6823,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6823,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6830,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6834,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6847,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6855,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6866,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6884,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6884,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6894,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6903,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6914,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6923,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6933,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6944,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6953,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6964,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6977,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6983,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 6994,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7003,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7013,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7023,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7034,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7047,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7054,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7064,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7073,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7083,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7094,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7104,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7113,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7127,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7145,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7145,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7165,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7165,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7178,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7192,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7208,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7208,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7222,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7238,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7238,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7255,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7255,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7270,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7287,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7287,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7306,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7321,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7321,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7329,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7336,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7346,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7356,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7384,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7384,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7387,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7394,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7403,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7415,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7425,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7438,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7453,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7457,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7472,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7474,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7489,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7496,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7506,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7515,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7527,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7536,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7556,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7556,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7564,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7575,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7583,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7597,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7606,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7631,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7631,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7647,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7663,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7663,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7663,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7680,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7684,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7695,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7709,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7723,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7744,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7744,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7749,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7754,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7765,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7773,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7783,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7793,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7804,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7813,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7828,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "Self-attention. First question: In one or two sentences, say what an attention weight means."
+  },
+  {
+   "t": 7828,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7834,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7844,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7854,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7863,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7874,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7883,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7894,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7903,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7914,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7924,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7934,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7944,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7953,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7965,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7978,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7989,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 7997,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8010,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8016,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8030,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8040,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8045,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8055,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8069,
+   "dir": "in",
+   "type": "reply.audio",
+   "bytes": 480
+  },
+  {
+   "t": 8299,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  }
+ ],
+ "http": [
+  {
+   "t": 1790759685190,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 350
+  },
+  {
+   "t": 1790759687536,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 35
+  },
+  {
+   "t": 152,
+   "url": "/api/oral/session",
+   "method": "GET",
+   "status": 200,
+   "ms": 307
+  },
+  {
+   "t": 655,
+   "url": "/api/voice-agent/token",
+   "method": "GET",
+   "status": 200,
+   "ms": 649
+  }
+ ],
+ "dom": [
+  {
+   "t": 3,
+   "phase": "ready",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": "Self-attention",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 217,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ConnectingOpening a session with the voice service.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 1767,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 2799,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 8384,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  }
+ ],
+ "errors": [],
+ "clickAt": 1790759688308,
+ "localProgress": {
+  "xp": 60,
+  "rank": 1,
+  "unlockedIndex": 1,
+  "results": {},
+  "proofs": []
+ },
+ "failure": null,
+ "audioFrames": 596,
+ "audioBytes": 286080,
+ "examinerAudioSec": 5.96
+}

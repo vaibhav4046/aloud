@@ -1,0 +1,1 @@
+﻿Synthetic speech, generated with Windows System.Speech. Spoken text: An attention weight says how much one token listens to another token before the value vectors are averaged.

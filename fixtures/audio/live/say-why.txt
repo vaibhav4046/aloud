@@ -1,0 +1,1 @@
+﻿Synthetic speech, generated with Windows System.Speech. Spoken text: Without self attention a token could not compare itself with every other token, so the model would lose context across the sequence.

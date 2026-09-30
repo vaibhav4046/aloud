@@ -1,0 +1,1 @@
+﻿Synthetic speech, generated with Windows System.Speech. Spoken text: That is a bluff. It is self attention, not backpropagation, that is permutation equivariant.

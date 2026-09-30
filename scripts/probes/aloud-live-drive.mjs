@@ -1,0 +1,284 @@
+#!/usr/bin/env node
+/**
+ * Drives one Aloud level through the real UI in Chromium against the real
+ * AssemblyAI Voice Agent service and the real tool route. The microphone is
+ * Chromium's fake device playing a SYNTHETIC learner voice (Windows
+ * System.Speech, fixtures/audio/live). Nothing is mocked.
+ *
+ *   BASE_URL=http://localhost:3261 node scripts/probes/aloud-live-drive.mjs <scenario> [--tag x]
+ *
+ * scenarios: calibrate | say | catch | bargein | typed-say | typed-catch
+ * Options:   --greet <sec>  click-to-end-of-greeting, from a calibrate run (default 14)
+ *            --gap <sec>    silence between spoken answers (default 40)
+ *            --level <id>   override the level id
+ *
+ * Output: docs/evidence/probes/aloud-<scenario><tag>.<date>.json with the timeline
+ * of socket events, tool HTTP calls and screen snapshots, plus derived checks.
+ */
+import { chromium } from "@playwright/test";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+const argv = process.argv.slice(2);
+const scenario = argv[0];
+const opt = (n, d) => (argv.includes(n) ? argv[argv.indexOf(n) + 1] : d);
+const base = process.env.BASE_URL ?? "http://localhost:3261";
+const tag = opt("--tag", "");
+const greetSec = Number(opt("--greet", 14));
+const gapSec = Number(opt("--gap", 40));
+const RUN_ID = "run_course_transformers_w4";
+const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1" };
+const levelId = opt("--level", LEVELS[scenario]);
+const audioDir = "fixtures/audio/live";
+const date = new Date().toISOString().slice(0, 10);
+const outFile = `docs/evidence/probes/aloud-${scenario}${tag}.${date}.json`;
+const shotDir = `docs/evidence/visual/${date}`;
+fs.mkdirSync(path.dirname(outFile), { recursive: true });
+fs.mkdirSync(shotDir, { recursive: true });
+
+/* ---------- audio composition: one padded WAV the fake device plays once ---------- */
+function readWav(file) {
+  const b = fs.readFileSync(file);
+  const fmt = b.indexOf("fmt ");
+  const data = b.indexOf("data");
+  return { rate: b.readUInt32LE(fmt + 12), ch: b.readUInt16LE(fmt + 10), bits: b.readUInt16LE(fmt + 22), pcm: b.subarray(data + 8, data + 8 + b.readUInt32LE(data + 4)), head: b.subarray(0, data + 8), dataAt: data };
+}
+function compose(segments, totalSec, outPath) {
+  const first = readWav(`${audioDir}/interrupt.wav`);
+  const bps = first.ch * (first.bits / 8);
+  const total = Math.round(totalSec * first.rate) * bps;
+  const pcm = Buffer.alloc(total);
+  const placed = [];
+  for (const s of segments) {
+    const w = readWav(`${audioDir}/${s.wav}.wav`);
+    const off = Math.round(s.at * first.rate) * bps;
+    w.pcm.copy(pcm, off, 0, Math.min(w.pcm.length, total - off));
+    placed.push({ wav: s.wav, atSec: s.at, durSec: +(w.pcm.length / bps / first.rate).toFixed(2) });
+  }
+  const head = Buffer.from(first.head);
+  head.writeUInt32LE(4 + (first.dataAt - 12) + 8 + pcm.length, 4);
+  head.writeUInt32LE(pcm.length, first.dataAt + 4);
+  fs.writeFileSync(outPath, Buffer.concat([head, pcm]));
+  return placed;
+}
+const dur = (w) => { const x = readWav(`${audioDir}/${w}.wav`); return x.pcm.length / (x.ch * x.bits / 8) / x.rate; };
+
+let plan = [];
+let totalSec = 30;
+if (scenario === "calibrate") { plan = []; totalSec = 60; }
+if (scenario === "say") {
+  const a = greetSec + 3;
+  const b = a + dur("say-weight") + gapSec;
+  plan = [{ wav: "say-weight", at: a }, { wav: "say-why", at: b }];
+  totalSec = b + dur("say-why") + 20;
+}
+if (scenario === "catch") {
+  const a = greetSec + 3;
+  const b = a + dur("claim-real") + gapSec;
+  const c = b + dur("claim-real") + gapSec + 8;
+  plan = [{ wav: "claim-real", at: a }, { wav: "claim-real", at: b }, { wav: "claim-bluff", at: c }];
+  totalSec = c + dur("claim-bluff") + 25;
+}
+if (scenario === "bargein") {
+  // The learner cuts in while the examiner is still reading the greeting.
+  plan = [{ wav: "interrupt", at: Number(opt("--at", 6)) }];
+  totalSec = 60;
+}
+const voice = !scenario.startsWith("typed");
+let fakeArgs = [];
+if (voice) {
+  const wavPath = path.join(os.tmpdir(), `aloud-live-${scenario}.wav`);
+  plan = compose(plan, totalSec, wavPath);
+  fakeArgs = [`--use-file-for-fake-audio-capture=${wavPath}%noloop`];
+}
+
+/* ---------- browser ---------- */
+const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required", ...fakeArgs] });
+const ctx = await browser.newContext({ viewport: { width: 430, height: 900 }, permissions: ["microphone"] });
+const page = await ctx.newPage();
+const errors = [];
+page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 200)));
+page.on("pageerror", (e) => errors.push(String(e).slice(0, 200)));
+
+let t0 = 0;
+const T = () => Date.now() - t0;
+const ws = [];
+const http = [];
+const dom = [];
+let audioBytes = 0;
+let audioFrames = 0;
+page.on("websocket", (sock) => {
+  if (!/assemblyai/.test(sock.url())) return;
+  sock.on("framereceived", ({ payload }) => {
+    let m;
+    try { m = JSON.parse(String(payload)); } catch { return; }
+    const t = T();
+    if (m.type === "reply.audio") { audioFrames++; audioBytes += Math.floor((String(m.data ?? "").length * 3) / 4); ws.push({ t, dir: "in", type: "reply.audio", bytes: Math.floor((String(m.data ?? "").length * 3) / 4) }); return; }
+    const e = { t, dir: "in", type: m.type };
+    if (m.type === "transcript.user" || m.type === "transcript.agent") { e.text = String(m.text ?? "").slice(0, 400); if (m.interrupted) e.interrupted = true; }
+    if (m.type === "reply.done") e.status = m.status;
+    if (m.type === "tool.call") { e.name = m.name; e.call_id = m.call_id; e.args = m.args ?? m.arguments; }
+    if (m.type === "session.ready") e.session_id = String(m.session_id ?? "").slice(0, 8);
+    if (m.type === "session.error" || m.type === "session.ended") e.detail = JSON.stringify(m).slice(0, 200);
+    if (m.type === "transcript.agent.delta" || m.type === "transcript.user.delta") return;
+    ws.push(e);
+  });
+  sock.on("framesent", ({ payload }) => {
+    let m;
+    try { m = JSON.parse(String(payload)); } catch { return; }
+    if (m.type === "input.audio") { if (!ws.some((x) => x.type === "input.audio.first")) ws.push({ t: T(), dir: "out", type: "input.audio.first" }); return; }
+    const e = { t: T(), dir: "out", type: m.type };
+    if (m.type === "tool.result") { e.call_id = m.call_id; e.is_error = m.is_error; e.verdict = m.result?.verdict; e.keys = Object.keys(m.result ?? {}); }
+    ws.push(e);
+  });
+});
+const pending = new Map();
+page.on("request", (r) => {
+  if (!/\/api\/oral\/tool|\/api\/game\/progress|\/api\/oral\/session|\/api\/voice-agent\/token/.test(r.url())) return;
+  pending.set(r, { t: T(), url: new URL(r.url()).pathname, method: r.method(), body: r.method() === "POST" ? r.postData()?.slice(0, 500) : undefined });
+});
+page.on("response", async (res) => {
+  const req = res.request();
+  const p = pending.get(req);
+  if (!p) return;
+  pending.delete(req);
+  const e = { ...p, status: res.status(), ms: T() - p.t };
+  if (/oral\/tool/.test(p.url)) {
+    try { const j = await res.json(); e.result = { verdict: j.result?.verdict, quote: j.result?.quote?.slice?.(0, 160), page: j.result?.page, passage_id: j.result?.passage_id, next_focus: !!j.result?.next_focus, feedback: j.result?.feedback?.slice?.(0, 160) }; } catch { /* ignore */ }
+    try { const b = JSON.parse(p.body); e.name = b.name; e.levelId = b.levelId; e.args = b.arguments; delete e.body; } catch { /* ignore */ }
+  }
+  if (/game\/progress/.test(p.url)) delete e.body;
+  http.push(e);
+});
+
+const snapFn = () => {
+  const q = (s) => document.querySelector(s);
+  const txt = (s) => q(s)?.textContent?.replace(/\s+/g, " ").trim() ?? null;
+  return {
+    phase: q('[data-testid="play-screen"]')?.getAttribute("data-phase") ?? (q('[data-testid="result"]') ? "result" : null),
+    hearts: q(".gx-hearts")?.getAttribute("aria-label") ?? null,
+    round: q(".gx-rounds")?.getAttribute("aria-label") ?? null,
+    combo: q(".gx-combo")?.getAttribute("aria-label") ?? null,
+    xp: [...document.querySelectorAll(".gx-meta .gx-chip")].map((n) => n.textContent).find((t) => /XP/.test(t ?? "")) ?? null,
+    state: txt(".gx-orb-state"),
+    claim: txt(".gx-claim q"),
+    question: txt(".gx-prompt-text, #gx-q"),
+    examiner: txt(".gx-caps p:not(.you)"),
+    examinerCut: !!q(".gx-caps p.cut"),
+    you: txt(".gx-caps p.you:has(.gx-eyebrow)"),
+    reveal: q('[aria-label="The answer"]')?.innerText?.replace(/\s+/g, " ").slice(0, 400) ?? null,
+    proof: q('aside[aria-label="Proof card"]')?.innerText?.replace(/\s+/g, " ").slice(0, 400) ?? null,
+    toast: txt(".gx-toast"),
+    result: q('[data-testid="result"]')?.innerText?.replace(/\s+/g, " ").slice(0, 500) ?? null,
+    failure: q('[role="alert"]')?.innerText?.replace(/\s+/g, " ").slice(0, 200) ?? null,
+  };
+};
+
+const doc = { scenario, tag, measuredOn: new Date().toISOString(), node: process.version, chromium: null, base, levelId, learnerVoice: "synthetic (Windows System.Speech)", plan, greetSecAssumed: greetSec, gapSec, ws, http, dom, errors };
+let failure = null;
+try {
+  doc.chromium = browser.version();
+  await page.goto(`${base}/run/new`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Use the sample/ }).click();
+  await page.waitForURL(/\/run\/run_/, { timeout: 90000 });
+  await page.waitForSelector('[data-testid="run-map"]');
+  // Levels unlock in order. When the level under test is locked, mark the levels before it cleared, written the way the app writes it.
+  const run = await page.evaluate((id) => JSON.parse(localStorage.getItem(`aloud.run.${id}`)), RUN_ID);
+  const lvl = run.levels.find((l) => l.id === levelId);
+  if (lvl.index > 1) {
+    await page.evaluate(({ run, upto }) => {
+      const key = `aloud.progress.${run.id}`;
+      const p = JSON.parse(localStorage.getItem(key));
+      for (const l of run.levels.filter((x) => x.index < upto)) p.results[l.id] = { levelId: l.id, stars: 3, xp: 200, heartsLeft: l.hearts, bestCombo: 2, rounds: [], proofIds: [], outcome: "won", playedAt: new Date().toISOString(), ms: 60000 };
+      p.unlockedIndex = upto;
+      localStorage.setItem(key, JSON.stringify(p));
+    }, { run, upto: lvl.index });
+  }
+  await page.goto(`${base}/play/${encodeURIComponent(levelId)}?run=${RUN_ID}`, { waitUntil: "networkidle" });
+  await page.waitForSelector('[data-testid="play-screen"]', { timeout: 30000 });
+  await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-intro-430.png` });
+
+  // Poll the screen; record a snapshot whenever it changes.
+  let last = "";
+  let stop = false;
+  const poller = (async () => {
+    while (!stop) {
+      const s = await page.evaluate(snapFn).catch(() => null);
+      if (s) { const k = JSON.stringify(s); if (k !== last) { last = k; dom.push({ t: T(), ...s }); } }
+      await new Promise((r) => setTimeout(r, 200));
+    }
+  })();
+
+  t0 = Date.now();
+  if (voice) await page.getByRole("button", { name: /Start talking/ }).click();
+  else await page.getByRole("button", { name: /Play by typing/ }).click();
+  doc.clickAt = t0;
+
+  const limitMs = (voice ? totalSec + 10 : 240) * 1000;
+  const isDone = () => dom.at(-1)?.phase === "result";
+  let shots = 0;
+  while (T() < limitMs && !isDone()) {
+    const s = dom.at(-1);
+    if (voice && scenario === "calibrate" && ws.some((e) => e.type === "reply.done")) break;
+    if (voice && scenario === "bargein" && ws.some((e) => e.type === "transcript.agent" && e.interrupted) && ws.filter((e) => e.type === "reply.done").length >= 2) { await page.waitForTimeout(6000); break; }
+    // A player taps Continue on the answer card and Keep going on the proof card.
+    if (s?.reveal) { await page.waitForTimeout(1500); await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-reveal-${++shots}-430.png` }).catch(() => {}); doc.revealClicks = (doc.revealClicks ?? 0) + 1; await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2000 }).catch(() => {}); }
+    if (s?.proof) { await page.waitForTimeout(1200); await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-proof-${++shots}-430.png` }).catch(() => {}); await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2000 }).catch(() => {}); }
+    if (!voice) await typedStep(page, s);
+    await page.waitForTimeout(300);
+  }
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-end-430.png`, fullPage: true }).catch(() => {});
+  stop = true;
+  await poller;
+  doc.localProgress = await page.evaluate((id) => { try { const p = JSON.parse(localStorage.getItem(`aloud.progress.${id}`)); return { xp: p.xp, rank: p.rank, unlockedIndex: p.unlockedIndex, results: Object.fromEntries(Object.entries(p.results).filter(([, r]) => r.rounds.length).map(([k, r]) => [k, { stars: r.stars, xp: r.xp, heartsLeft: r.heartsLeft, rounds: r.rounds, outcome: r.outcome, proofIds: r.proofIds }])), proofs: p.proofs.map((x) => ({ quote: x.quote.slice(0, 120), page: x.page, passageId: x.passageId })) }; } catch { return null; } }, RUN_ID);
+} catch (e) {
+  failure = String(e).slice(0, 400);
+  await page.screenshot({ path: `${shotDir}/live-${scenario}${tag}-failure-430.png` }).catch(() => {});
+} finally {
+  await browser.close();
+}
+doc.failure = failure;
+doc.audioFrames = audioFrames;
+doc.audioBytes = audioBytes;
+doc.examinerAudioSec = +(audioBytes / 2 / 24000).toFixed(2);
+fs.writeFileSync(outFile, JSON.stringify(doc, null, 1) + "\n", "utf8");
+
+/* ---------- summary to stdout ---------- */
+const at = (type, n = 0) => ws.filter((e) => e.type === type)[n]?.t ?? null;
+console.log("scenario", scenario, "level", levelId, "failure:", failure ?? "none", "console errors:", errors.length);
+console.log("session.ready ms", at("session.ready"), "| first reply.audio ms", at("reply.audio"), "| first reply.done ms", at("reply.done"), "| examiner audio sec", doc.examinerAudioSec);
+console.log("agent turns:", ws.filter((e) => e.type === "transcript.agent").length, "| user turns:", ws.filter((e) => e.type === "transcript.user").length, "| tool.call:", ws.filter((e) => e.type === "tool.call").map((e) => e.name).join(","), "| tool.result sent:", ws.filter((e) => e.type === "tool.result").length);
+console.log("last phase:", dom.at(-1)?.phase, "| hearts:", dom.at(-1)?.hearts, "| out:", outFile);
+
+/* ---------- typed play (same UI, the real grader) ---------- */
+async function typedStep(page, s) {
+  if (!s || s.phase !== "live" || s.reveal || s.proof) return;
+  if (s.claim) {
+    const idx = doc.__typedCatch ?? 0;
+    // Catch it on the planted claim (the third), otherwise confirm it is true.
+    const isBluffRound = /backpropagation/.test(s.claim);
+    const name = isBluffRound ? /Catch it/ : /That is true/;
+    if (doc.__lastClaim === s.claim) return;
+    doc.__lastClaim = s.claim;
+    doc.__typedCatch = idx + 1;
+    const t = T();
+    await page.getByRole("button", { name }).first().click({ timeout: 4000 }).catch(() => {});
+    doc.typedCatch = [...(doc.typedCatch ?? []), { claim: s.claim.slice(0, 80), tapped: isBluffRound ? "bluff" : "real", tapAt: t }];
+    return;
+  }
+  if (s.question && doc.__lastQ !== s.question) {
+    const answers = {
+      "say what an attention weight means": "An attention weight says how much one token listens to another token before the value vectors are averaged.",
+      "Why does Self-attention matter": "Without self attention a token could not compare itself with every other token, so the model would lose context across the sequence.",
+    };
+    const key = Object.keys(answers).find((k) => s.question.includes(k));
+    if (!key) return;
+    doc.__lastQ = s.question;
+    const t = T();
+    await page.getByLabel("Your answer").fill(answers[key]);
+    await page.getByRole("button", { name: /Check my answer/ }).click({ timeout: 4000 }).catch(() => {});
+    doc.typedSay = [...(doc.typedSay ?? []), { q: s.question.slice(0, 80), submitAt: t }];
+  }
+}
