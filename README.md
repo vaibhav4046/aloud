@@ -1,334 +1,101 @@
 # Aloud
 
-Learn it by saying it. Drop your notes, play them out loud. Aloud turns your own material into a run of spoken levels, catches your bluffs with claims that sound right and are not, and shows the page that proves each answer.
+Learn it by saying it. Drop your notes and Aloud turns them into a run of 12 to 30 spoken levels. In one kind of level the examiner lies to you with a claim that sounds right, and you catch it with the page as proof.
 
-![The Aloud front page at 1440 px: the headline Learn it by saying it, two buttons, and a live waveform](docs/evidence/visual/site/landing-1440.png)
+![The Aloud front page at 1440 px: the headline Learn it by saying it, two buttons, a proof card and a live waveform](docs/evidence/visual/site/landing-1440.png)
 
-Aloud grew out of VIVA, an oral-exam tool on the same voice engine. The engine (AssemblyAI Voice Agent, source-grounded claim checking, mastery) is unchanged; the game, the look and the front end are new. Internal identifiers such as the `viva_did` cookie keep their old names.
+Entry for the lablab AssemblyAI Voice Agent Hackathon. The examiner is the AssemblyAI Voice Agent API. The claim checking, scoring and level generation are code in this repository.
 
 ## Try it
 
-Live: https://viva-five-murex.vercel.app. On 2026-09-29 at 23:02 UTC `/`, `/oral` and `/api/oral/session` returned 200 there ([check](docs/evidence/live-url-check.2026-09-29.txt)). That deploy predates the stored-map steering described below, so run it locally to see that.
-Open it, press **Try a sample exam**, allow the microphone or type your answers. No sign-in, no upload, under a minute.
-No microphone: `/recorded` plays a recorded exam once one is published (it shows an empty state until then).
-Locally: `npm install`, `npm run dev`, open http://localhost:3000.
+- Live: `[LIVE_URL]` (not deployed yet as of 2026-09-30, see [docs/HUMAN-TODO.md](docs/HUMAN-TODO.md)).
+- Locally, three commands (Node 20 or later):
+
+```
+npm ci
+cp .env.example .env.local    # set ASSEMBLYAI_API_KEY (voice) and the LLM_* names (grading); keys stay on the server
+npm run dev                   # http://localhost:3000, press "Start the sample run"
+```
+
+No sign-in. Every level can be typed instead of spoken. Voice needs a microphone, HTTPS or localhost, and an AssemblyAI key.
+
+## What you play
+
+1. Drop notes (PDF, text, paste) or start the sample run. The sample is a set of Transformers notes written for this project. It builds a run of 22 levels in 5 worlds (10 Say it, 7 Catch it, 5 Boss), the same every time.
+2. Levels come in four kinds. **Say it**: explain a concept, the examiner follows up, code grades you against your pages. **Catch it**: the examiner states a claim from your notes, half real and half altered, and you call real or bluff. **Boss**: a mixed round at the end of each world with 4 hearts. **Recall**: concepts you missed come back as a level.
+3. Hearts, XP with a combo multiplier, up to 3 stars per level, ranks 1 to 30, a daily streak with earned freezes and a daily minutes ring. The rules are in [docs/GAME-DESIGN.md](docs/GAME-DESIGN.md) and implemented in `src/lib/game/scoring.ts` and `progress.ts`.
+4. A verified quote becomes a proof card: the quote is accepted only if it is a verbatim substring of the page it names.
 
 ## What is verified
 
-Numbers come from `numbers.json`; each row has a command and a file.
+Every row names a command and a file. Status: **verified-live** means it ran against the real service (AssemblyAI or the model provider) and left a file. **unit-tested** means tests cover it and nothing live does. **not done** means exactly that. Numbers are in `numbers.json`; `node scripts/verify-numbers.mjs` checks each against its file.
 
 | Claim | Status | Reproduce | Evidence |
 |---|---|---|---|
-| "Try a sample exam" opens `/oral` with the sample course and its session config loads | verified locally (production build) | `node scripts/sample-path.mjs` | [output](docs/evidence/sample-path.2026-09-29.txt) |
-| Landing page ships 139.5 KB gzip JS, CLS 0.0001, LCP 1080 ms (n=5, throttled profile) | measured locally | `npm run build && node scripts/perf.mjs` | [perf](docs/evidence/perf/perf.2026-09-29.json) |
-| 0 serious axe violations on 13 routes | verified locally (production build) | `npx playwright test tests/a11y/axe.spec.ts` | [axe](docs/evidence/a11y/axe-2026-09-29.txt) |
-| 32 text and edge colour pairs meet WCAG contrast | verified | `node scripts/check-contrast.mjs` | [pairs](design/contrast-pairs.json) |
-| 0 failing design-rule findings, self-test passes | verified | `node scripts/audit-vibe.mjs && node scripts/audit-vibe.mjs --self-test` | [audit](docs/evidence/audit-vibe.json) |
-| Privacy page matches what the code stores | generated from code | `node scripts/data-inventory.mjs --check` | [inventory](docs/evidence/data-inventory.md) |
-| Copy has no dashes, exclamation marks or banned phrases | verified (oral and API paths deferred) | `npm run lint:copy` | [rules](scripts/lint-copy-voice.mjs) |
-| Unit tests, 2026-09-29 | 1228 passed, 1 skipped, 80 files | `npx vitest run` | run output |
-| A second oral session opens on the weakest concept in the stored map, and the next question follows the last verdict | live probe n=3 against the real Voice Agent (synthetic learner, local server, file store); unit-tested | `ORAL_PROBE_BASE=http://localhost:3161 npx tsx scripts/probes/oral-memory-live.mts --runs 3` | [probe](docs/evidence/probes/oral-memory-live.2026-09-29.json), `tests/oral-memory.test.ts`, `tests/oral-next-concept.test.ts` |
-| A live recorded session with audio, transcript and source checks | not done | none yet | none |
-| Production storage is Postgres and reachable | `/api/health/ready` reported `durable: true`, backend postgres, 2026-09-29 23:02 UTC | `curl -s https://viva-five-murex.vercel.app/api/health/ready` | [check](docs/evidence/live-url-check.2026-09-29.txt) |
-| Production runs the final oral build | not done: the deployed prompt lacks the stored-map lines | `curl -s https://viva-five-murex.vercel.app/api/oral/session` and look for `STORED HISTORY` | [check](docs/evidence/live-url-check.2026-09-29.txt) |
+| Whole test suite: 1670 passed, 1 skipped, 100 files (2026-09-30) | unit-tested | `npx vitest run` | [output](docs/evidence/vitest.2026-09-30.txt) |
+| Run generation gives 12 to 30 levels on all 26 shipped subjects, a boss ends each world, difficulty never falls | unit-tested | `npx tsx scripts/run-shape.mts` | [output](docs/evidence/run-shape.2026-09-30.txt), `tests/game-run.test.ts` |
+| Scoring, streaks, freezes and progress merge follow the rules in the game brief | unit-tested | `npx vitest run tests/game-scoring.test.ts tests/game-progress.test.ts` | those two files |
+| Play screens driven in Chromium through typed rounds against the real grader: check-to-result 1.7 to 6.4 s, catch tap to reveal card 81 to 160 ms, 0 axe violations on 6 screens at 390 px | verified-live (local dev server, typed input, file store) | `node scripts/shoot-play.mjs`, `node scripts/axe-play.mjs`, `node scripts/states-play.mjs` | [review](docs/evidence/visual/REVIEW-play.md), [shots](docs/evidence/visual/play) |
+| Voice Agent handshake: session ready median 444 ms, first examiner audio 958 ms (n=3, 2026-09-29, synthetic learner voice, Node client) | verified-live | `ORAL_PROBE_BASE=http://localhost:3101 npx tsx scripts/probes/oral-live.mts roundtrip --runs 3` | [probe](docs/evidence/probes/oral-live-roundtrip.2026-09-29.json) |
+| Barge-in: service reports speech 1286 ms after the first loud learner sample (n=3, synthetic voice, playback stubbed, so not a measured stop) | verified-live | `... oral-live.mts bargein --runs 3` | [probe](docs/evidence/probes/oral-live-bargein.2026-09-29.json) |
+| `verify_claim` on 54 labelled claims: 0 false supported, 0 false contradicted, contradicted recall 0.889 (3 of 27 abstained), judge median 590 ms | verified-live | `npx tsx --env-file=.env.local scripts/probes/oral-verify-eval.mts` | [probe](docs/evidence/probes/verify-claim-live-2026-09-29.json) |
+| A level played over the Voice Agent socket (level prompt, tool results to round outcomes) | unit-tested with a fake socket | `npx vitest run tests/game-level-flow.test.ts tests/game-session.test.ts` | those files. No live probe of the game loop is committed. |
+| A full level by voice with a human microphone in a browser | not done | none | none |
+| Contrast: 43 text and edge colour pairs, 0 failing, lowest ratio 3.85 | verified | `node scripts/check-contrast.mjs` | [pairs](design/contrast-pairs.json) |
+| Copy has no dashes, exclamation marks or banned phrases in student-facing strings (oral and API paths deferred) | verified | `npm run lint:copy` | [rules](scripts/lint-copy-voice.mjs) |
+| Privacy inventory is generated from the code | verified | `node scripts/data-inventory.mjs --check` | [inventory](docs/evidence/data-inventory.md) |
+| Live deployment | not done | none | none |
+
+Removed from this table for lack of current evidence: the earlier front page performance figures and the 13 route axe run, both measured on the previous product's pages (see [docs/SUBMISSION.md](docs/SUBMISSION.md)).
 
 ## How it works
 
-1. The browser asks `/api/oral/session` for the exam config and `/api/voice-agent/token` for a short-lived token. The config is built from your stored map: the exam opens on the weakest concept in it, or says there is no history.
-2. It opens a WebSocket to AssemblyAI's Voice Agent API and streams microphone audio.
-3. The examiner speaks and listens with the provider's turn detection. When you make a claim, it calls the `verify_claim` tool.
-4. `/api/oral/tool` looks the claim up in your passages. A quotation is accepted only if it is a substring of a passage.
-5. The examiner reads the line and names the page. Each checked answer returns `next_focus`, the concept and question kind chosen by code from the last verdict and your weakest concept. The debrief lists strong, shaky and weak concepts and tomorrow's plan.
+```mermaid
+flowchart LR
+  N[Your notes or the sample] --> G[generateRun: levels, worlds, items]
+  G --> M[Run map]
+  M --> P[Play a level]
+  P -->|voice| V[AssemblyAI Voice Agent over WebSocket]
+  P -->|typed| T[Same tools over HTTP]
+  V -->|tool.call| X["/api/oral/tool: verify_claim, grade_my_answer"]
+  T --> X
+  X --> Y[Your pages: quote must be a verbatim substring]
+  Y --> R[RoundReport: outcome from tool result and the claim flag]
+  R --> S[scoring.ts: hearts, XP, stars, proof cards]
+  S --> Q[progress.ts: streak, rank, weak concepts, Recall levels]
+  Q --> M
+```
 
-```
-browser mic -> AssemblyAI Voice Agent (wss) -> tool call -> /api/oral/tool -> your passages -> quoted line -> spoken reply
-```
+1. `GET /api/game/run` builds the run from the subject's concepts, exam questions, traps and page sentences. A bluff is a trap from the course or a page sentence with one fact altered (a number, an antonym, a negation, a swap). It is kept only if the same guard that checks quotes can back a contradiction for it.
+2. The browser asks `GET /api/oral/session?subjectId=&levelId=` for the session config with the level block appended to the examiner prompt, and `GET /api/voice-agent/token` for a token that lives at most 600 seconds.
+3. It opens a WebSocket to the Voice Agent API and streams microphone audio. The examiner states a claim or asks a question. You answer or interrupt.
+4. `tool.call` events go to `POST /api/oral/tool`. The route runs the tool against your own passages and returns a verdict, a quote and a page.
+5. `src/lib/game/session.ts` turns tool results and your stance into a round outcome. No function reads examiner prose. In a Catch it level the truth is the item's `isBluff` flag and the page check only supplies the proof card.
+6. `scoring.ts` applies hearts, combo and XP. `progress.ts` keeps streak, rank and the concepts you missed, and `withRecall` puts those back into the run.
 
-## Run it yourself
+## How AssemblyAI is used
 
-```
-npm install
-cp .env.example .env.local    # set ASSEMBLYAI_API_KEY; the key stays on the server
-npm run dev
-```
+- **Voice Agent API** for the examiner: a browser WebSocket, 24 kHz PCM16 microphone audio up, examiner audio down.
+- **Token flow**: the account key stays in one server route (`src/app/api/voice-agent/token/route.ts`). The browser gets a short-lived token per connection attempt.
+- **Session config**: the first frame is `session.update` with the versioned prompt, three tools (`search_my_material`, `verify_claim`, `grade_my_answer`), key terms from your concept names and the level block.
+- **Native turn detection**: only fields the turn-detection reference documents are sent (`vad_threshold`, `interrupt_response`, `interruption_delay`).
+- **Tool calling** with `execution_mode: hold`: results go back as `tool.result` only when `reply.done` is the latest event.
+- **Barge-in**: on `input.speech.started` the client flushes playback and drops audio that arrives after the flush.
+
+Details and files: [docs/SUBMISSION.md](docs/SUBMISSION.md) and [docs/notes/engine.md](docs/notes/engine.md). The older study screens from the earlier product (`/study`, `/today`) still ship and use the Dictation endpoint; the game does not.
 
 ## Known limits
 
-- Text only: a scan without a text layer gives VIVA nothing to quote.
-- Without `DATABASE_URL`, storage is a file on the server's temporary disk and is wiped on restart. `/api/health/ready` says which.
-- Screens other than the front door, `/oral`, intake and the trust pages have been restyled by token only.
-- The exam and the recorded session need a live AssemblyAI key; the audio path has not been run on a phone.
-- Legal pages are drafts marked for review.
+- The game loop has not been run by voice with a human microphone in a browser. The Voice Agent numbers above come from the engine before the game layer, with a synthetic learner voice and a Node client. Tests cover the game loop over a fake socket.
+- Typed Catch it rounds score from the claim's flag and your tap. The correction field is practice and is labelled not scored.
+- The claim judge is a model. Code guarantees the quoted words are in the named page, not that the verdict is right. The labelled set is 54 claims over two courses, written in this repository, so 0 false supported is a small result and not a rate.
+- A catch level's prompt contains which claims are bluffs and reaches the browser like the rest of the prompt. Reading it spoils your own game and changes no score, because scoring trusts the flag in the stored run.
+- Recall levels, streak freezes across real days and crates are unit-tested. They were not watched across real days.
+- Without `DATABASE_URL` the store is a file on the server's temporary disk and is wiped on restart. Progress is also kept in your browser, so a reload keeps it on that device.
+- Text only: a scan with no text layer gives Aloud nothing to quote.
+- Chromium only. No Firefox, Safari or physical phone pass. Sound cues are off by default and were not listened to.
+- Legal pages are drafts marked for review. The privacy page does not yet list the browser keys the game writes (`aloud.run.*`, `aloud.progress.*`).
 
 ## Links
 
-[Design notes](docs/DESIGN.md), [architecture](docs/ARCHITECTURE.md), [privacy inventory](docs/evidence/data-inventory.md), [security](SECURITY.md), [third-party licences](THIRD-PARTY.md), [licence](LICENSE).
-
----
-
-## Earlier work: the dictation study loop in 60 seconds
-
-1. Open the live URL and choose **Study** in the top navigation.
-2. Hold the mic (or hold <kbd>Space</kbd>) and say something you half-remember:
-   *"I don't really understand why attention needs positional encoding."*
-   Your words appear as you say them.
-3. When you let go, VIVA cleans the transcript, finds the passage it relates
-   to, and asks you the one question that moves you forward.
-4. Answer aloud. It grades the answer against the source, not against a vibe.
-5. Come back to **Today** and the thing you got wrong is the first question.
-
-There is no account. Identity is an HttpOnly cookie, so two browsers are two
-separate learners. Voice is the point, but every screen also takes typing.
-
----
-
-## The Dictation API is the product, not a checkbox
-
-Transcription runs on the hackathon's own beta endpoint, server-side:
-
-```
-POST https://dictation.assemblyai.com/v1/transcribe/live
-Authorization: <key>          # raw or `Bearer <key>`; both accepted
-multipart/form-data           # `config` part FIRST, then `audio`
-audio: 16 kHz mono s16le PCM  # compressed formats are rejected with 415
-```
-
-What that buys, and why each part is used:
-
-- **`keyterms_prompt`** carries the concept names of the subject you are
-  studying, so the endpoint has the vocabulary a textbook is full of before it
-  hears it. We send them on every clip; on our own reference clip we could not
-  measure a difference either way, and say so rather than claim one.
-- **`stt_prompt`** carries the last few turns of the conversation, so a
-  follow-up like "explain it without the jargon" resolves to the right concept.
-- **`llm_instruction`** does the cleanup: filler words and false starts are
-  removed, but hedges are kept exactly. "I think, maybe, it's about which words
-  are important" is the single most useful sentence a learner can say, and a
-  tidier transcript that drops the *I think* throws the signal away. You can
-  always flip to **Verbatim** to see what you actually said.
-- The response gives both, so the UI shows **Clean** by default and
-  **Verbatim** on a toggle, with the real `request_time_ms` next to it.
-
-If the Dictation endpoint is unavailable the Sync API answers instead and the
-response says which path served it. With no key at all the mic returns an
-honest 503 and the typed box still works, nothing is ever faked.
-
-### Words while you are still speaking
-
-The clip above is what gets graded. While you hold the mic, the same audio
-also goes to Universal-Streaming, so you can watch the sentence form:
-
-```
-mic → AudioWorklet (one capture) ─┬→ buffered clip → /api/voice/transcribe → Dictation
-                                  └→ wss://streaming.assemblyai.com/v3/ws   → live words
-```
-
-One microphone feeds both. The browser opens the socket itself, relaying every
-64 ms frame through a server hop is the latency streaming exists to remove, 
-carrying a short-lived token from `/api/voice/stream-token`, never the API key.
-In a real browser against production on 13 September, median of four runs, the
-first word paints **1.6 s** after the mic opens; a reviewer got 1.8 s, so read
-1.5-2.0 s. At the socket the line takes **19 updates across the 9.55 s clip,
-median gap 438-680 ms** over nine runs (`scripts/api-probes/probe-stream-timing.mjs`), very
-uneven at 38 ms to 1.3 s. Settled text is solid, in-flight words dim, and the
-buffered transcript is still what gets marked; if the socket never opens you
-lose only the animation.
-
-Language is a picker, and **Automatic is the default on purpose**. Naming a
-single language pins the streaming model: `language_code=en` runs a model that
-holds every word unsettled until the end of the turn, so the transcript arrives
-in lumps about a second apart and the settle never happens word by word.
-Automatic runs the multilingual model, which finalises words as they land, on
-the same clip, **seventeen of its nineteen words settle before their turn
-closes, against none on `en`**. It means the same thing to the recorded
-transcript, which asks the buffered endpoint to detect by sending it no
-language at all, because that endpoint answers 400 to the word `multi`. The
-picker is the override: eighteen entries against the thirty-two codes both
-endpoints accept, sixteen naming a single language, and English + Hindi, which
-the socket does not take and which falls back to Automatic there.
-
-## Reproduce the transcription yourself
-
-```bash
-curl -s -X POST https://viva-five-murex.vercel.app/api/voice/transcribe \
-  -F "audio=@your-16khz-mono.wav;type=audio/wav" \
-  -F "subjectId=course_transformers_w4" \
-  -F "mode=study"
-```
-
-A real run against production, 13 September 2026, six fields of the response,
-values exactly as returned, nothing rounded:
-
-```json
-{ "mode": "dictation",
-  "confidence": 0.9873139746014078,
-  "sessionId": "f7aaf149-c663-46a5-a192-53f002af2ed8",
-  "requestTimeMs": 586.6354600002524,
-  "verbatim": "Um, I don't really understand why attention needs positional encoding. I think, maybe, it's about which words are important?",
-  "clean":    "I don't really understand why attention needs positional encoding; I think maybe it's about which words are important." }
-```
-
-That pair is the whole argument for using the Dictation API rather than a plain
-transcript: `Um,` is gone and `I think` / `maybe` are still there. Confidence
-repeats exactly here, ids never do: twelve runs of `scripts/api-probes/lat.mjs`, one value.
-
-The latency does not repeat. Two runs of twelve, same command and machine, same
-afternoon (`scripts/api-probes/lat.mjs`): end-to-end medians **1215** and **1300 ms**, of
-which `request_time_ms` was **605** and **558 ms**, slowest round trip 3288 ms.
-Twelve more posted straight at AssemblyAI (`scripts/api-probes/probe-dictation-contract.mjs`)
-put `request_time_ms` at 538-1700 ms, median 552, eleven inside 538-583, one at
-1700. Four drafts here quoted a single number, 853, 1166, 1310, 1178 ms, each
-of which stopped reproducing within a day, so take the spread: **about 1.1-1.3 s
-end to end on a typical run with a long tail above it, roughly 0.6 s of it the
-provider.** Where you enter the network moves it more than the app does.
-
----
-
-## Bring a source, or start from the shelf
-
-Twenty-six subjects ship with the app, algebra, anatomy, astronomy, biology,
-chemistry, economics, government, physics, psychology, sociology, statistics,
-and two hand-written labs. Twenty-four are built from OpenStax textbooks under
-CC BY 4.0, each passage keeping the section it came from, and each subject
-saying plainly that a language model read the book and drew the map.
-
-Your own material goes in the same way: paste notes, drop a `.txt`, `.md`,
-`.docx` or `.pdf`, or give a URL. Up to four sources become one subject and
-each keeps its own provenance, so a citation names the document it is in. URL
-fetching resolves every redirect hop and refuses private, loopback, link-local
-and metadata addresses.
-
-## Read your chat history back into your subject
-
-`extension/` is a Manifest V3 browser extension. On a ChatGPT, Claude, Gemini
-or NotebookLM tab, or any article, one click turns what you were reading into
-a VIVA subject, and a small panel lets you answer out loud without leaving the
-page. It holds no credentials: it works inside your own VIVA tab, so every
-request is same-origin and carries the session you already have. Host
-permissions are the two VIVA origins and nothing else, so it is structurally
-unable to read a page you did not act on. Load it unpacked; see
-[extension/README.md](extension/README.md).
-
-## Use VIVA from Claude, Cursor or any assistant
-
-VIVA speaks the Model Context Protocol, so it does not have to be another tab.
-Connect it once and say "quiz me on histology", "keep this", "what am I weak
-on" from wherever you already work. The microphone stays in VIVA; the thinking
-can happen anywhere.
-
-Add it, one line:
-
-```bash
-claude mcp add --transport http viva https://viva-five-murex.vercel.app/api/mcp
-```
-
-Or one entry in Claude Desktop / Cursor's config:
-
-```json
-{
-  "mcpServers": {
-    "viva": {
-      "type": "http",
-      "url": "https://viva-five-murex.vercel.app/api/mcp"
-    }
-  }
-}
-```
-
-Pair it, open [/connect](https://viva-five-murex.vercel.app/connect) in the
-browser you study in, press **Get a connection code**, and paste the code into
-your assistant. The code lasts ten minutes; what comes back is a key for that
-one account. Put it in the connection's `Authorization: Bearer …` header and
-you never paste again.
-
-The code is signed rather than stored, which is what lets a pairing survive a
-redeploy, and means it can be redeemed more than once inside its ten minutes,
-because there is no database in which to mark it spent. Treat it like a
-one-time password you are reading aloud.
-
-Eight tools: list your subjects, build one from pasted notes, say something and
-get VIVA's reply with the line it quoted, start a quiz, answer one, today's ten
-minutes, and what you are mixed up about.
-
-Every tool calls VIVA's own routes, the quiz an assistant asks is the quiz the
-app asks, marked by the same code, and mastery is still written in exactly one
-place. No tool can delete anything, and the marking key never leaves the server.
-VIVA has no sign-in, so pairing is the whole account model: one signed key, one
-study account, and no argument that can point it at anyone else's subjects.
-
-## How the study loop works
-
-```
-mic → AudioWorklet (Int16 PCM 16 kHz) → /api/voice/transcribe
-    → AssemblyAI Dictation  (Sync fallback)   ‖  live socket, same frames
-    → intent + concept  → retrieval over your subject's passages
-    → Socratic reply, every citation resolved to a stored passage
-    → append-only turn log → mastery reducer → tomorrow's plan
-```
-
-Three rules the code actually enforces:
-
-- **No citation without a passage.** Every citation is filtered against the
-  passage ids actually retrieved for that turn, in `groundReply`; the reply
-  schema only asks for a string, so that check is what enforces it. If nothing
-  survives, VIVA says it cannot find that in your source rather than inventing
-  one.
-- **No model writes a score.** Mastery moves only through the reducer in
-  `src/lib/mastery.ts`. The model emits a signal; the arithmetic is ours and
-  every change carries a reason.
-- **The key never reaches the browser.** All AssemblyAI calls are server-side.
-
-More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
----
-
-## Running it
-
-```bash
-npm install
-cp .env.example .env.local     # add ASSEMBLYAI_API_KEY
-npm run dev
-```
-
-```bash
-npm run verify                 # typecheck + copy lint + tests + extension checks + build
-npm run lint:copy              # fails on internal jargon in student-facing copy
-```
-
-Environment:
-
-| Variable | Required | Notes |
-|---|---|---|
-| `ASSEMBLYAI_API_KEY` | yes | Server-side only |
-| `ASSEMBLYAI_DICTATION_URL` | no | No default. Unset, Dictation answers `NO_DICTATION_URL` and the turn hands off to Sync on that code, the mic still works, the `mode` field says `sync` |
-| `ASSEMBLYAI_TRANSCRIPTION_MODE` | no | `dictation` (default), `sync` or `async`; anything else falls back to `dictation` |
-| `DATABASE_URL` | no | Postgres. Without it, a per-instance file store |
-| `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL` | no | Without them the heuristic tutor answers |
-| `LLM_FALLBACKS` | no | Spare credentials, `baseUrl\|key\|model` separated by commas. Tried in order when the first is rate limited, and skipped for a minute after. Free tiers meter per model, so the same key with two models is two budgets; the deployment above runs ten |
-| `MCP_TOKEN_SECRET` | no | Signs assistant pairing keys. Unset, pairings break on redeploy |
-
----
-
-## Known limits of the study loop
-
-Stated plainly, because a demo that hides its edges is not worth trusting.
-
-- **Persistence.** The deployment above runs on Postgres and
-  `GET /api/health/ready` reports `durable: true`, so a map survives a redeploy.
-  Without `DATABASE_URL` the store is per-instance instead: the browser holds
-  the record and replays it on load, so your map, plan and subjects still come
-  back on that device, and health reports `durable: false` rather than pretend.
-- **Non-English accuracy is barely tested.** Two synthesised clips, one Hindi
-  and one Spanish, checked word by word: the recorded transcript got the words
-  right on both (the Hindi came back with its two English terms in Latin
-  script), the live line was right on the Spanish and badly wrong on the Hindi.
-- **Screen readers.** Automated checks report zero serious-or-worse violations
-  on seven routes at desktop and mobile widths against production
-  (`npx playwright test`, 13 September 2026). They also return 189 results as
-  "needs review" rather than pass, 185 of them colour contrast, 53 on the
-  study screen and 53 on the demo screen, so contrast is unadjudicated by
-  that pass, not verified good. A manual pass with a real screen reader has
-  not been done.
-- **Marking.** VIVA checks a claim against the passages in your subject. It
-  will say it could not check something rather than guess, but a claim your
-  source does not speak to is a claim it cannot mark.
+[Game brief](docs/GAME-DESIGN.md), [engine notes](docs/notes/engine.md), [architecture](docs/ARCHITECTURE.md) (written for the earlier product), [privacy inventory](docs/evidence/data-inventory.md), [security](SECURITY.md), [third-party licences](THIRD-PARTY.md), [licence](LICENSE).
