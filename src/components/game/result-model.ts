@@ -43,6 +43,15 @@ export function seededRandom(seed: string): () => number {
   };
 }
 
+/**
+ * A crate drops for a level the player clears for the first time or plays to
+ * more stars than before. Replaying a cleared level at the same stars rolls
+ * nothing, so the reward cannot be farmed by repeating a level.
+ */
+export function crateEligible(previousStars: number, played: { outcome: "won" | "lost" | "quit"; stars: number }): boolean {
+  return played.outcome === "won" && played.stars > previousStars;
+}
+
 /** Returns the crate a finished level opens, or null. About two levels in five, more on three stars. */
 export function rollCrate(input: CrateInput): Crate | null {
   if (!input.won) return null;

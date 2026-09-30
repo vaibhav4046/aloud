@@ -6,7 +6,7 @@ import { PlayScreen } from "./PlayScreen";
 import { ResultView } from "./ResultView";
 import { useLevelSession } from "./useLevelSession";
 import { applyResult, clockNow, finishLevel, grantCrateXp, grantFreeze, mergeProgress } from "./engine-port";
-import { rollCrate, XP_CRATE, type Crate } from "./result-model";
+import { crateEligible, rollCrate, XP_CRATE, type Crate } from "./result-model";
 import { prefersReducedMotion, useSettings } from "./settings";
 import { subjectIdOfRun, syncProgress } from "./game-client";
 import { OfflineBanner } from "./StateViews";
@@ -52,7 +52,7 @@ export function LevelPlay({ run, level, progress, commit, onRetry }: { run: Run;
     const crate = rollCrate({
       seed: `${level.id}:${playedAt}`,
       stars: result.stars,
-      won: result.outcome === "won",
+      won: crateEligible(before.results[level.id]?.stars ?? 0, result),
       freezes: a.progress.freezes,
       facts: [...a.progress.proofs, ...proofs],
     });
