@@ -21,7 +21,7 @@ const dir = path.resolve(process.env.DEMO_DIR ?? path.join("scripts/.tmp-demo", 
 const outDir = path.resolve(process.env.OUT_DIR ?? "docs/demo");
 const tl = JSON.parse(fs.readFileSync(path.join(dir, "timeline.json"), "utf8"));
 const RATE = 24000;
-const CAP = Number(process.env.SILENCE_CAP ?? 2.4); // longest silent wait kept, seconds
+const CAP = Number(process.env.SILENCE_CAP ?? 1.5); // longest silent wait kept, seconds
 const name = mobile ? "demo-mobile" : "demo";
 // Mobile: the phone frame is doubled and a 400 px caption strip is added below it, so captions never cover the app.
 const STRIP = 400;
@@ -85,22 +85,22 @@ const sessReady = evs("session.ready").map((e) => e.t);
 const sessEnd = evs("session.ended").map((e) => e.t);
 const c0 = M("landing");
 if (!mobile) {
-  K(c0 - 0.3, c0 + 4.4);
-  K(c0 + 4.4, c0 + 8.2);
-  K(M("cta") - 1.2, M("cta") + 2.4);
-  K(M("map-first") - 1.2, M("map-first") + 3.2);
-  K(M("tap-say") - 1.2, M("tap-say") + 2.0);
-  K(M("intro-say") + 0.4, M("intro-say") + 2.4);
-  K(M("start-say") - 0.8, M("start-say") + 1.4);
+  K(c0 - 0.3, c0 + 3.2);
+  K(c0 + 4.4, c0 + 6.8);
+  K(M("cta") - 1.0, M("cta") + 2.2);
+  K(M("map-first") - 1.0, M("map-first") + 2.8);
+  K(M("tap-say") - 1.0, M("tap-say") + 1.4);
+  K(M("intro-say") + 0.4, M("intro-say") + 2.0);
+  K(M("start-say") - 0.6, M("start-say") + 1.2);
   keepLive(sessReady[0] - 0.4, sessEnd[0] + 0.3);
-  K(M("result-say") - 0.4, M("result-say") + 7.4);
-  K(M("map-between") - 0.3, M("map-between") + 1.4);
-  K(M("tap-catch") - 0.8, M("tap-catch") + 1.2);
-  K(M("intro-catch") + 0.4, M("intro-catch") + 2.0);
-  K(M("start-catch") - 0.8, M("start-catch") + 1.2);
+  K(M("result-say") - 0.4, M("result-say") + 5.6);
+  K(M("map-between") - 0.3, M("map-between") + 1.0);
+  K(M("tap-catch") - 0.6, M("tap-catch") + 1.0);
+  K(M("intro-catch") + 0.4, M("intro-catch") + 1.6);
+  K(M("start-catch") - 0.6, M("start-catch") + 1.0);
   keepLive(sessReady[1] - 0.4, sessEnd[1] + 0.3);
-  K(M("result-catch") - 0.4, M("result-catch") + 7.6);
-  K(M("map-final") - 0.6, M("map-final") + 5.2);
+  K(M("result-catch") - 0.4, M("result-catch") + 5.8);
+  K(M("map-final") - 0.6, M("map-final") + 4.2);
 } else {
   K(c0 - 0.3, c0 + 3.4);
   K(M("cta") - 0.6, M("cta") + 2.0);
@@ -142,7 +142,10 @@ for (const w of ["claim-bluff", "claim-real", "interrupt", "say-weight", "say-wh
   learnerText[w] = t.split("Spoken text: ")[1]?.trim() ?? "";
 }
 const cues = []; // {a,b (raw sec), text, lane, prio}
-const cue = (a, b, text, prio, lane = "bottom") => { if (mobile && ["examiner", "learner", "note"].includes(lane)) lane = "bottom"; if (a !== undefined && b !== undefined && !Number.isNaN(a) && b > a) cues.push({ a, b, text, prio, lane }); };
+// Captions only normalise punctuation (dashes to commas, exclamation marks to periods); every word is the recorded one.
+const DASHES = String.fromCharCode(8211, 8212);
+const clean = (t) => t.replace(new RegExp("\\s*[" + DASHES + "]\\s*", "g"), ", ").replace(/!/g, ".").replace(/\s{2,}/g, " ");
+const cue = (a, b, text, prio, lane = "bottom") => { text = clean(text); if (mobile && ["examiner", "learner", "note"].includes(lane)) lane = "bottom"; if (a !== undefined && b !== undefined && !Number.isNaN(a) && b > a) cues.push({ a, b, text, prio, lane }); };
 // Examiner speech: each burst of examiner audio gets the real transcript that follows it.
 const agentT = evs("transcript.agent");
 const bursts = runs(exAct, 0, tl.wallSec, 1.6);
@@ -186,14 +189,14 @@ cue(M("cta") - 0.2, M("cta") + 2.6, "Start the sample run: the sample notes are 
 cue(M("map-first"), M("map-first") + 3.4, "The map: worlds of levels, rank, streak and a daily goal ring.", 1, mobile ? "bottom" : "top");
 cue(M("tap-say"), M("intro-say") + 2.4, "Level 1 is Say it: explain a concept out loud. The examiner checks you against your own pages.", 1);
 cue(M("start-say"), M("start-say") + 1.4, "Start talking opens a live AssemblyAI Voice Agent session.", 1);
-cue(M("result-say") + 0.2, M("result-say") + 8.0, `Level cleared${xp("say") ? `: +${xp("say")} XP` : ""}, stars, and the proof cards it earned.`, 1, "note");
+cue(M("result-say") + 0.2, M("result-say") + 5.4, `Level cleared${xp("say") ? `: +${xp("say")} XP` : ""}, stars, and the proof cards it earned.`, 1, "note");
 if (!mobile) {
   cue(M("map-between"), M("map-between") + 1.4, "Level 2 is Catch it.", 1, "top");
   cue(M("tap-catch"), M("intro-catch") + 2.0, "The examiner states claims from your notes. Some are real, one is planted. Say which.", 1);
-  cue(M("result-catch") + 0.2, M("result-catch") + 7.6, `Bluff caught${xp("catch") ? `: +${xp("catch")} XP` : ""}${rank("catch") ? `, rank up ${rank("catch")[1]} to ${rank("catch")[2]}` : ""}.`, 1, "note");
-  cue(M("map-final"), M("map-final") + 5.6, `Back on the map: ${mapFacts}.`, 1, "top");
+  cue(M("result-catch") + 0.2, M("result-catch") + 5.6, `Bluff caught${xp("catch") ? `: +${xp("catch")} XP` : ""}${rank("catch") ? `, rank up ${rank("catch")[1]} to ${rank("catch")[2]}` : ""}.`, 1, "note");
+  cue(M("map-final"), M("map-final") + 4.2, `Back on the map: ${mapFacts}.`, 1, "top");
 } else {
-  cue(M("map-final"), M("map-final") + 4.6, `Back on the map: ${mapFacts}.`, 1, "top");
+  cue(M("map-final"), M("map-final") + 4.2, `Back on the map: ${mapFacts}.`, 1, "top");
 }
 // One lane per position: higher priority wins, lower priority is trimmed to what is left.
 const placed = [];
@@ -285,15 +288,15 @@ fs.writeFileSync(path.join(dir, "graph.txt"), lines.join(";\n"), "utf8");
 const mp4 = path.join(outDir, `${name}.mp4`);
 const args = ["-hide_banner", "-loglevel", "error", "-y", "-i", "raw.webm", "-i", "examiner.wav", "-i", "learner.wav", "-/filter_complex", "graph.txt", "-map", "[vout]", "-map", "[aout]", "-c:v", "libx264", "-preset", process.env.FAST ? "ultrafast" : "medium", "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "128k", "-metadata", "title=Aloud demo (synthetic learner voice, live examiner session 2026-09-30)", mp4];
 console.log("segments", N, "final duration", finalDur.toFixed(1), "s; rendering...");
-let r = spawnSync("ffmpeg", args, { cwd: dir, stdio: "inherit" });
+let r = process.env.DOCS_ONLY ? { status: 0 } : spawnSync("ffmpeg", args, { cwd: dir, stdio: "inherit" });
 if (r.status !== 0) process.exit(r.status ?? 1);
-if (!mobile && !process.env.FAST) {
+if (!mobile && !process.env.FAST && !process.env.DOCS_ONLY) {
   r = spawnSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", mp4, "-c:v", "libvpx-vp9", "-crf", "34", "-b:v", "0", "-row-mt", "1", "-deadline", "good", "-cpu-used", "5", "-c:a", "libopus", "-b:a", "96k", path.join(outDir, `${name}.webm`)], { stdio: "inherit" });
   if (r.status !== 0) process.exit(r.status ?? 1);
 }
 /* ---------- voiceover script for the owner: only the narration lines, with the speech windows to keep clear ---------- */
 if (!mobile) {
-  const speechWin = runs(anyAct, 0, tl.wallSec, 0.8).map(([a, b]) => mapIv(a, b)).filter(Boolean);
+  const speechWin = runs(Array.from({ length: nFr }, (_, i) => anyAct(i)), 0, tl.wallSec, 0.8).map(([a, b]) => mapIv(a, b)).filter(Boolean);
   const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
   const overlap = (a, b) => speechWin.reduce((n, [x, y]) => n + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);
   const rows = finalCues

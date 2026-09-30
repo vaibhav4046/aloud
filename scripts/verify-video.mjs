@@ -54,7 +54,7 @@ for (const [file, srtFile] of [["demo.mp4", "demo.srt"], ["demo.webm", "demo.srt
     check(cues.every((c) => c.end > c.start), `${srtFile} every cue ends after it starts`);
     check(cues.every((c, i) => i === 0 || c.start >= cues[0].start), `${srtFile} cues start at or after the first`);
     check(cues.at(-1).end <= dur + 0.5, `${srtFile} last cue ends inside the video (${cues.at(-1).end.toFixed(1)} s)`);
-    check(!/[–—!]/.test(cues.map((c) => c.text).join(" ")), `${srtFile} has no dashes or exclamation marks`);
+    check(!new RegExp("[" + String.fromCharCode(8211, 8212) + "!]").test(cues.map((c) => c.text).join(" ")), `${srtFile} has no dashes or exclamation marks`);
     check(/synthetic/i.test(cues[0].text), `${srtFile} first cue labels the learner voice as synthetic`);
   }
 }

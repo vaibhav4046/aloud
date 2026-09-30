@@ -46,3 +46,9 @@ The earlier design limited the product to six drawn icons. The game needs a lock
 
 The result replaces the play screen in place instead of navigating, so the stars, the XP count-up and the crate start on the frame the last round resolves and the reveal of the last catch claim is not lost to a route change. A reload of `/play/<level>` starts the level again (a free retry); the stored result lives in progress and shows on the map.
 
+
+## 2026-09-30: demo video is recorded from live runs, edited only by cutting waits
+
+Two designs were scored. A: scripted mock UI with pre-rendered audio (fast, repeatable, not the product). B: Playwright recordVideo of the real UI against the live Voice Agent, with the examiner PCM tapped from the page and the learner played from Windows System.Speech WAVs. B wins on truth: every pixel, tool call and examiner word is from a real session. It costs about 4.5 minutes of wall time per take and the speech recogniser is not deterministic, so record-demo.mjs discards and re-records a take when the bluff is not caught (exit code 3, up to 4 attempts) or the Say it level is lost.
+
+Edits allowed in render-demo.mjs: cut loading time, shorten silent waits to 1.5 s, never remove a spoken word. Captions are burned from an ASS file built from the same cue list as demo.srt. The learner voice is labelled synthetic in the first caption and in the description. The phone clip pads a caption strip under the 390 by 844 frame so captions never cover the app.

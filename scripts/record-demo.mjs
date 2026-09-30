@@ -188,10 +188,10 @@ const snapFn = () => {
 const wavB64 = (name) => fs.readFileSync(path.join(audioDir, `${name}.wav`)).toString("base64");
 const answerSeq = { [SAY]: ["say-weight", "say-why"], [CATCH]: ["claim-real", "claim-real", "claim-bluff"] };
 
-/** A player reads the card while the examiner talks: hold it until the voice has started and stopped (30 s at most). */
+/** A player reads the card while the examiner talks: hold it until the voice has started and stopped (16 s for it to start, 30 s in all). */
 async function quiet() {
   const shownAt = Date.now();
-  while (Date.now() < shownAt + 9000 && examinerBusyUntil < shownAt) await dwell(250);
+  while (Date.now() < shownAt + 16000 && examinerBusyUntil < shownAt) await dwell(250);
   while (Date.now() < Math.min(shownAt + 30000, examinerBusyUntil + 700)) await dwell(250);
 }
 
@@ -214,7 +214,7 @@ async function playLevel(levelId, kind) {
   const limit = Date.now() + 240000;
   let s = await page.evaluate(snapFn);
   while (Date.now() < limit && s.phase !== "result") {
-    if (s.failure || s.phase === "failed" || s.phase === "lost") throw new Error(`level ${levelId}: ${s.failure ?? s.phase}`);
+    if (s.failure || s.phase === "failed" || s.phase === "lost") throw Object.assign(new Error(`level ${levelId}: ${s.failure ?? s.phase}`), { retry: s.phase === "lost" });
     if (s.reveal) { mark(`reveal-${kind}`); await dwell(3200); await quiet(); await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2500 }).catch(() => {}); }
     else if (s.proof) { mark(`proof-${kind}`); await dwell(3800); await quiet(); await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2500 }).catch(() => {}); }
     else if (s.phase === "live" && /^Listening/.test(s.state ?? "") && replyDone > 0 && toolCalls === toolResults && Date.now() - lastReplyDoneAt > 900 && Date.now() - lastAnswerAt > 4000 && lastReplyDoneAt > lastAnswerAt) {

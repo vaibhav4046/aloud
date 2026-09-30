@@ -1,0 +1,255 @@
+1
+00:00:00,000 --> 00:00:08,500
+Learner voice is synthetic. Examiner audio and
+tool calls are from a live AssemblyAI Voice
+Agent session recorded on 2026-09-30.
+
+2
+00:00:00,300 --> 00:00:03,700
+Aloud turns your notes into a game you play by talking.
+
+3
+00:00:03,700 --> 00:00:05,900
+Every level is one of four kinds: Say
+it, Catch it, Boss or Recall.
+
+4
+00:00:06,700 --> 00:00:09,100
+Start the sample run: the sample notes are
+read and a run of levels is built.
+
+5
+00:00:10,100 --> 00:00:12,900
+The map: worlds of levels, rank,
+streak and a daily goal ring.
+
+6
+00:00:13,900 --> 00:00:16,900
+Level 1 is Say it: explain a concept out loud. The
+examiner checks you against your own pages.
+
+7
+00:00:17,500 --> 00:00:18,700
+Start talking opens a live AssemblyAI Voice Agent session.
+
+8
+00:00:19,846 --> 00:00:26,446
+Examiner (live):
+"Self-attention. First
+question: In one or two
+sentences, say what an
+attention weight means."
+
+9
+00:00:27,098 --> 00:00:33,471
+Learner (synthetic voice):
+"An attention weight says
+how much one token listens
+to another token before
+the value vectors are
+averaged."
+
+10
+00:00:33,818 --> 00:00:37,418
+Proof card: the quote is
+checked by code against
+page 4 of the notes.
+
+11
+00:00:34,296 --> 00:00:39,912
+Examiner (live): "That is
+correct, you captured how
+the weight quantifies
+attention between tokens
+before the averaging
+process."
+
+12
+00:00:39,912 --> 00:00:41,846
+Examiner (live):
+"Why does
+self-attention
+matter?"
+
+13
+00:00:42,891 --> 00:00:51,271
+Learner (synthetic voice):
+"Without self attention a
+token could not compare
+itself with every other
+token, so the model would
+lose context across the
+sequence."
+
+14
+00:00:52,096 --> 00:00:59,646
+Examiner (live): "That
+is a partial answer; you
+noted the comparison and
+context, but you did not
+mention how weights
+determine how much one
+token listens to
+another."
+
+15
+00:00:59,993 --> 00:01:05,193
+Level cleared: +175 XP,
+stars, and the proof
+cards it earned.
+
+16
+00:01:05,693 --> 00:01:06,693
+Level 2 is Catch it.
+
+17
+00:01:07,293 --> 00:01:09,493
+The examiner states claims from your notes.
+Some are real, one is planted. Say which.
+
+18
+00:01:12,192 --> 00:01:18,513
+Examiner (live): "Bluff
+check: Self-attention. I
+will state some claims
+from your pages. Some
+are real and some are
+planted."
+
+19
+00:01:18,513 --> 00:01:29,247
+Examiner (live): "Here is
+the first: For each pair,
+the model computes a
+compatibility score,
+normalises the scores
+with a softmax into
+weights, and returns a
+weighted average of the
+value vectors."
+
+20
+00:01:29,247 --> 00:01:30,442
+Examiner (live):
+"Real or bluff?"
+
+21
+00:01:31,513 --> 00:01:36,167
+Learner (synthetic
+voice): "I think this
+claim is real. It matches
+what my notes say."
+
+22
+00:01:34,746 --> 00:01:36,167
+The page line is
+checked by code
+against your notes.
+
+23
+00:01:36,167 --> 00:01:38,694
+Tool call from the
+examiner: verify_claim
+
+24
+00:01:36,992 --> 00:01:48,267
+Examiner (live): "It is
+real, on page four: For
+each pair, the model
+computes a compatibility
+score, normalises the
+scores with a softmax into
+weights, and returns a
+weighted average of the
+value vectors."
+
+25
+00:01:48,267 --> 00:01:54,992
+Examiner (live): "Next:
+Self-attention lets
+every token in a
+sequence compare itself
+with every other token.
+Real or bluff?"
+
+26
+00:01:56,052 --> 00:02:00,717
+Learner (synthetic
+voice): "I think this
+claim is real. It matches
+what my notes say."
+
+27
+00:01:59,236 --> 00:02:00,717
+The page line is
+checked by code
+against your notes.
+
+28
+00:02:00,717 --> 00:02:03,344
+Tool call from the
+examiner: verify_claim
+
+29
+00:02:01,542 --> 00:02:07,810
+Examiner (live): "It is
+real, on page four:
+Self-attention lets every
+token in a sequence
+compare itself with every
+other token."
+
+30
+00:02:07,810 --> 00:02:18,237
+Examiner (live): "Last
+one: If you permute the
+input tokens and permute
+the outputs the same way,
+the computation is
+unchanged: backpropagation
+without position
+information is
+permutation-equivariant."
+
+31
+00:02:18,237 --> 00:02:19,392
+Examiner (live):
+"Real or bluff?"
+
+32
+00:02:20,430 --> 00:02:28,117
+Learner (synthetic
+voice): "That is a
+bluff. It is self
+attention, not
+backpropagation, that is
+permutation
+equivariant."
+
+33
+00:02:23,061 --> 00:02:26,261
+The page line is
+checked by code
+against your notes.
+
+34
+00:02:29,788 --> 00:02:40,692
+Examiner (live): "Page
+five says, If you permute
+the input tokens and
+permute the outputs the
+same way, the computation
+is unchanged:
+self-attention without
+position information is
+permutation-equivariant."
+
+35
+00:02:41,700 --> 00:02:47,100
+Bluff caught: +430 XP,
+rank up 1 to 3.
+
+36
+00:02:47,900 --> 00:02:52,100
+Back on the map: 1 day streak,
+Rank 3, 2 of 22 levels cleared.

@@ -1,0 +1,85 @@
+1
+00:00:00,000 --> 00:00:08,500
+Learner voice is synthetic.
+Examiner audio and tool calls are
+from a live AssemblyAI Voice Agent
+session recorded on 2026-09-30.
+
+2
+00:00:00,300 --> 00:00:04,900
+Aloud turns your notes into a
+game you play by talking.
+
+3
+00:00:03,614 --> 00:00:05,814
+Start the sample run: the
+sample notes are read and a
+run of levels is built.
+
+4
+00:00:06,814 --> 00:00:09,814
+The map: worlds of levels, rank,
+streak and a daily goal ring.
+
+5
+00:00:10,814 --> 00:00:14,414
+Level 1 is Say it: explain a
+concept out loud. The examiner
+checks you against your own pages.
+
+6
+00:00:15,214 --> 00:00:16,414
+Start talking opens a live
+AssemblyAI Voice Agent session.
+
+7
+00:00:17,559 --> 00:00:22,659
+Examiner (live):
+"Self-attention. First
+question: In one or two
+sentences, say what an
+attention weight means."
+
+8
+00:00:23,692 --> 00:00:30,134
+Learner (synthetic voice): "An
+attention weight says how much one
+token listens to another token before
+the value vectors are averaged."
+
+9
+00:00:30,959 --> 00:00:37,209
+Examiner (live): "That is correct,
+you captured how it measures how much
+one token listens to others. Why does
+self-attention matter?"
+
+10
+00:00:38,234 --> 00:00:46,584
+Learner (synthetic voice): "Without
+self attention a token could not
+compare itself with every other
+token, so the model would lose
+context across the sequence."
+
+11
+00:00:47,409 --> 00:00:48,595
+Examiner (live): "That is
+a partial answer."
+
+12
+00:00:48,595 --> 00:00:54,159
+Examiner (live): "You noted tokens
+can compare themselves, but you
+missed that weights determine the
+strength of that influence."
+
+13
+00:00:54,494 --> 00:00:59,694
+Level cleared: +150 XP, stars, and
+the proof cards it earned.
+
+14
+00:01:03,094 --> 00:01:07,294
+Back on the map: 1 day streak,
+Rank 1, 1 of 22 levels cleared.
