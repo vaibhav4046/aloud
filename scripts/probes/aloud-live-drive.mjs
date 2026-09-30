@@ -7,7 +7,9 @@
  *
  *   BASE_URL=http://localhost:3261 node scripts/probes/aloud-live-drive.mjs <scenario> [--tag x]
  *
- * scenarios: calibrate | say | catch | bargein | typed-say | typed-catch
+ * scenarios: calibrate | say | catch | bargein | typed-say | typed-catch | boss | recall
+ *            boss: World 1 boss (catch, say, catch, say), spoken. recall: level 2 (Catch) is played by typing with one
+ *            deliberate wrong call, then the run must serve a recall level, which is played by voice.
  * Options:   --greet <sec>  click-to-end-of-greeting, from a calibrate run (default 14)
  *            --gap <sec>    silence between spoken answers (default 40)
  *            --level <id>   override the level id
@@ -22,6 +24,7 @@ import { chromium } from "@playwright/test";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 
 const argv = process.argv.slice(2);
 const scenario = argv[0];
@@ -31,8 +34,8 @@ const tag = opt("--tag", "");
 const greetSec = Number(opt("--greet", 14));
 const gapSec = Number(opt("--gap", 40));
 const RUN_ID = "run_course_transformers_w4";
-const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", "bargein-say": "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1" };
-const levelId = opt("--level", LEVELS[scenario]);
+const LEVELS = { say: "l_say_c_self_attention_1", catch: "l_catch_c_self_attention_1", bargein: "l_say_c_self_attention_1", "bargein-say": "l_say_c_self_attention_1", calibrate: "l_say_c_self_attention_1", "typed-say": "l_say_c_self_attention_1", "typed-catch": "l_catch_c_self_attention_1", boss: "l_boss_1", recall: "l_say_c_self_attention_1" };
+let levelId = opt("--level", LEVELS[scenario]);
 const audioDir = "fixtures/audio/live";
 const date = new Date().toISOString().slice(0, 10);
 const outFile = `docs/evidence/probes/aloud-${scenario}${tag}.${date}.json`;
@@ -90,9 +93,10 @@ if (scenario === "bargein") {
 }
 const voice = !scenario.startsWith("typed");
 const inject = argv.includes("--inject") || scenario === "bargein-say";
+const limitSec = Number(opt("--limit", 240));
 let answered = 0;
 let lastAnswerAt = -1e9;
-const ANSWERS = { "bargein-say": ["interrupt", "say-weight", "say-why"], say: ["say-weight", "say-why"], catch: ["claim-real", "claim-real", "claim-bluff"] }[scenario] ?? [];
+const ANSWERS = { "bargein-say": ["interrupt", "say-weight", "say-why"], say: ["say-weight", "say-why"], catch: ["claim-real", "claim-real", "claim-bluff"], boss: ["boss-bluff", "boss-qkv", "claim-real", "say-weight"], recall: ["say-weight", "say-why"] }[scenario] ?? [];
 let fakeArgs = [];
 if (voice && !inject) {
   const wavPath = path.join(os.tmpdir(), `aloud-live-${scenario}.wav`);
@@ -174,7 +178,12 @@ page.on("websocket", (sock) => {
     try { m = JSON.parse(String(payload)); } catch { return; }
     if (m.type === "input.audio") { if (!ws.some((x) => x.type === "input.audio.first")) ws.push({ t: T(), dir: "out", type: "input.audio.first" }); return; }
     const e = { t: T(), dir: "out", type: m.type };
-    if (m.type === "tool.result") { e.call_id = m.call_id; e.is_error = m.is_error; e.verdict = m.result?.verdict; e.keys = Object.keys(m.result ?? {}); }
+    if (m.type === "tool.result") {
+      // The service takes the result as a JSON string; read it back so the round state the game reported is on record.
+      let r = m.result;
+      if (typeof r === "string") { try { r = JSON.parse(r); } catch { r = {}; } }
+      e.call_id = m.call_id; e.is_error = m.is_error; e.verdict = r?.verdict; e.round = r?.round; e.keys = Object.keys(r ?? {});
+    }
     ws.push(e);
   });
 });
@@ -229,19 +238,27 @@ try {
   await page.getByRole("button", { name: /Use the sample/ }).click();
   await page.waitForURL(/\/run\/run_/, { timeout: 90000 });
   await page.waitForSelector('[data-testid="run-map"]');
+  await page.waitForFunction((id) => localStorage.getItem(`aloud.progress.${id}`), RUN_ID, { timeout: 20000 }).catch(() => {});
+  if (scenario === "recall") await servedRecall();
   // Levels unlock in order. When the level under test is locked, mark the levels before it cleared, written the way the app writes it.
-  const run = await page.evaluate((id) => JSON.parse(localStorage.getItem(`aloud.run.${id}`)), RUN_ID);
+  const run = scenario === "recall"
+    ? await page.evaluate(async () => (await (await fetch("/api/game/run?subjectId=course_transformers_w4", { cache: "no-store" })).json()).run)
+    : await page.evaluate((id) => JSON.parse(localStorage.getItem(`aloud.run.${id}`)), RUN_ID);
   const lvl = run.levels.find((l) => l.id === levelId);
   if (lvl.index > 1) {
-    await page.evaluate(({ run, upto }) => {
+    const had = await page.evaluate((id) => Object.keys(JSON.parse(localStorage.getItem(`aloud.progress.${id}`))?.results ?? {}), RUN_ID);
+    const seeded = JSON.parse(execFileSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "scripts/probes/aloud-seed.mts"], { input: JSON.stringify({ run, upto: lvl.index, skip: had }), maxBuffer: 1 << 24 }).toString("utf8"));
+    doc.seededLevels = seeded.map((r) => ({ id: r.levelId, stars: r.stars, xp: r.xp }));
+    await page.evaluate(({ run, seeded, upto }) => {
       const key = `aloud.progress.${run.id}`;
       const p = JSON.parse(localStorage.getItem(key));
-      for (const l of run.levels.filter((x) => x.index < upto)) p.results[l.id] = { levelId: l.id, stars: 3, xp: 100, heartsLeft: l.hearts, bestCombo: 2, rounds: Array(l.rounds).fill("correct"), proofIds: [], outcome: "won", playedAt: new Date().toISOString(), ms: 60000 };
-      p.unlockedIndex = upto;
+      for (const r of seeded) p.results[r.levelId] = r;
+      p.unlockedIndex = Math.max(p.unlockedIndex ?? 1, upto);
       localStorage.setItem(key, JSON.stringify(p));
       // The server checks that a finished level was unlocked, so it must hold the same earlier results.
       return fetch("/api/game/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subjectId: run.subjectId, progress: p, tz: "UTC" }) }).then((r) => r.status);
-    }, { run, upto: lvl.index }).then((st) => (doc.seedStatus = st));
+    }, { run, seeded, upto: lvl.index }).then((st) => (doc.seedStatus = st));
+    doc.serverAfterSeed = await page.evaluate(async () => { const j = await (await fetch("/api/game/progress?subjectId=course_transformers_w4", { cache: "no-store" })).json(); return { results: Object.keys(j.progress.results).length, unlockedIndex: j.progress.unlockedIndex, xp: j.progress.xp }; });
   }
   await page.goto(`${base}/play/${encodeURIComponent(levelId)}?run=${RUN_ID}`, { waitUntil: "networkidle" });
   await page.waitForSelector('[data-testid="play-screen"]', { timeout: 30000 });
@@ -263,7 +280,7 @@ try {
   else await page.getByRole("button", { name: /Play by typing/ }).click();
   doc.clickAt = t0;
 
-  const limitMs = (voice && !inject ? totalSec + 30 : 240) * 1000;
+  const limitMs = (voice && !inject ? totalSec + 30 : limitSec) * 1000;
   const isDone = () => dom.at(-1)?.phase === "result";
   let shots = 0;
   while (T() < limitMs && !isDone()) {
@@ -333,6 +350,10 @@ async function injectStep(s) {
   const results = ws.filter((e) => e.type === "tool.result").length;
   if (!lastDone || calls !== results) return;
   if (T() - lastDone.t < 900 || T() - lastAnswerAt < 4000 || lastDone.t < lastAnswerAt) return;
+  // After an answer, wait for the examiner to actually speak (its next question or reaction). An empty reply.done does not count;
+  // if it stays silent for 25 s the answer is repeated and the repeat is recorded.
+  const spokeSince = ws.some((e) => e.type === "transcript.agent" && e.t > lastAnswerAt);
+  if (answered > 0 && !spokeSince && T() - lastAnswerAt < 25000) return;
   const name = ANSWERS[answered];
   const b64 = fs.readFileSync(`${audioDir}/${name}.wav`).toString("base64");
   const at = T();
@@ -371,4 +392,63 @@ async function typedStep(page, s) {
     await page.getByRole("button", { name: /Check my answer/ }).click({ timeout: 4000 }).catch(() => {});
     doc.typedSay = [...(doc.typedSay ?? []), { q: s.question.slice(0, 80), submitAt: t }];
   }
+}
+
+/* ---------- recall: a real miss on level 1, typed, then the run must serve a recall level ---------- */
+async function servedRecall() {
+  // Level 1 is seeded as cleared (server-valid), then Catch level 2 is played by typing with ONE deliberate wrong call on
+  // its last claim: a won level with a miss, so the missed concept goes on the weak list and the run must serve a recall level.
+  const run0 = await page.evaluate(async () => (await (await fetch("/api/game/run?subjectId=course_transformers_w4", { cache: "no-store" })).json()).run);
+  const seed0 = JSON.parse(execFileSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "scripts/probes/aloud-seed.mts"], { input: JSON.stringify({ run: run0, upto: 2 }), maxBuffer: 1 << 24 }).toString("utf8"));
+  await page.evaluate(({ run, seeded }) => {
+    const key = `aloud.progress.${run.id}`;
+    const p = JSON.parse(localStorage.getItem(key));
+    for (const r of seeded) p.results[r.levelId] = r;
+    p.unlockedIndex = Math.max(p.unlockedIndex ?? 1, 2);
+    localStorage.setItem(key, JSON.stringify(p));
+    return fetch("/api/game/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subjectId: run.subjectId, progress: p, tz: "UTC" }) }).then((r) => r.status);
+  }, { run: run0, seeded: seed0 });
+  const missId = "l_catch_c_self_attention_1";
+  const truth = new Map(run0.levels.find((l) => l.id === missId).items.map((i) => [i.claim, i.isBluff]));
+  await page.goto(`${base}/play/${encodeURIComponent(missId)}?run=${RUN_ID}`, { waitUntil: "networkidle" });
+  await page.waitForSelector('[data-testid="play-screen"]', { timeout: 30000 });
+  await page.getByRole("button", { name: /Play by typing/ }).click();
+  const started = Date.now();
+  let asked = 0;
+  let lastClaim = null;
+  const prior = { taps: [] };
+  while (Date.now() - started < 150000) {
+    const s = await page.evaluate(snapFn);
+    if (s.phase === "result") break;
+    if (s.reveal) await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2000 }).catch(() => {});
+    else if (s.proof) await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2000 }).catch(() => {});
+    else if (s.phase === "live" && s.claim && s.claim !== lastClaim) {
+      lastClaim = s.claim;
+      const bluff = truth.get(s.claim.replace(/\s+/g, " ").trim());
+      const last = asked === truth.size - 1; // the miss is the last claim, so a later success on the same concept does not cancel it
+      const callBluff = last ? !bluff : bluff;
+      await page.getByRole("button", { name: callBluff ? /Catch it/ : /That is true/ }).first().click({ timeout: 4000 }).catch(() => {});
+      prior.taps.push({ round: asked + 1, isBluff: bluff ?? null, tapped: callBluff ? "bluff" : "real", deliberateMiss: last });
+      asked += 1;
+    }
+    await page.waitForTimeout(400);
+  }
+  await page.waitForTimeout(1500);
+  const after = await page.evaluate((id) => { const p = JSON.parse(localStorage.getItem(`aloud.progress.${id}`)); return { weakConceptIds: p.weakConceptIds, level2: p.results["l_catch_c_self_attention_1"] ? { stars: p.results["l_catch_c_self_attention_1"].stars, rounds: p.results["l_catch_c_self_attention_1"].rounds, heartsLeft: p.results["l_catch_c_self_attention_1"].heartsLeft, missed: p.results["l_catch_c_self_attention_1"].missedConceptIds } : null }; }, RUN_ID);
+  await page.goto(`${base}/run/${RUN_ID}`, { waitUntil: "networkidle" });
+  await page.waitForSelector('[data-testid="run-map"]');
+  await page.waitForTimeout(1500);
+  const served = await page.evaluate(async (id) => {
+    const r = await fetch("/api/game/run?subjectId=course_transformers_w4", { cache: "no-store" });
+    const j = await r.json();
+    const recall = j.run.levels.filter((l) => l.kind === "recall").map((l) => ({ id: l.id, index: l.index, rounds: l.rounds, questions: (l.items ?? []).map((i) => i.question ?? i.claim) }));
+    let local = null;
+    try { local = JSON.parse(localStorage.getItem(`aloud.run.${id}`)).levels.filter((l) => l.kind === "recall").map((l) => l.id); } catch { /* none */ }
+    return { serverRecall: recall, localRecallIds: local, total: j.run.levels.length };
+  }, RUN_ID);
+  doc.recallSetup = { typedCatchLevel2: prior.taps, progressAfterLevel2: after, served };
+  await page.screenshot({ path: `${shotDir}/live-recall${tag}-map-with-recall-430.png` }).catch(() => {});
+  if (!served.serverRecall.length) throw new Error("the run served no recall level after a miss on level 1");
+  levelId = served.serverRecall[0].id;
+  doc.levelId = levelId;
 }

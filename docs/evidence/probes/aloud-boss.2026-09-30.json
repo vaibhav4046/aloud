@@ -1,0 +1,2527 @@
+{
+ "scenario": "boss",
+ "tag": "",
+ "measuredOn": "2026-09-30T15:28:27.619Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "base": "http://localhost:3301",
+ "levelId": "l_boss_1",
+ "learnerVoice": "synthetic (Windows System.Speech)",
+ "plan": [],
+ "greetSecAssumed": 14,
+ "gapSec": 40,
+ "ws": [
+  {
+   "t": 4344,
+   "dir": "out",
+   "type": "session.update"
+  },
+  {
+   "t": 4661,
+   "dir": "in",
+   "type": "session.updated"
+  },
+  {
+   "t": 4692,
+   "dir": "in",
+   "type": "session.ready",
+   "session_id": "sess_cdd"
+  },
+  {
+   "t": 4692,
+   "dir": "out",
+   "type": "input.audio.first"
+  },
+  {
+   "t": 4692,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 5582,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 20852,
+   "n": 1539,
+   "bytes": 738720
+  },
+  {
+   "t": 20858,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?"
+  },
+  {
+   "t": 20864,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 21103,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 21337,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 23869,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 24677,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 24679,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "That is a bluff."
+  },
+  {
+   "t": 24679,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 25662,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 27065,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 27066,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "The page says the opposite."
+  },
+  {
+   "t": 31212,
+   "dir": "in",
+   "type": "tool.call",
+   "name": "verify_claim",
+   "call_id": "chatcmpl-tool-959dfe232dc35901",
+   "args": {
+    "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+    "concept": "Self-attention"
+   }
+  },
+  {
+   "t": 31453,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 33881,
+   "dir": "out",
+   "type": "tool.result",
+   "call_id": "chatcmpl-tool-959dfe232dc35901",
+   "is_error": false,
+   "verdict": "contradicted",
+   "round": "closed",
+   "keys": [
+    "verdict",
+    "quote",
+    "page",
+    "passage_id",
+    "quote_spans",
+    "method",
+    "words_present",
+    "confirmed",
+    "latency_ms",
+    "say",
+    "round"
+   ]
+  },
+  {
+   "t": 33952,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 34448,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 45995,
+   "n": 1166,
+   "bytes": 559680
+  },
+  {
+   "t": 45999,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words."
+  },
+  {
+   "t": 46008,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 46244,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 46324,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 49564,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 51164,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 51164,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "Query is to ask what a token is looking for."
+  },
+  {
+   "t": 51171,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 54462,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 55370,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 55370,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "Is to advertise whether certain goals and values carry the content."
+  },
+  {
+   "t": 56461,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 57653,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 57653,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "Is to pass along."
+  },
+  {
+   "t": 61812,
+   "dir": "in",
+   "type": "tool.call",
+   "name": "grade_my_answer",
+   "call_id": "chatcmpl-tool-8bb3fdd617f4792d",
+   "args": {
+    "answer": "Query is to ask what a token is looking for. Is to advertise whether certain goals and values carry the content. Is to pass along.",
+    "question": "What distinct roles do queries, keys and values play in attention?"
+   }
+  },
+  {
+   "t": 62036,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 64441,
+   "dir": "out",
+   "type": "tool.result",
+   "call_id": "chatcmpl-tool-8bb3fdd617f4792d",
+   "is_error": false,
+   "verdict": "partial",
+   "keys": [
+    "verdict",
+    "correct_points",
+    "missing_points",
+    "feedback",
+    "misconception",
+    "graded_by",
+    "full_answer_covers",
+    "next_question",
+    "evidence",
+    "say",
+    "next_focus"
+   ]
+  },
+  {
+   "t": 64477,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 65109,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 79195,
+   "n": 1412,
+   "bytes": 677760
+  },
+  {
+   "t": 79195,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers.\n\nNext claim: Queries ask, keys advertise, values deliver. Real or bluff?"
+  },
+  {
+   "t": 79195,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 79392,
+   "n": 24,
+   "bytes": 11520
+  },
+  {
+   "t": 79428,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 81965,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 83365,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 83365,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "I think this claim is real."
+  },
+  {
+   "t": 83371,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 84062,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 85962,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 85967,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "It matches what I just said."
+  },
+  {
+   "t": 89120,
+   "dir": "in",
+   "type": "tool.call",
+   "name": "verify_claim",
+   "call_id": "chatcmpl-tool-87416b055f585469",
+   "args": {
+    "claim": "Queries ask, keys advertise, values deliver.",
+    "concept": "Queries, Keys, Values"
+   }
+  },
+  {
+   "t": 89345,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 91332,
+   "dir": "out",
+   "type": "tool.result",
+   "call_id": "chatcmpl-tool-87416b055f585469",
+   "is_error": false,
+   "verdict": "supported",
+   "round": "closed",
+   "keys": [
+    "verdict",
+    "quote",
+    "page",
+    "passage_id",
+    "quote_spans",
+    "method",
+    "words_present",
+    "confirmed",
+    "latency_ms",
+    "say",
+    "round"
+   ]
+  },
+  {
+   "t": 91364,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 91989,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 101990,
+   "n": 1011,
+   "bytes": 485280
+  },
+  {
+   "t": 101991,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means."
+  },
+  {
+   "t": 102053,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 102379,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 102379,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 106666,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 110882,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 110882,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "An attention weight specifies how much one token listens to another token before the value vectors are averaged."
+  },
+  {
+   "t": 110882,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 115230,
+   "dir": "in",
+   "type": "tool.call",
+   "name": "grade_my_answer",
+   "call_id": "chatcmpl-tool-8c175fb8df46f79e",
+   "args": {
+    "answer": "An attention weight specifies how much one token listens to another token before the value vectors are averaged.",
+    "question": "In one or two sentences, say what an attention weight means."
+   }
+  },
+  {
+   "t": 115435,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 117481,
+   "dir": "out",
+   "type": "tool.result",
+   "call_id": "chatcmpl-tool-8c175fb8df46f79e",
+   "is_error": false,
+   "verdict": "correct",
+   "keys": [
+    "verdict",
+    "correct_points",
+    "missing_points",
+    "feedback",
+    "misconception",
+    "graded_by",
+    "full_answer_covers",
+    "next_question",
+    "evidence",
+    "say",
+    "next_focus"
+   ]
+  },
+  {
+   "t": 117504,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 117996,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 119688,
+   "n": 178,
+   "bytes": 85440
+  },
+  {
+   "t": 119688,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "That was correct. Well done."
+  },
+  {
+   "t": 119688,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 119915,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 119993,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 120077,
+   "dir": "out",
+   "type": "session.end"
+  },
+  {
+   "t": 120257,
+   "dir": "in",
+   "type": "session.ended",
+   "detail": "{\"session_duration_seconds\":115.839833,\"type\":\"session.ended\",\"timestamp\":1790782248.0597506,\"audio_duration_seconds\":null}"
+  }
+ ],
+ "http": [
+  {
+   "t": 1790782119799,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 475
+  },
+  {
+   "t": 1790782121595,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 564
+  },
+  {
+   "t": 1790782122163,
+   "url": "/api/game/progress",
+   "method": "GET",
+   "status": 200,
+   "ms": 131
+  },
+  {
+   "t": 1790782126523,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 572
+  },
+  {
+   "t": 3466,
+   "url": "/api/oral/session",
+   "method": "GET",
+   "status": 200,
+   "ms": 452
+  },
+  {
+   "t": 4052,
+   "url": "/api/voice-agent/token",
+   "method": "GET",
+   "status": 200,
+   "ms": 178
+  },
+  {
+   "t": 3482,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 917,
+   "result": {
+    "verdict": "contradicted",
+    "quote": "Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content).",
+    "page": 8,
+    "passage_id": "ch_qkv_2",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_boss_1",
+   "args": {
+    "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+    "concept": "c_qkv"
+   }
+  },
+  {
+   "t": 31212,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2668,
+   "result": {
+    "verdict": "contradicted",
+    "quote": "Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content).",
+    "page": 8,
+    "passage_id": "ch_qkv_2",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_boss_1",
+   "args": {
+    "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+    "concept": "Self-attention"
+   }
+  },
+  {
+   "t": 61813,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2315,
+   "result": {
+    "verdict": "supported",
+    "quote": "a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward).",
+    "page": 7,
+    "passage_id": "ch_qkv_1",
+    "next_focus": true
+   },
+   "name": "verify_claim",
+   "levelId": "l_boss_1",
+   "args": {
+    "claim": "Query is to ask what a token is looking for. Is to advertise whether certain goals and values carry the content. Is to pass along.",
+    "concept": "c_qkv"
+   }
+  },
+  {
+   "t": 61813,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2625,
+   "result": {
+    "verdict": "partial",
+    "next_focus": true,
+    "feedback": "You correctly identified that queries ask and values deliver content. However, you didn’t clearly explain that keys advertise what each token offers. Clarify th"
+   },
+   "name": "grade_my_answer",
+   "levelId": "l_boss_1",
+   "args": {
+    "answer": "Query is to ask what a token is looking for. Is to advertise whether certain goals and values carry the content. Is to pass along.",
+    "question": "What distinct roles do queries, keys and values play in attention?"
+   }
+  },
+  {
+   "t": 64448,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 841,
+   "result": {
+    "verdict": "supported",
+    "quote": "Queries ask, keys advertise, values deliver.",
+    "page": 8,
+    "passage_id": "ch_qkv_2",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_boss_1",
+   "args": {
+    "claim": "Queries ask, keys advertise, values deliver.",
+    "concept": "c_qkv"
+   }
+  },
+  {
+   "t": 89121,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2211,
+   "result": {
+    "verdict": "supported",
+    "quote": "Queries ask, keys advertise, values deliver.",
+    "page": 8,
+    "passage_id": "ch_qkv_2",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_boss_1",
+   "args": {
+    "claim": "Queries ask, keys advertise, values deliver.",
+    "concept": "Queries, Keys, Values"
+   }
+  },
+  {
+   "t": 115231,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2248,
+   "result": {
+    "verdict": "correct",
+    "next_focus": true,
+    "feedback": "Your answer accurately captures that an attention weight measures how much one token attends to another before averaging values. It includes the key concepts of"
+   },
+   "name": "grade_my_answer",
+   "levelId": "l_boss_1",
+   "args": {
+    "answer": "An attention weight specifies how much one token listens to another token before the value vectors are averaged.",
+    "question": "In one or two sentences, say what an attention weight means."
+   }
+  },
+  {
+   "t": 115231,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2454,
+   "result": {
+    "verdict": "supported",
+    "quote": "Attention weights answer 'how much should this token listen to each other token'.",
+    "page": 5,
+    "passage_id": "ch_sa_2",
+    "next_focus": true
+   },
+   "name": "verify_claim",
+   "levelId": "l_boss_1",
+   "args": {
+    "claim": "An attention weight specifies how much one token listens to another token before the value vectors are averaged.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 120007,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 618
+  },
+  {
+   "t": 122538,
+   "url": "/api/game/progress",
+   "method": "GET",
+   "status": 200,
+   "ms": 244
+  },
+  {
+   "t": 127792,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 486
+  },
+  {
+   "t": 138776,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 950
+  }
+ ],
+ "dom": [
+  {
+   "t": 3,
+   "phase": "ready",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 1 of 4",
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": "World 1 boss",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 3624,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 1 of 4",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ConnectingOpening a session with the voice service.",
+   "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 4879,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 1 of 4",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 6355,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 1 of 4",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+   "question": null,
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 21444,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 1 of 4",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+   "question": null,
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 23995,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 1 of 4",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": "Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content).",
+   "question": null,
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 24834,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": "THAT WAS A BLUFF CLAIMED Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). YOUR PAGE, P. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). The page line is checked by code against your notes. Continue",
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 26850,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": "You That is a bluff.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 27280,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 31301,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Checking your pageThe examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 33977,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner World 1 boss. I will state some claims from your pages. Some are real and some are planted. Here is the first: Two tokens cannot therefore have similar keys (both match a query) but carry different values (contribute different content). Real or bluff?",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 35023,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys ( both match a query) but carry different values ( contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 46138,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 46346,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 49743,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You The page says the opposite.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 51216,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You Query is to ask what a token is looking for.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 54529,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You Query is to ask what a token is looking for.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 55555,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You Is to advertise whether certain goals and values carry the content.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 57667,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 61820,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 2 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "263 XP",
+   "state": "Checking your pageThe examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.",
+   "claim": null,
+   "question": "What distinct roles do queries, keys and values play in attention?",
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 64589,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 3 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "376 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "Queries ask, keys advertise, values deliver.",
+   "question": null,
+   "examiner": "Examiner That was a bluff. Page eight says, two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Please restate that fact in your own words.",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": "PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 65638,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 3 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "376 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "Queries ask, keys advertise, values deliver.",
+   "question": null,
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers.",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": "PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 65843,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 3 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "376 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "Queries ask, keys advertise, values deliver.",
+   "question": null,
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": "PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 66467,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 3 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "376 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": "Queries ask, keys advertise, values deliver.",
+   "question": null,
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 79452,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 3 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "376 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": "Queries ask, keys advertise, values deliver.",
+   "question": null,
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 82022,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 3 of 4",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "376 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": "Queries ask, keys advertise, values deliver.",
+   "question": null,
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You Is to pass along.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 83491,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": "THAT CLAIM WAS REAL YOUR PAGE, P. 8 Queries ask, keys advertise, values deliver. The page line is checked by code against your notes. Continue",
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 85517,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You I think this claim is real.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 86163,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 89140,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "Checking your pageThe examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 91346,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 91559,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner That was partial. You correctly identified that queries ask and values deliver content, but you did not clearly explain that keys advertise what each token offers. Next claim: Queries ask, keys advertise, values deliver. Real or bluff?",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 92317,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver.",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 92590,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 102628,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 106749,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You It matches what I just said.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 110990,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight specifies how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 115258,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "Checking your pageThe examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight specifies how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 117582,
+   "phase": "live",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "564 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner It is real, page eight, queries ask, keys advertise, values deliver. Last one: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight specifies how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 117797,
+   "phase": "won",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 3, multiplier 1.2",
+   "xp": "789 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": "PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 119715,
+   "phase": "won",
+   "hearts": "4 of 4 hearts",
+   "round": "Round 4 of 4",
+   "combo": "Combo 3, multiplier 1.2",
+   "xp": "789 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 120125,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · WORLD 1 BOSS Three stars. Every round held up. +0XP 4 of 4 hearts left. Best combo 3. Rank up 4 to 6 Proof cards earned PROOF CARD p. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Checked by code against your page PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page PROOF CARD p. ",
+   "failure": null
+  },
+  {
+   "t": 120761,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · WORLD 1 BOSS Three stars. Every round held up. +283XP 4 of 4 hearts left. Best combo 3. Rank up 4 to 6 Proof cards earned PROOF CARD p. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Checked by code against your page PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page PROOF CARD p",
+   "failure": null
+  },
+  {
+   "t": 120976,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · WORLD 1 BOSS Three stars. Every round held up. +540XP 4 of 4 hearts left. Best combo 3. Rank up 4 to 6 Proof cards earned PROOF CARD p. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Checked by code against your page PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page PROOF CARD p",
+   "failure": null
+  },
+  {
+   "t": 121183,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · WORLD 1 BOSS Three stars. Every round held up. +708XP 4 of 4 hearts left. Best combo 3. Rank up 4 to 6 Proof cards earned PROOF CARD p. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Checked by code against your page PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page PROOF CARD p",
+   "failure": null
+  },
+  {
+   "t": 121389,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · WORLD 1 BOSS Three stars. Every round held up. +773XP 4 of 4 hearts left. Best combo 3. Rank up 4 to 6 Proof cards earned PROOF CARD p. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Checked by code against your page PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page PROOF CARD p",
+   "failure": null
+  },
+  {
+   "t": 121607,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · WORLD 1 BOSS Three stars. Every round held up. +789XP 4 of 4 hearts left. Best combo 3. Rank up 4 to 6 Proof cards earned PROOF CARD p. 8 Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content). Checked by code against your page PROOF CARD p. 7 a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried forward). Checked by code against your page PROOF CARD p",
+   "failure": null
+  }
+ ],
+ "agentDeltas": [
+  [
+   6295,
+   "1cbb18",
+   "World"
+  ],
+  [
+   6299,
+   "1cbb18",
+   "1"
+  ],
+  [
+   6299,
+   "1cbb18",
+   "boss."
+  ],
+  [
+   6299,
+   "1cbb18",
+   "I"
+  ],
+  [
+   6299,
+   "1cbb18",
+   "will"
+  ],
+  [
+   6300,
+   "1cbb18",
+   "state"
+  ],
+  [
+   6300,
+   "1cbb18",
+   "some"
+  ],
+  [
+   6301,
+   "1cbb18",
+   "claims"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "from"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "your"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "pages."
+  ],
+  [
+   6302,
+   "1cbb18",
+   "Some"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "are"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "real"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "and"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "some"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "are"
+  ],
+  [
+   6302,
+   "1cbb18",
+   "planted."
+  ],
+  [
+   6302,
+   "1cbb18",
+   "Here"
+  ],
+  [
+   6316,
+   "1cbb18",
+   "is"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "the"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "first:"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "Two"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "tokens"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "cannot"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "therefore"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "have"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "similar"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "keys"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "(both"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "match"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "a"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "query)"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "but"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "carry"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "different"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "values"
+  ],
+  [
+   6320,
+   "1cbb18",
+   "(contribute"
+  ],
+  [
+   6321,
+   "1cbb18",
+   "different"
+  ],
+  [
+   6321,
+   "1cbb18",
+   "content)."
+  ],
+  [
+   6321,
+   "1cbb18",
+   "Real"
+  ],
+  [
+   6321,
+   "1cbb18",
+   "or"
+  ],
+  [
+   6321,
+   "1cbb18",
+   "bluff?"
+  ],
+  [
+   34836,
+   "378f33",
+   "That "
+  ],
+  [
+   34841,
+   "378f33",
+   "was "
+  ],
+  [
+   34845,
+   "378f33",
+   "a "
+  ],
+  [
+   34845,
+   "378f33",
+   "bluff. "
+  ],
+  [
+   34845,
+   "378f33",
+   "Page "
+  ],
+  [
+   34845,
+   "378f33",
+   "eight "
+  ],
+  [
+   34845,
+   "378f33",
+   "says, "
+  ],
+  [
+   34845,
+   "378f33",
+   "two "
+  ],
+  [
+   34845,
+   "378f33",
+   "tokens "
+  ],
+  [
+   34845,
+   "378f33",
+   "can "
+  ],
+  [
+   34845,
+   "378f33",
+   "therefore "
+  ],
+  [
+   34845,
+   "378f33",
+   "have "
+  ],
+  [
+   34845,
+   "378f33",
+   "similar "
+  ],
+  [
+   34845,
+   "378f33",
+   "keys ("
+  ],
+  [
+   34846,
+   "378f33",
+   "both "
+  ],
+  [
+   34846,
+   "378f33",
+   "match "
+  ],
+  [
+   34852,
+   "378f33",
+   "a "
+  ],
+  [
+   34852,
+   "378f33",
+   "query) "
+  ],
+  [
+   34852,
+   "378f33",
+   "but "
+  ],
+  [
+   34852,
+   "378f33",
+   "carry "
+  ],
+  [
+   34852,
+   "378f33",
+   "different "
+  ],
+  [
+   34852,
+   "378f33",
+   "values ("
+  ],
+  [
+   34853,
+   "378f33",
+   "contribute "
+  ],
+  [
+   34853,
+   "378f33",
+   "different "
+  ],
+  [
+   34853,
+   "378f33",
+   "content). "
+  ],
+  [
+   34926,
+   "378f33",
+   "Please "
+  ],
+  [
+   34932,
+   "378f33",
+   "restate "
+  ],
+  [
+   34936,
+   "378f33",
+   "that "
+  ],
+  [
+   34936,
+   "378f33",
+   "fact "
+  ],
+  [
+   34945,
+   "378f33",
+   "in "
+  ],
+  [
+   34952,
+   "378f33",
+   "your "
+  ],
+  [
+   34952,
+   "378f33",
+   "own "
+  ],
+  [
+   34952,
+   "378f33",
+   "words."
+  ],
+  [
+   65463,
+   "f53e01",
+   "That "
+  ],
+  [
+   65468,
+   "f53e01",
+   "was "
+  ],
+  [
+   65473,
+   "f53e01",
+   "partial. "
+  ],
+  [
+   65473,
+   "f53e01",
+   "You "
+  ],
+  [
+   65473,
+   "f53e01",
+   "correctly "
+  ],
+  [
+   65473,
+   "f53e01",
+   "identified "
+  ],
+  [
+   65473,
+   "f53e01",
+   "that "
+  ],
+  [
+   65473,
+   "f53e01",
+   "queries "
+  ],
+  [
+   65473,
+   "f53e01",
+   "ask "
+  ],
+  [
+   65474,
+   "f53e01",
+   "and "
+  ],
+  [
+   65474,
+   "f53e01",
+   "values "
+  ],
+  [
+   65474,
+   "f53e01",
+   "deliver "
+  ],
+  [
+   65474,
+   "f53e01",
+   "content, "
+  ],
+  [
+   65474,
+   "f53e01",
+   "but "
+  ],
+  [
+   65479,
+   "f53e01",
+   "you "
+  ],
+  [
+   65479,
+   "f53e01",
+   "did "
+  ],
+  [
+   65479,
+   "f53e01",
+   "not "
+  ],
+  [
+   65480,
+   "f53e01",
+   "clearly "
+  ],
+  [
+   65480,
+   "f53e01",
+   "explain "
+  ],
+  [
+   65480,
+   "f53e01",
+   "that "
+  ],
+  [
+   65480,
+   "f53e01",
+   "keys "
+  ],
+  [
+   65480,
+   "f53e01",
+   "advertise "
+  ],
+  [
+   65480,
+   "f53e01",
+   "what "
+  ],
+  [
+   65480,
+   "f53e01",
+   "each "
+  ],
+  [
+   65480,
+   "f53e01",
+   "token "
+  ],
+  [
+   65480,
+   "f53e01",
+   "offers.\n\n"
+  ],
+  [
+   65674,
+   "f53e01",
+   "Next "
+  ],
+  [
+   65680,
+   "f53e01",
+   "claim: "
+  ],
+  [
+   65687,
+   "f53e01",
+   "Queries "
+  ],
+  [
+   65687,
+   "f53e01",
+   "ask, "
+  ],
+  [
+   65687,
+   "f53e01",
+   "keys "
+  ],
+  [
+   65687,
+   "f53e01",
+   "advertise, "
+  ],
+  [
+   65687,
+   "f53e01",
+   "values "
+  ],
+  [
+   65688,
+   "f53e01",
+   "deliver. "
+  ],
+  [
+   65688,
+   "f53e01",
+   "Real "
+  ],
+  [
+   65688,
+   "f53e01",
+   "or "
+  ],
+  [
+   65688,
+   "f53e01",
+   "bluff?"
+  ],
+  [
+   92225,
+   "c53c2b",
+   "It "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "is "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "real, "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "page "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "eight, "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "queries "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "ask, "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "keys "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "advertise, "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "values "
+  ],
+  [
+   92225,
+   "c53c2b",
+   "deliver. "
+  ],
+  [
+   92542,
+   "c53c2b",
+   "Last "
+  ],
+  [
+   92542,
+   "c53c2b",
+   "one: "
+  ],
+  [
+   92542,
+   "c53c2b",
+   "In "
+  ],
+  [
+   92542,
+   "c53c2b",
+   "one "
+  ],
+  [
+   92542,
+   "c53c2b",
+   "or "
+  ],
+  [
+   92553,
+   "c53c2b",
+   "two "
+  ],
+  [
+   92553,
+   "c53c2b",
+   "sentences, "
+  ],
+  [
+   92553,
+   "c53c2b",
+   "say "
+  ],
+  [
+   92554,
+   "c53c2b",
+   "what "
+  ],
+  [
+   92554,
+   "c53c2b",
+   "an "
+  ],
+  [
+   92554,
+   "c53c2b",
+   "attention "
+  ],
+  [
+   92554,
+   "c53c2b",
+   "weight "
+  ],
+  [
+   92554,
+   "c53c2b",
+   "means."
+  ],
+  [
+   118080,
+   "e0f0f0",
+   "That "
+  ],
+  [
+   118080,
+   "e0f0f0",
+   "was "
+  ],
+  [
+   118081,
+   "e0f0f0",
+   "correct. "
+  ],
+  [
+   118081,
+   "e0f0f0",
+   "Well "
+  ],
+  [
+   118081,
+   "e0f0f0",
+   "done."
+  ]
+ ],
+ "errors": [
+  "Loading the script 'http://localhost:3301/_next/static/chunks/_0rhvzb9._.js' violates the following Content Security Policy directive: \"script-src 'self' 'nonce-Yjg1NDIwYjEtYmU0ZC00ZjMxLTgwZDMtOTBlNTR"
+ ],
+ "seededLevels": [
+  {
+   "id": "l_say_c_self_attention_1",
+   "stars": 3,
+   "xp": 200
+  },
+  {
+   "id": "l_catch_c_self_attention_1",
+   "stars": 3,
+   "xp": 320
+  },
+  {
+   "id": "l_say_c_qkv_1",
+   "stars": 3,
+   "xp": 200
+  },
+  {
+   "id": "l_catch_c_qkv_1",
+   "stars": 3,
+   "xp": 320
+  }
+ ],
+ "seedStatus": 200,
+ "serverAfterSeed": {
+  "results": 4,
+  "unlockedIndex": 5,
+  "xp": 1100
+ },
+ "clickAt": 1790782127811,
+ "injected": [
+  {
+   "wav": "boss-bluff",
+   "atMs": 22452,
+   "durSec": 4,
+   "afterReplyDoneMs": 1115
+  },
+  {
+   "wav": "boss-qkv",
+   "atMs": 47320,
+   "durSec": 8.98,
+   "afterReplyDoneMs": 996
+  },
+  {
+   "wav": "claim-real",
+   "atMs": 80388,
+   "durSec": 4.7,
+   "afterReplyDoneMs": 960
+  },
+  {
+   "wav": "say-weight",
+   "atMs": 103415,
+   "durSec": 6.45,
+   "afterReplyDoneMs": 1036
+  }
+ ],
+ "revealClicks": 2,
+ "localProgress": {
+  "xp": 1889,
+  "rank": 6,
+  "unlockedIndex": 6,
+  "results": {
+   "l_say_c_self_attention_1": {
+    "stars": 3,
+    "xp": 200,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_catch_c_self_attention_1": {
+    "stars": 3,
+    "xp": 320,
+    "heartsLeft": 2,
+    "rounds": [
+     "correct",
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_say_c_qkv_1": {
+    "stars": 3,
+    "xp": 200,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_catch_c_qkv_1": {
+    "stars": 3,
+    "xp": 320,
+    "heartsLeft": 2,
+    "rounds": [
+     "correct",
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_boss_1": {
+    "stars": 3,
+    "xp": 789,
+    "heartsLeft": 4,
+    "rounds": [
+     "bluff_caught",
+     "partial",
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": [
+     "proof_1mj07k4",
+     "proof_z8pktc",
+     "proof_jx5j9t",
+     "proof_1160m0q"
+    ]
+   }
+  },
+  "proofs": [
+   {
+    "quote": "Two tokens can therefore have similar keys (both match a query) but carry different values (contribute different content",
+    "page": 8,
+    "passageId": "ch_qkv_2"
+   },
+   {
+    "quote": "a query (what this token is looking for), a key (what this token offers to others), and a value (the content carried for",
+    "page": 7,
+    "passageId": "ch_qkv_1"
+   },
+   {
+    "quote": "Queries ask, keys advertise, values deliver.",
+    "page": 8,
+    "passageId": "ch_qkv_2"
+   },
+   {
+    "quote": "Attention weights answer 'how much should this token listen to each other token'.",
+    "page": 5,
+    "passageId": "ch_sa_2"
+   }
+  ]
+ },
+ "localStreak": {
+  "streakDays": 1,
+  "lastPlayedDay": "2026-09-30",
+  "freezes": 0,
+  "todayMinutes": 1.9,
+  "todayDay": "2026-09-30",
+  "dailyGoalMinutes": 10,
+  "weakConceptIds": []
+ },
+ "serverProgress": {
+  "status": 200,
+  "persisted": true,
+  "xp": 1889,
+  "rank": 6,
+  "streakDays": 1,
+  "lastPlayedDay": "2026-09-30",
+  "todayMinutes": 1.9,
+  "results": 5,
+  "proofs": 4
+ },
+ "profileText": "PROFILE Your streak, rank and settings 1 day streak 1 day streak. No freeze banked. One is earned every 7 days. 1.9/10 minutes today 6 Rank 6 1889 XP 6 Rank 6 129 / 441 XP Streak M T W T F S S A streak counts a day when you finish a level. One freeze is earned every 7 days and is spent by itself on a missed day. Concept mastery Backpropagation 0/18 Multi-head attention 0/15 Policy vs value iteration 0/9 Positional information 0/12 Queries, Keys, Values 9/18 Self-attention 9/15 Stars are the best you have on each level that covers the concept. Missed concepts come back as Recall levels. Settings Sound Short cues on answers. Off until you turn it on. Reduce motion Stills the animations. Everyt",
+ "mapText": "WORLD 1 Self-attention and Queries, Keys, Values World cleared WORLD 2 Positional information and Multi-head attention 5 levels WORLD 3 Backpropagation and Policy vs value iteration 4 levels WORLD 4 Self-attention and Queries, Keys, Values 4 levels WORLD 5 Positional information and Multi-head attention 4 levels SAY IT 1 Self-attention CATCH IT 2 Bluff check: Self-attention SAY IT 3 Queries, Keys, Values CATCH IT 4 Bluff check: Queries, Keys, Values Next up SAY IT 6 Positional information SAY IT",
+ "failure": null,
+ "audioFrames": 5430,
+ "audioBytes": 2606400,
+ "examinerAudioSec": 54.3
+}

@@ -1,0 +1,1 @@
+﻿Synthetic speech, generated with Windows System.Speech. Spoken text: Queries ask what a token is looking for, keys advertise what a token holds, and values carry the content that gets passed along.

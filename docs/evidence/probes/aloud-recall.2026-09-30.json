@@ -1,0 +1,1451 @@
+{
+ "scenario": "recall",
+ "tag": "",
+ "measuredOn": "2026-09-30T15:47:09.669Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "base": "http://localhost:3301",
+ "levelId": "l_recall_17ueeao_1",
+ "learnerVoice": "synthetic (Windows System.Speech)",
+ "plan": [],
+ "greetSecAssumed": 14,
+ "gapSec": 40,
+ "ws": [
+  {
+   "t": 4719,
+   "dir": "out",
+   "type": "session.update"
+  },
+  {
+   "t": 4998,
+   "dir": "in",
+   "type": "session.updated"
+  },
+  {
+   "t": 5041,
+   "dir": "in",
+   "type": "session.ready",
+   "session_id": "sess_292"
+  },
+  {
+   "t": 5041,
+   "dir": "out",
+   "type": "input.audio.first"
+  },
+  {
+   "t": 5045,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 5524,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 11696,
+   "n": 627,
+   "bytes": 300960
+  },
+  {
+   "t": 11696,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "Recall: Self-attention. First question: In one or two sentences, say what an attention weight means."
+  },
+  {
+   "t": 11707,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 11936,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 12178,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 15114,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 20321,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 20321,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "An attention weight is how much one token listens to another token before the value vectors are averaged."
+  },
+  {
+   "t": 20321,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 24680,
+   "dir": "in",
+   "type": "tool.call",
+   "name": "grade_my_answer",
+   "call_id": "chatcmpl-tool-8a6a4a1fe0c850da",
+   "args": {
+    "answer": "An attention weight is how much one token listens to another token before the value vectors are averaged.",
+    "question": "In one or two sentences, say what an attention weight means."
+   }
+  },
+  {
+   "t": 24923,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 27338,
+   "dir": "out",
+   "type": "tool.result",
+   "call_id": "chatcmpl-tool-8a6a4a1fe0c850da",
+   "is_error": false,
+   "verdict": "correct",
+   "keys": [
+    "verdict",
+    "correct_points",
+    "missing_points",
+    "feedback",
+    "misconception",
+    "graded_by",
+    "full_answer_covers",
+    "next_question",
+    "evidence",
+    "say",
+    "next_focus"
+   ]
+  },
+  {
+   "t": 27437,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 27855,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 35747,
+   "n": 801,
+   "bytes": 384480
+  },
+  {
+   "t": 35747,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?"
+  },
+  {
+   "t": 35757,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 35986,
+   "n": 24,
+   "bytes": 11520
+  },
+  {
+   "t": 36068,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 38826,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 42918,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 42918,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "Without self attention, a token could not compare itself with every other token."
+  },
+  {
+   "t": 42930,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 43317,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 46114,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 46114,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "So the model would lose context across the sequence."
+  },
+  {
+   "t": 48308,
+   "dir": "in",
+   "type": "tool.call",
+   "name": "grade_my_answer",
+   "call_id": "chatcmpl-tool-ad3e035872c95627",
+   "args": {
+    "answer": "Without self attention, a token could not compare itself with every other token. So the model would lose context across the sequence.",
+    "question": "Why does Self-attention matter? Give the reason, not only the definition."
+   }
+  },
+  {
+   "t": 48548,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 50656,
+   "dir": "out",
+   "type": "tool.result",
+   "call_id": "chatcmpl-tool-ad3e035872c95627",
+   "is_error": false,
+   "verdict": "partial",
+   "keys": [
+    "verdict",
+    "correct_points",
+    "missing_points",
+    "feedback",
+    "misconception",
+    "graded_by",
+    "full_answer_covers",
+    "next_question",
+    "evidence",
+    "say",
+    "next_focus"
+   ]
+  },
+  {
+   "t": 50694,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 51296,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 56816,
+   "n": 563,
+   "bytes": 270240
+  },
+  {
+   "t": 56824,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "That was a partial answer because you did not mention how weights determine the strength of listening between tokens."
+  },
+  {
+   "t": 56827,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 57071,
+   "n": 25,
+   "bytes": 12000
+  },
+  {
+   "t": 57147,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  },
+  {
+   "t": 57262,
+   "dir": "out",
+   "type": "session.end"
+  },
+  {
+   "t": 57365,
+   "dir": "in",
+   "type": "session.ended",
+   "detail": "{\"session_duration_seconds\":52.578107,\"type\":\"session.ended\",\"timestamp\":1790783374.9607732,\"audio_duration_seconds\":null}"
+  }
+ ],
+ "http": [
+  {
+   "t": 1790783279202,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 913
+  },
+  {
+   "t": 1790783280919,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 657
+  },
+  {
+   "t": 1790783287865,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 549
+  },
+  {
+   "t": 1790783293127,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 1379,
+   "result": {
+    "verdict": "supported",
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the sco",
+    "page": 4,
+    "passage_id": "ch_sa_1",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 1790783294508,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 1197,
+   "result": {
+    "verdict": "supported",
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token.",
+    "page": 4,
+    "passage_id": "ch_sa_1",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "Self-attention lets every token in a sequence compare itself with every other token.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 1790783295718,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 1816,
+   "result": {
+    "verdict": "supported",
+    "quote": "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: self-attention without position information is permutation-e",
+    "page": 5,
+    "passage_id": "ch_sa_2",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: backpropagation without position information is permutation-equivariant.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 1790783297734,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 872
+  },
+  {
+   "t": 1790783305410,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 865
+  },
+  {
+   "t": 1790783309872,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 1258
+  },
+  {
+   "t": 1790783311138,
+   "url": "/api/game/progress",
+   "method": "GET",
+   "status": 200,
+   "ms": 300
+  },
+  {
+   "t": 1790783316258,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 524
+  },
+  {
+   "t": 3720,
+   "url": "/api/oral/session",
+   "method": "GET",
+   "status": 200,
+   "ms": 532
+  },
+  {
+   "t": 4387,
+   "url": "/api/voice-agent/token",
+   "method": "GET",
+   "status": 200,
+   "ms": 193
+  },
+  {
+   "t": 24680,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2256,
+   "result": {
+    "verdict": "supported",
+    "quote": "Attention weights answer 'how much should this token listen to each other token'.",
+    "page": 5,
+    "passage_id": "ch_sa_2",
+    "next_focus": true
+   },
+   "name": "verify_claim",
+   "levelId": "l_recall_17ueeao_1",
+   "args": {
+    "claim": "An attention weight is how much one token listens to another token before the value vectors are averaged.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 24680,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2651,
+   "result": {
+    "verdict": "correct",
+    "next_focus": true,
+    "feedback": "Your answer accurately captures that an attention weight measures how much one token attends to another before averaging values. It includes both the concept of"
+   },
+   "name": "grade_my_answer",
+   "levelId": "l_recall_17ueeao_1",
+   "args": {
+    "answer": "An attention weight is how much one token listens to another token before the value vectors are averaged.",
+    "question": "In one or two sentences, say what an attention weight means."
+   }
+  },
+  {
+   "t": 48308,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2022,
+   "result": {
+    "verdict": "not_in_material",
+    "page": null,
+    "passage_id": null,
+    "next_focus": true
+   },
+   "name": "verify_claim",
+   "levelId": "l_recall_17ueeao_1",
+   "args": {
+    "claim": "Without self attention, a token could not compare itself with every other token. So the model would lose context across the sequence.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 48308,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 2348,
+   "result": {
+    "verdict": "partial",
+    "next_focus": true,
+    "feedback": "You correctly noted that self‑attention lets a token consider all other tokens, giving contextual information. However, you didn’t explain the role of weights t"
+   },
+   "name": "grade_my_answer",
+   "levelId": "l_recall_17ueeao_1",
+   "args": {
+    "answer": "Without self attention, a token could not compare itself with every other token. So the model would lose context across the sequence.",
+    "question": "Why does Self-attention matter? Give the reason, not only the definition."
+   }
+  },
+  {
+   "t": 57173,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 842
+  },
+  {
+   "t": 59995,
+   "url": "/api/game/progress",
+   "method": "GET",
+   "status": 200,
+   "ms": 289
+  },
+  {
+   "t": 66838,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 589
+  },
+  {
+   "t": 79465,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 735
+  }
+ ],
+ "dom": [
+  {
+   "t": 30,
+   "phase": "ready",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": "Recall: Self-attention",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 3721,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ConnectingOpening a session with the voice service.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 5231,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 6075,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 12250,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 15259,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 20402,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 24789,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "Checking your pageThe examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 27437,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": "PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 27641,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner Recall: Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": "PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 28309,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": "PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Keep going",
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 29666,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 36248,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 38862,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You An attention weight is how much one token listens to another token before the value vectors are averaged.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 42953,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You Without self attention, a token could not compare itself with every other token.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 43397,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You Without self attention, a token could not compare itself with every other token.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 46224,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "Checking your pageThe examiner is deciding what to ask next.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You So the model would lose context across the sequence.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 48415,
+   "phase": "live",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": "Checking your pageThe examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.",
+   "claim": null,
+   "question": "Why does Self-attention matter? Give the reason, not only the definition.",
+   "examiner": "Examiner That is correct, you captured how weights measure token relationships before averaging values. Why does self-attention matter?",
+   "examinerCut": false,
+   "you": "You So the model would lose context across the sequence.",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 50764,
+   "phase": "won",
+   "hearts": "1 of 1 hearts",
+   "round": "Round 2 of 2",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "175 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 57268,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · RECALL: SELF-ATTENTION Three stars. Every round held up. +0XP 1 of 1 hearts left. Best combo 1. Proof cards earned PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Next level Back to the map",
+   "failure": null
+  },
+  {
+   "t": 57910,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · RECALL: SELF-ATTENTION Three stars. Every round held up. +43XP 1 of 1 hearts left. Best combo 1. Proof cards earned PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Next level Back to the map",
+   "failure": null
+  },
+  {
+   "t": 58115,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · RECALL: SELF-ATTENTION Three stars. Every round held up. +107XP 1 of 1 hearts left. Best combo 1. Proof cards earned PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Next level Back to the map",
+   "failure": null
+  },
+  {
+   "t": 58333,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · RECALL: SELF-ATTENTION Three stars. Every round held up. +149XP 1 of 1 hearts left. Best combo 1. Proof cards earned PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Next level Back to the map",
+   "failure": null
+  },
+  {
+   "t": 58550,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · RECALL: SELF-ATTENTION Three stars. Every round held up. +171XP 1 of 1 hearts left. Best combo 1. Proof cards earned PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Next level Back to the map",
+   "failure": null
+  },
+  {
+   "t": 58767,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · RECALL: SELF-ATTENTION Three stars. Every round held up. +175XP 1 of 1 hearts left. Best combo 1. Proof cards earned PROOF CARD p. 5 Attention weights answer 'how much should this token listen to each other token'. Checked by code against your page Next level Back to the map",
+   "failure": null
+  }
+ ],
+ "agentDeltas": [
+  [
+   6030,
+   "cf617c",
+   "Recall:"
+  ],
+  [
+   6046,
+   "cf617c",
+   "Self-attention."
+  ],
+  [
+   6062,
+   "cf617c",
+   "First"
+  ],
+  [
+   6062,
+   "cf617c",
+   "question:"
+  ],
+  [
+   6062,
+   "cf617c",
+   "In"
+  ],
+  [
+   6062,
+   "cf617c",
+   "one"
+  ],
+  [
+   6062,
+   "cf617c",
+   "or"
+  ],
+  [
+   6062,
+   "cf617c",
+   "two"
+  ],
+  [
+   6062,
+   "cf617c",
+   "sentences,"
+  ],
+  [
+   6062,
+   "cf617c",
+   "say"
+  ],
+  [
+   6062,
+   "cf617c",
+   "what"
+  ],
+  [
+   6062,
+   "cf617c",
+   "an"
+  ],
+  [
+   6062,
+   "cf617c",
+   "attention"
+  ],
+  [
+   6062,
+   "cf617c",
+   "weight"
+  ],
+  [
+   6062,
+   "cf617c",
+   "means."
+  ],
+  [
+   28098,
+   "10a87f",
+   "That "
+  ],
+  [
+   28108,
+   "10a87f",
+   "is "
+  ],
+  [
+   28108,
+   "10a87f",
+   "correct, "
+  ],
+  [
+   28109,
+   "10a87f",
+   "you "
+  ],
+  [
+   28109,
+   "10a87f",
+   "captured "
+  ],
+  [
+   28109,
+   "10a87f",
+   "how "
+  ],
+  [
+   28131,
+   "10a87f",
+   "weights "
+  ],
+  [
+   28132,
+   "10a87f",
+   "measure "
+  ],
+  [
+   28132,
+   "10a87f",
+   "token "
+  ],
+  [
+   28133,
+   "10a87f",
+   "relationships "
+  ],
+  [
+   28133,
+   "10a87f",
+   "before "
+  ],
+  [
+   28133,
+   "10a87f",
+   "averaging "
+  ],
+  [
+   28133,
+   "10a87f",
+   "values. "
+  ],
+  [
+   28181,
+   "10a87f",
+   "Why "
+  ],
+  [
+   28197,
+   "10a87f",
+   "does "
+  ],
+  [
+   28230,
+   "10a87f",
+   "self-attention"
+  ],
+  [
+   28231,
+   "10a87f",
+   "matter?"
+  ],
+  [
+   51524,
+   "cdc3ee",
+   "That "
+  ],
+  [
+   51524,
+   "cdc3ee",
+   "was "
+  ],
+  [
+   51524,
+   "cdc3ee",
+   "a "
+  ],
+  [
+   51524,
+   "cdc3ee",
+   "partial "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "answer "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "because "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "you "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "did "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "not "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "mention "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "how "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "weights "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "determine "
+  ],
+  [
+   51526,
+   "cdc3ee",
+   "the "
+  ],
+  [
+   51543,
+   "cdc3ee",
+   "strength "
+  ],
+  [
+   51543,
+   "cdc3ee",
+   "of "
+  ],
+  [
+   51543,
+   "cdc3ee",
+   "listening "
+  ],
+  [
+   51553,
+   "cdc3ee",
+   "between "
+  ],
+  [
+   51553,
+   "cdc3ee",
+   "tokens."
+  ]
+ ],
+ "errors": [],
+ "recallSetup": {
+  "typedCatchLevel2": [
+   {
+    "round": 1,
+    "isBluff": false,
+    "tapped": "real",
+    "deliberateMiss": false
+   },
+   {
+    "round": 2,
+    "isBluff": false,
+    "tapped": "real",
+    "deliberateMiss": false
+   },
+   {
+    "round": 3,
+    "isBluff": true,
+    "tapped": "real",
+    "deliberateMiss": true
+   }
+  ],
+  "progressAfterLevel2": {
+   "weakConceptIds": [
+    "c_self_attention"
+   ],
+   "level2": {
+    "stars": 2,
+    "rounds": [
+     "correct",
+     "correct",
+     "bluff_missed"
+    ],
+    "heartsLeft": 1,
+    "missed": [
+     "c_self_attention"
+    ]
+   }
+  },
+  "served": {
+   "serverRecall": [
+    {
+     "id": "l_recall_17ueeao_1",
+     "index": 5,
+     "rounds": 2,
+     "questions": [
+      "In one or two sentences, say what an attention weight means.",
+      "Why does Self-attention matter? Give the reason, not only the definition."
+     ]
+    }
+   ],
+   "localRecallIds": [
+    "l_recall_17ueeao_1"
+   ],
+   "total": 23
+  }
+ },
+ "seededLevels": [
+  {
+   "id": "l_say_c_qkv_1",
+   "stars": 3,
+   "xp": 200
+  },
+  {
+   "id": "l_catch_c_qkv_1",
+   "stars": 3,
+   "xp": 320
+  }
+ ],
+ "seedStatus": 200,
+ "serverAfterSeed": {
+  "results": 4,
+  "unlockedIndex": 5,
+  "xp": 1030
+ },
+ "clickAt": 1790783317602,
+ "injected": [
+  {
+   "wav": "say-weight",
+   "atMs": 13124,
+   "durSec": 6.45,
+   "afterReplyDoneMs": 946
+  },
+  {
+   "wav": "say-why",
+   "atMs": 37128,
+   "durSec": 8.39,
+   "afterReplyDoneMs": 1060
+  }
+ ],
+ "localProgress": {
+  "xp": 1205,
+  "rank": 4,
+  "unlockedIndex": 6,
+  "results": {
+   "l_say_c_self_attention_1": {
+    "stars": 3,
+    "xp": 200,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_catch_c_self_attention_1": {
+    "stars": 2,
+    "xp": 250,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "correct",
+     "bluff_missed"
+    ],
+    "outcome": "won",
+    "proofIds": [
+     "proof_1mqt3ej",
+     "proof_1a7tycn"
+    ]
+   },
+   "l_say_c_qkv_1": {
+    "stars": 3,
+    "xp": 200,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_catch_c_qkv_1": {
+    "stars": 3,
+    "xp": 320,
+    "heartsLeft": 2,
+    "rounds": [
+     "correct",
+     "correct",
+     "correct"
+    ],
+    "outcome": "won",
+    "proofIds": []
+   },
+   "l_recall_17ueeao_1": {
+    "stars": 3,
+    "xp": 175,
+    "heartsLeft": 1,
+    "rounds": [
+     "correct",
+     "partial"
+    ],
+    "outcome": "won",
+    "proofIds": [
+     "proof_1160m0q"
+    ]
+   }
+  },
+  "proofs": [
+   {
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a",
+    "page": 4,
+    "passageId": "ch_sa_1"
+   },
+   {
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token.",
+    "page": 4,
+    "passageId": "ch_sa_1"
+   },
+   {
+    "quote": "Attention weights answer 'how much should this token listen to each other token'.",
+    "page": 5,
+    "passageId": "ch_sa_2"
+   }
+  ]
+ },
+ "localStreak": {
+  "streakDays": 1,
+  "lastPlayedDay": "2026-09-30",
+  "freezes": 0,
+  "todayMinutes": 0.85,
+  "todayDay": "2026-09-30",
+  "dailyGoalMinutes": 10,
+  "weakConceptIds": []
+ },
+ "serverProgress": {
+  "status": 200,
+  "persisted": true,
+  "xp": 1205,
+  "rank": 4,
+  "streakDays": 1,
+  "lastPlayedDay": "2026-09-30",
+  "todayMinutes": 0.85,
+  "results": 5,
+  "proofs": 3
+ },
+ "profileText": "PROFILE Your streak, rank and settings 1 day streak 1 day streak. No freeze banked. One is earned every 7 days. 0.8/10 minutes today 4 Rank 4 1205 XP 4 Rank 4 231 / 378 XP Streak M T W T F S S A streak counts a day when you finish a level. One freeze is earned every 7 days and is spent by itself on a missed day. Concept mastery Backpropagation 0/18 Multi-head attention 0/15 Policy vs value iteration 0/9 Positional information 0/12 Queries, Keys, Values 6/18 Self-attention 5/15 Stars are the best you have on each level that covers the concept. Missed concepts come back as Recall levels. Settings Sound Short cues on answers. Off until you turn it on. Reduce motion Stills the animations. Everyt",
+ "mapText": "WORLD 1 Self-attention and Queries, Keys, Values The boss is open WORLD 2 Positional information and Multi-head attention 5 levels WORLD 3 Backpropagation and Policy vs value iteration 4 levels WORLD 4 Self-attention and Queries, Keys, Values 4 levels WORLD 5 Positional information and Multi-head attention 4 levels SAY IT 1 Self-attention CATCH IT 2 Bluff check: Self-attention SAY IT 3 Queries, Keys, Values CATCH IT 4 Bluff check: Queries, Keys, Values RECALL 5 Recall: Self-attention Next up SAY",
+ "failure": null,
+ "audioFrames": 2065,
+ "audioBytes": 991200,
+ "examinerAudioSec": 20.65
+}

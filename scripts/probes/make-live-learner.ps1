@@ -8,6 +8,8 @@ $lines = [ordered]@{
   'claim-real'   = 'I think this claim is real. It matches what my notes say.'
   'claim-bluff'  = 'That is a bluff. It is self attention, not backpropagation, that is permutation equivariant.'
   'interrupt'    = 'Wait, can you repeat the question?'
+  'boss-bluff'   = 'That is a bluff. The page says the opposite.'
+  'boss-qkv'     = 'Queries ask what a token is looking for, keys advertise what a token holds, and values carry the content that gets passed along.'
 }
 foreach ($name in $lines.Keys) {
   $wav = Join-Path $out "$name.wav"
