@@ -1,0 +1,210 @@
+{
+  "probe": "game-claims-live",
+  "date": "2026-09-30",
+  "subject": "course_transformers_w4",
+  "n": 19,
+  "service": "real model judge through /api/oral/tool, local Next server",
+  "learner": "none, claims are the run's own items",
+  "real": {
+    "n": 8,
+    "proofOk": 8
+  },
+  "bluff": {
+    "n": 11,
+    "proofOk": 7,
+    "notInMaterial": 3,
+    "wronglySupported": 1
+  },
+  "rows": [
+    {
+      "level": "l_catch_c_self_attention_1",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 4,
+      "ms": 870
+    },
+    {
+      "level": "l_catch_c_self_attention_1",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 4,
+      "ms": 1482
+    },
+    {
+      "level": "l_catch_c_self_attention_1",
+      "isBluff": true,
+      "alteration": "swap",
+      "expected": "contradicted",
+      "verdict": "not_in_material",
+      "proofOk": false,
+      "page": null,
+      "ms": 1691
+    },
+    {
+      "level": "l_catch_c_qkv_1",
+      "isBluff": true,
+      "alteration": "negation",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 7,
+      "ms": 1151
+    },
+    {
+      "level": "l_catch_c_qkv_1",
+      "isBluff": true,
+      "alteration": "antonym",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 8,
+      "ms": 1041
+    },
+    {
+      "level": "l_catch_c_qkv_1",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 7,
+      "ms": 957
+    },
+    {
+      "level": "l_catch_c_multihead_1",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 15,
+      "ms": 820
+    },
+    {
+      "level": "l_catch_c_multihead_1",
+      "isBluff": true,
+      "alteration": "swap",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 19,
+      "ms": 1022
+    },
+    {
+      "level": "l_catch_c_multihead_1",
+      "isBluff": true,
+      "alteration": "negation",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 16,
+      "ms": 866
+    },
+    {
+      "level": "l_catch_c_backprop_1",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 19,
+      "ms": 730
+    },
+    {
+      "level": "l_catch_c_backprop_1",
+      "isBluff": true,
+      "alteration": "trap",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 20,
+      "ms": 891
+    },
+    {
+      "level": "l_catch_c_backprop_1",
+      "isBluff": true,
+      "alteration": "swap",
+      "expected": "contradicted",
+      "verdict": "not_in_material",
+      "proofOk": false,
+      "page": null,
+      "ms": 765
+    },
+    {
+      "level": "l_catch_c_policy_value_1",
+      "isBluff": true,
+      "alteration": "antonym",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 24,
+      "ms": 917
+    },
+    {
+      "level": "l_catch_c_policy_value_1",
+      "isBluff": true,
+      "alteration": "negation",
+      "expected": "contradicted",
+      "verdict": "not_in_material",
+      "proofOk": false,
+      "page": null,
+      "ms": 843
+    },
+    {
+      "level": "l_catch_c_policy_value_1",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 23,
+      "ms": 874
+    },
+    {
+      "level": "l_catch_c_qkv_2",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 8,
+      "ms": 745
+    },
+    {
+      "level": "l_catch_c_qkv_2",
+      "isBluff": true,
+      "alteration": "negation",
+      "expected": "contradicted",
+      "verdict": "contradicted",
+      "proofOk": true,
+      "page": 8,
+      "ms": 915
+    },
+    {
+      "level": "l_catch_c_backprop_2",
+      "isBluff": true,
+      "alteration": "antonym",
+      "expected": "contradicted",
+      "verdict": "supported",
+      "proofOk": false,
+      "page": 19,
+      "ms": 937
+    },
+    {
+      "level": "l_catch_c_backprop_2",
+      "isBluff": false,
+      "alteration": null,
+      "expected": "supported",
+      "verdict": "supported",
+      "proofOk": true,
+      "page": 19,
+      "ms": 564
+    }
+  ]
+}

@@ -1,95 +1,71 @@
 1
 00:00:00,000 --> 00:00:04,000
-Sample course: VIVA's own Transformers notes,
-written for this demo.
+Sample course: Transformers notes
+written for this project.
 
 2
 00:00:04,000 --> 00:00:15,000
-VIVA gives you an oral exam on your own lecture notes.
-It asks out loud, checks each answer against your pages,
-and tells you what to revise tomorrow.
+Aloud is a study game you play by talking.
+You drop your notes, it builds levels,
+and in one kind of level the examiner lies to you.
 
 3
-00:00:15,000 --> 00:00:30,000
-This is the sample course: twelve passages
-over pages four to twenty-four.
-One click and the examiner is on.
+00:00:15,000 --> 00:00:35,000
+This is the sample run: my own Transformers notes.
+Twenty-two levels, five worlds,
+each ending in a boss.
 
 4
-00:00:30,000 --> 00:00:38,000
-[EXAMINER, from the transcript of the take:
-You're being examined. Tell me what you want
-to be asked on, and I'll start there.]
+00:00:35,000 --> 00:00:50,000
+[EXAMINER or CARD, from the take:
+the Say it question, exact words shown on screen]
 
 5
-00:00:38,000 --> 00:00:42,000
-Examine me on self-attention.
+00:00:50,000 --> 00:01:05,000
+[LEARNER, from the take:
+the answer as spoken, exact words from the transcript]
 
 6
-00:00:42,000 --> 00:00:52,000
-[EXAMINER: the question about self-attention,
-exact words from the take]
+00:01:05,000 --> 00:01:15,000
+[STATE LINE on screen while the page is checked,
+then the verdict, XP and page line: copy the exact words shown]
 
 7
-00:00:52,000 --> 00:01:00,000
-Every token compares itself with every other token.
-The scores go through a softmax into weights,
-and the output is a weighted average of the value vectors.
+00:01:15,000 --> 00:01:30,000
+[EXAMINER, from the take:
+the claim it states, exact words]
 
 8
-00:01:00,000 --> 00:01:15,000
-[EXAMINER: reply to the answer and the next question,
-exact words from the take]
+00:01:30,000 --> 00:01:45,000
+[LEARNER: "Catch it" and the correction as spoken]
 
 9
-00:01:15,000 --> 00:01:19,000
-Now examine me on multi-head attention.
+00:01:45,000 --> 00:02:00,000
+[REVEAL CARD on screen: the page number, the altered words,
+the XP shown. Copy only what the screen shows.]
 
 10
-00:01:19,000 --> 00:01:28,000
-[EXAMINER: the question about multi-head attention,
-exact words from the take]
+00:02:00,000 --> 00:02:20,000
+[EXAMINER cut off mid-sentence, then the learner's interruption
+and the reply, exact words from the take]
 
 11
-00:01:28,000 --> 00:01:33,000
-I think it runs a single head over the input.
+00:02:20,000 --> 00:02:45,000
+[RESULT screen: the stars, the XP and the proof cards shown.
+Each proof card is a quote checked by code against the page.]
 
 12
-00:01:33,000 --> 00:01:40,000
-[STATE LINE on screen while the tool runs:
-copy the exact words shown]
+00:02:45,000 --> 00:02:52,000
+Built on AssemblyAI's Voice Agent API.
+Voice numbers measured 29 September 2026,
+three runs each, synthetic learner voice, local server.
 
 13
-00:01:40,000 --> 00:01:55,000
-[EXAMINER: the correction with the quoted line and the page,
-exact words from the take]
+00:02:52,000 --> 00:02:57,000
+Session ready 444 ms. First examiner audio 958 ms.
+Speech detected 1.3 s after the first loud sample.
 
 14
-00:01:55,000 --> 00:02:00,000
-Wait, can you repeat the question?
-
-15
-00:02:00,000 --> 00:02:15,000
-[EXAMINER: cut off mid-sentence, then repeats the question,
-exact words from the take]
-
-16
-00:02:15,000 --> 00:02:40,000
-[Debrief scene. Caption only what the sheet on screen says.
-If there is no debrief sheet, delete this cue.]
-
-17
-00:02:40,000 --> 00:02:47,000
-Built on AssemblyAI's Voice Agent API.
-Measured 29 September 2026, three runs each,
-synthetic learner voice, local server.
-
-18
-00:02:47,000 --> 00:02:51,000
-Session ready 444 ms. First examiner audio 958 ms.
-Interruption stop 1.3 s, mostly the service detecting speech.
-
-19
-00:02:51,000 --> 00:02:55,000
+00:02:57,000 --> 00:03:03,000
 Claim check: 54 labelled claims, 0 false confirmations.
 A small set, and the judge model can be wrong.
