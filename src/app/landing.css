@@ -1,0 +1,132 @@
+/*
+ * Landing-only layout. Everything else uses globals.css and the tokens.
+ *
+ * Asymmetric on purpose: an 11-column copy side and a wider working sheet on
+ * the right, so the eye lands on the product doing its job. Below 960 px the
+ * columns stack, copy first, so the headline, the sentence for the student and
+ * the primary button sit inside the first 844 px of a phone.
+ */
+
+.vv-page {
+  min-height: 100dvh;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.vv-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+}
+.vv-brand { display: inline-flex; flex: none; align-items: center; gap: var(--space-2); min-height: 44px; font-size: 1.25rem; white-space: nowrap; }
+.vv-top-nav { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
+@media (max-width: 599px) {
+  .vv-top-nav .nav-link:first-child { display: none; }
+  .vv-top-nav .nav-link { padding: 0 8px; }
+}
+
+.vv-fold {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-7);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+@media (min-width: 960px) {
+  .vv-fold {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: var(--space-8);
+    align-items: start;
+    padding-top: var(--space-7);
+  }
+  .vv-excerpt { margin-top: var(--space-5); }
+}
+
+.vv-copy { display: flex; flex-direction: column; }
+
+.vv-h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.25rem, 1.5rem + 2.4vw, 3.25rem);
+  line-height: var(--lh-display);
+  letter-spacing: -0.015em;
+  max-width: 16ch;
+  margin: 0;
+}
+@media (min-width: 960px) { .vv-h1 { max-width: 14ch; } }
+
+.vv-lede {
+  margin: var(--space-5) 0 0;
+  max-width: 42ch;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.vv-who {
+  margin: var(--space-3) 0 0;
+  max-width: 44ch;
+  color: var(--text-secondary);
+}
+
+.vv-cta { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+.vv-cta .btn-primary, .vv-cta .btn-ghost { min-height: 48px; padding-left: 22px; padding-right: 22px; }
+
+.vv-note {
+  margin: var(--space-4) 0 0;
+  max-width: 50ch;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body-sm);
+  color: var(--text-secondary);
+}
+.vv-note + .vv-note { margin-top: var(--space-2); }
+
+/* The working sheet: a stack of the real components. */
+.vv-excerpt {
+  margin-left: 0;
+  margin-right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.vv-excerpt-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); }
+.vv-turn { padding: 0 var(--space-1); }
+.vv-learner { margin: var(--space-1) 0 0; max-width: 46ch; }
+.vv-examiner { margin: var(--space-1) 0 0; max-width: 52ch; }
+.vv-caption {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+
+.vv-run, .vv-limits {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-8);
+}
+.vv-h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); margin: 0 0 var(--space-4); }
+.vv-h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 600; margin: 0; }
+
+.vv-steps { list-style: none; margin: 0; padding: 0; max-width: 46rem; border-top: 1px solid var(--border); }
+.vv-steps li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+.vv-steps p { margin: var(--space-1) 0 0; max-width: var(--measure); color: var(--text-secondary); }
+.vv-step-n { font-size: var(--fs-h3); color: var(--text-muted); padding-top: 2px; }
+
+.vv-limits p { max-width: var(--measure); color: var(--text-secondary); margin: 0; }
+.vv-limits { padding-bottom: var(--space-9); }

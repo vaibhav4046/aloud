@@ -1,0 +1,321 @@
+@import 'tailwindcss';
+@import '../styles/tokens.css';
+
+/*
+ * Tailwind theme bridge. The values live in src/styles/tokens.css; this block
+ * only gives them utility names.
+ *
+ * The --color-obsidian ... --color-band-notyet names are older than the
+ * Examiner's table palette and are kept as aliases so the screens that still
+ * use them pick up the new colours without a rename. They do not describe the
+ * colours any more: paper is now the ink, obsidian is now the canvas. New code
+ * uses the semantic names below them.
+ */
+
+@theme {
+  /* semantic names (new code) */
+  --color-canvas: var(--canvas);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-elevated: var(--elevated);
+  --color-ink: var(--text-primary);
+  --color-ink-2: var(--text-secondary);
+  --color-ink-3: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-correction: var(--correction);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-rule: var(--border);
+  --color-rule-strong: var(--border-strong);
+
+  /* legacy aliases */
+  --color-obsidian: var(--canvas);
+  --color-graphite: var(--surface-1);
+  --color-panel: var(--surface-2);
+  --color-hairline: var(--border);
+  --color-slate: var(--border-strong);
+  --color-paper: var(--text-primary);
+  --color-mist: var(--text-secondary);
+  --color-ash: var(--text-muted);
+  --color-cognition: var(--primary);
+
+  /* Mastery bands. Each is 4.5:1 or better on the canvas and both surfaces and
+   * is always printed with its word, so colour is never the only signal. */
+  --color-band-solid: var(--success);
+  --color-band-getting: var(--info);
+  --color-band-shaky: var(--warning);
+  --color-band-mixed: var(--correction);
+  --color-band-notyet: var(--text-muted);
+
+  --font-sans: var(--font-ui);
+
+  /* Type scale for utilities: 12 / 14 / 16 / 18 / 24 / 32 / 48. Body is never below 16. */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 48px;
+}
+
+:root {
+  color-scheme: light;
+  /* Older names for the motion tokens. */
+  --ease-out-soft: var(--ease-standard);
+}
+
+html { background: var(--canvas); }
+
+body {
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  /* A student's own notes decide how long a word on this page can be: a URL,
+   * a chemical name, an accession number. `anywhere` rather than `break-word`
+   * because only `anywhere` shrinks a flex or grid child's min-content width. */
+  overflow-wrap: anywhere;
+}
+
+::selection { background: var(--info-tint); color: var(--text-primary); }
+
+/* ------------------------------- type ------------------------------- */
+
+.display { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-display); letter-spacing: -0.015em; line-height: var(--lh-display); }
+.heading { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.008em; line-height: 1.2; }
+.mono { font-family: var(--font-mono); font-size: var(--fs-code); line-height: var(--lh-code); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--font-ui); font-size: var(--fs-label); line-height: var(--lh-label); font-weight: 500; color: var(--text-muted); }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* Measure: about 68 characters for anything that reads as prose. */
+.prose-measure { max-width: var(--measure); }
+
+/* ----------------------------- surfaces ----------------------------- */
+
+.surface-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.hairline { border-color: var(--border); }
+
+/* Status chip: the only pill in the product. Always carries a word. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: transparent;
+  white-space: normal;
+  max-width: 100%;
+}
+a.chip, button.chip { cursor: pointer; }
+/* A chip used as a tab is a control, not a status: interface font, control radius. */
+.chip[role="tab"] { font-family: var(--font-ui); font-size: var(--fs-body-sm); border-radius: var(--radius-sm); color: var(--text-primary); }
+.chip-link:hover { border-color: var(--border-strong); background: var(--surface-2); color: var(--text-primary); }
+.chip-quoted { border-color: var(--text-primary); color: var(--text-primary); }
+
+/*
+ * The passage the tutor quoted. A full border on a lifted surface: it adds no
+ * hue, so it cannot contradict a band word beside it, and it survives a screen
+ * where colour does not read.
+ */
+.passage-quoted {
+  border: 1px solid var(--border-strong);
+  background: var(--elevated);
+}
+
+/* ------------------------------ buttons ------------------------------ */
+/*
+ * States: default, hover, active, focus-visible (ring from tokens.css),
+ * disabled, loading. Loading is [aria-busy="true"]: the label changes to say
+ * what is happening and the button stays the same size.
+ */
+
+.btn-primary, .btn-ghost, .btn-lime {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  padding: 10px 20px;
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  touch-action: manipulation;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard),
+              color var(--dur-fast) var(--ease-standard);
+}
+.btn-primary, .btn-lime { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.btn-ghost { background: transparent; color: var(--text-primary); border-color: var(--border-strong); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover, .btn-lime:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+  .btn-ghost:hover { background: var(--surface-2); border-color: var(--text-secondary); }
+}
+.btn-primary:active, .btn-lime:active { background: var(--primary-active); border-color: var(--primary-active); }
+.btn-ghost:active { background: var(--border-subtle); }
+.btn-primary:disabled, .btn-ghost:disabled, .btn-lime:disabled,
+.btn-primary[aria-disabled="true"], .btn-ghost[aria-disabled="true"] {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+.btn-primary[aria-busy="true"], .btn-ghost[aria-busy="true"] { cursor: progress; }
+
+/* Text link. Underlined always; colour is not the only cue. */
+.link {
+  color: var(--info);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+@media (hover: hover) { .link:hover { text-decoration-thickness: 2px; } }
+
+/* Navigation links: weight and an underline carry the state, never colour alone. */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  padding: 0 14px;
+  font-size: var(--fs-body-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+}
+.nav-link:hover { color: var(--text-primary); background: var(--surface-2); }
+.nav-link[aria-current="page"] {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+
+/* ------------------------------ fields ------------------------------- */
+
+.field-label { display: block; font-size: var(--fs-label); font-weight: 500; color: var(--text-secondary); margin-bottom: var(--space-1); }
+.field-hint { font-size: var(--fs-caption); color: var(--text-muted); margin-top: var(--space-1); }
+.field-error { font-size: var(--fs-caption); color: var(--danger); margin-top: var(--space-1); }
+.field {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--elevated);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+}
+.field::placeholder { color: var(--text-muted); }
+.field:disabled { background: var(--surface-2); color: var(--text-muted); border-color: var(--border); cursor: not-allowed; }
+.field[aria-invalid="true"] { border-color: var(--border-error); }
+
+/*
+ * Text inputs on screens that set their colours inline (intake, study). Input
+ * edges use --border-strong so they clear 3:1, the field sits on --elevated, and
+ * the radius follows the scale. `!important` for the same reason as <select>
+ * below: the inline style names the older tokens.
+ */
+textarea,
+input:not([type]),
+input[type="text"],
+input[type="url"],
+input[type="search"] {
+  background: var(--elevated) !important;
+  border-color: var(--border-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+}
+textarea::placeholder, input::placeholder { color: var(--text-muted); }
+.tracking-widest { letter-spacing: 0.03em; }
+
+/* ------------------------------ selects ------------------------------ */
+/*
+ * A <select> is the one control a browser paints for us. The rule lives on the
+ * element so a third select cannot arrive with the OS defaults. The two
+ * `!important`s are deliberate: the language picker sets `background` and
+ * `min-height` inline in the voice layer.
+ */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 34px;
+  min-height: 44px !important;
+  color: var(--text-primary);
+  background: var(--elevated) url("/ui/chevron-down.svg") no-repeat right 12px center / 16px 16px !important;
+}
+select.chip { padding-right: 34px; padding-left: 12px; }
+select:disabled { cursor: not-allowed; color: var(--text-muted); }
+
+/* --------------------------- cited passage --------------------------- */
+/* Clicking a citation chip jumps the source rail to the passage it quoted.
+ * The card says so for a moment. :target rather than JS, the anchor exists. */
+[id^="chunk-"] { scroll-margin-top: 3rem; }
+@keyframes viva-jumped {
+  from { border-color: var(--info); background: var(--info-tint); }
+  to   { border-color: var(--border); background: transparent; }
+}
+[id^="chunk-"]:target { animation: viva-jumped 1600ms var(--ease-standard) 1; }
+
+/* ------------------------------- focus ------------------------------- */
+
+.graph-node:focus { outline: none; }
+.graph-node:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 3px; }
+
+/* ------------------------------ feedback ----------------------------- */
+
+/* Skeletons keep the size of the content they stand in for. Static tone, no pulse. */
+.skeleton { background: var(--surface-2); border-radius: var(--radius-xs); }
+
+.meter { height: 6px; border-radius: var(--radius-xs); background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--primary); transform-origin: left; transition: transform var(--dur-panel) var(--ease-standard); }
+
+.scroll-pane { scrollbar-gutter: stable; overscroll-behavior: contain; }
+.waveform-bar { transform-origin: 50% 100%; }
+
+/* Reading pages: privacy, terms, accessibility, about, recorded. */
+.legal :is(p, ul, ol) { margin-top: var(--space-3); max-width: var(--measure); }
+.legal :is(li) + li { margin-top: var(--space-1); }
+.legal section > h2 + :is(p, ul) { margin-top: var(--space-2); }
+.legal code { font-family: var(--font-mono); font-size: 0.875em; background: var(--surface-2); padding: 0 4px; border-radius: var(--radius-xs); }
+
+/* The mobile tab bar is fixed to the bottom edge; keep the footer links clear of it. */
+@media (max-width: 767px) {
+  body:has([data-tabbar]) .site-footer { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+}
+
+/* ---------------------------- scrollbars ----------------------------- */
+
+* { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-sm); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

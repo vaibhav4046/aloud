@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "src/app/api/voice/transcribe/route.ts": { "maxDuration": 60 },
+    "src/app/api/subjects/create/route.ts": { "maxDuration": 60 }
+  }
+}

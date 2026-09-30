@@ -1,0 +1,243 @@
+/**
+ * Microphone capture for VIVA. Browser-only.
+ *
+ * getUserMedia -> AudioWorklet ("/worklets/pcm16.js") -> Int16 frames at 16 kHz
+ * -> a WAV on release. MediaRecorder is deliberately not used: it produces
+ * WebM/Opus, and the Dictation endpoint answers 415 to anything compressed.
+ *
+ * The frames are buffered here and the whole clip is POSTed once, on release.
+ * Nothing is streamed while recording: /v1/transcribe/live would allow it, but
+ * this build does not do it, so the upload leg grows with clip length.
+ *
+ * The AudioContext is only ever constructed inside `start()`, which callers
+ * invoke from a pointer or key event, so it is never created outside a user
+ * gesture (browsers suspend one that is).
+ */
+
+import { int16ToWav, MAX_MS, MIN_MS, TARGET_RATE } from "./wav";
+
+export type CaptureError = { code: string; message: string };
+
+export type Capture = {
+  /** Latest RMS level, 0..1, for the waveform and the orb. */
+  onLevel?: (level: number) => void;
+  /** Elapsed milliseconds, ~10 Hz, for the ring timer. */
+  onElapsed?: (ms: number) => void;
+  /** Fired when the 120 s cap stops the recording on its own. */
+  onCapReached?: () => void;
+  /**
+   * Every 16 kHz Int16 frame, as it is produced, in addition to being buffered
+   * for the clip. This exists so live streaming rides the microphone that is
+   * already open: a second startCapture meant a second getUserMedia, a second
+   * AudioContext and a second AudioWorklet on one device, which crashed the
+   * renderer outright in headless Chromium and is a real risk on a phone.
+   */
+  onFrame?: (frame: Int16Array) => void;
+  /**
+   * The AnalyserNode this capture is already running for level metering, so a
+   * visualiser can read real frequency bands without opening anything of its
+   * own. Called with null on teardown.
+   */
+  onAnalyser?: (node: AnalyserNode | null) => void;
+};
+
+export type CaptureHandle = {
+  /** Resolves with the finished clip, or rejects with a CaptureError. */
+  stop(): Promise<{ wav: ArrayBuffer; durationMs: number }>;
+  /** Tear down without producing a clip (navigation, cancel, error). */
+  cancel(): void;
+  readonly startedAt: number;
+};
+
+/**
+ * The self-stop, deliberately BELOW the server's rejection threshold.
+ *
+ * These were the same number, so the clip the app stopped on its own landed on
+ * the wrong side of its own validator about half the time: the flush, the WAV
+ * assembly and the upload all happen after the timer fires, and a run measured
+ * at ~122 s came back 413 with a message blaming the learner for talking too
+ * long. Five seconds of headroom means the cap always produces a clip the
+ * server accepts, which is what stopping ourselves was for.
+ */
+export const MAX_CLIP_MS = MAX_MS - 5_000;
+
+/** Hard ceiling on captured samples. The timer can be starved (a background
+ *  tab, a busy main thread) and a late stop must still yield a legal clip. */
+const MAX_SAMPLES = Math.floor((MAX_MS / 1000) * TARGET_RATE);
+
+function captureError(code: string, message: string): CaptureError {
+  return { code, message };
+}
+
+/**
+ * A hold this long that captured almost nothing was not a short hold.
+ *
+ * The input device delivered no samples, muted at the operating system, a
+ * headset that never finished connecting, a virtual input with nothing behind
+ * it. The browser grants the microphone, the button says "Listening", the
+ * timer counts, and the worklet is handed empty quanta for the whole hold.
+ *
+ * Reproduced 2026-09-13 in Chromium on /study: a seven-second hold against an
+ * input that produced no samples rejected as AUDIO_TOO_SHORT and told the
+ * student "That was too short. Hold a little longer and speak." Holding
+ * longer cannot fix it, and the sentence sends them to do exactly that.
+ *
+ * A working microphone held for a second yields about a second of audio, 
+ * twelve times MIN_MS, so nothing below this bound is a judgement call.
+ */
+export const DEAD_INPUT_MS = 1_000;
+
+/** Which of the two failures a sub-MIN_MS clip actually is. */
+export function shortClipCode(heldMs: number): "AUDIO_TOO_SHORT" | "NO_AUDIO" {
+  return heldMs >= DEAD_INPUT_MS ? "NO_AUDIO" : "AUDIO_TOO_SHORT";
+}
+
+/** Worklet frames arrive as `{type:"pcm", frame}`; the last one after "flush". */
+type WorkletMessage = { type: "pcm"; frame: Int16Array } | { type: "done" };
+
+/**
+ * Ask the dictation service to spin up before the audio arrives. Fire and
+ * forget on pointer-down: a cold start costs more than this request does.
+ */
+export function warmDictation(): void {
+  void fetch("/api/voice/warm", { method: "GET", cache: "no-store" }).catch(() => {});
+}
+
+export async function startCapture(opts: Capture = {}): Promise<CaptureHandle> {
+  if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    throw captureError("NO_MIC", "This browser will not give VIVA a microphone. Type instead.");
+  }
+
+  let stream: MediaStream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+    });
+  } catch {
+    throw captureError("MIC_BLOCKED", "Microphone access is blocked. Allow it in the browser bar, or type instead.");
+  }
+
+  const ctx = new AudioContext();
+  const frames: Int16Array[] = [];
+  let closed = false;
+  let raf = 0;
+  let capTimer: ReturnType<typeof setTimeout> | undefined;
+  let tickTimer: ReturnType<typeof setInterval> | undefined;
+  let node: AudioWorkletNode | null = null;
+
+  const teardown = () => {
+    if (closed) return;
+    closed = true;
+    if (raf) cancelAnimationFrame(raf);
+    if (capTimer) clearTimeout(capTimer);
+    if (tickTimer) clearInterval(tickTimer);
+    node?.disconnect();
+    opts.onAnalyser?.(null);
+    stream.getTracks().forEach((t) => t.stop());
+    void ctx.close().catch(() => {});
+  };
+
+  try {
+    await ctx.audioWorklet.addModule("/worklets/pcm16.js");
+  } catch {
+    teardown();
+    throw captureError("NO_WORKLET", "This browser could not start the microphone. Type instead.");
+  }
+
+  const source = ctx.createMediaStreamSource(stream);
+  node = new AudioWorkletNode(ctx, "pcm16", { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+  node.port.onmessage = (e: MessageEvent<WorkletMessage>) => {
+    if (e.data.type !== "pcm") return;
+    frames.push(e.data.frame);
+    opts.onFrame?.(e.data.frame);
+  };
+
+  // A worklet is only pulled while its output reaches the destination, so the
+  // chain has to terminate there, through a muted gain, or the microphone
+  // would be played back into the room.
+  const mute = ctx.createGain();
+  mute.gain.value = 0;
+  source.connect(node);
+  node.connect(mute);
+  mute.connect(ctx.destination);
+
+  // Level metering is a separate branch: an AnalyserNode is cheaper and
+  // smoother for the UI than deriving RMS from the PCM frames.
+  const analyser = ctx.createAnalyser();
+  // 1024 rather than 512: at 512 the lowest band a visualiser can read is only
+  // four bins wide, which is not enough to separate a phrase from a syllable.
+  analyser.fftSize = 1024;
+  source.connect(analyser);
+  const meter = new Float32Array(analyser.fftSize);
+  opts.onAnalyser?.(analyser);
+  if (opts.onLevel) {
+    const tick = () => {
+      if (closed) return;
+      analyser.getFloatTimeDomainData(meter);
+      let sum = 0;
+      for (let i = 0; i < meter.length; i++) sum += meter[i] * meter[i];
+      const rms = Math.sqrt(sum / meter.length);
+      // Speech RMS sits around 0.02-0.2; scale so a normal voice fills the bars.
+      opts.onLevel?.(Math.min(1, rms * 4));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  const startedAt = Date.now();
+  if (opts.onElapsed) {
+    tickTimer = setInterval(() => opts.onElapsed?.(Date.now() - startedAt), 100);
+  }
+
+  let stopped: Promise<{ wav: ArrayBuffer; durationMs: number }> | null = null;
+
+  const stop = (): Promise<{ wav: ArrayBuffer; durationMs: number }> => {
+    if (stopped) return stopped;
+    stopped = new Promise((resolve, reject) => {
+      if (closed || !node) {
+        reject(captureError("NO_AUDIO", "Nothing was recorded. Hold the mic and speak."));
+        return;
+      }
+      const port = node.port;
+      // The worklet answers "done" once it has posted the partial final frame;
+      // a timeout keeps a wedged worklet from hanging the button forever.
+      let settled = false;
+      const finish = () => {
+        if (settled) return; // the guard and the "done" reply race by design
+        settled = true;
+        clearTimeout(guard);
+        teardown();
+        // Keep the newest audio if a starved timer let the buffer overrun:
+        // the end of a sentence is worth more than its beginning, and an
+        // over-length WAV is refused outright.
+        let samples = frames.reduce((n, f) => n + f.length, 0);
+        while (samples > MAX_SAMPLES && frames.length > 1) {
+          samples -= frames.shift()!.length;
+        }
+        const durationMs = Math.round((samples / TARGET_RATE) * 1000);
+        if (durationMs < MIN_MS) {
+          // Which of the two this is depends on how long they held, not on how
+          // little came back: see `shortClipCode`.
+          const code = shortClipCode(Date.now() - startedAt);
+          reject(captureError(code, `Captured ${durationMs} ms of audio.`));
+          return;
+        }
+        resolve({ wav: int16ToWav(frames, TARGET_RATE), durationMs });
+      };
+      const guard = setTimeout(finish, 250);
+      port.onmessage = (e: MessageEvent<WorkletMessage>) => {
+        if (e.data.type === "pcm") frames.push(e.data.frame);
+        else finish();
+      };
+      port.postMessage("flush");
+    });
+    return stopped;
+  };
+
+  // 120 s is the endpoint's hard ceiling and MAX_CLIP_MS sits under it, so
+  // stopping ourselves turns a 413 into a finished clip the learner still gets
+  // to send, see the MAX_CLIP_MS note for why the two must not be equal.
+  capTimer = setTimeout(() => opts.onCapReached?.(), MAX_CLIP_MS);
+
+  return { startedAt, stop, cancel: teardown };
+}

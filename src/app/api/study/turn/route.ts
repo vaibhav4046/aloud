@@ -1,0 +1,598 @@
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import { compileTranscript } from "@/lib/compiler";
+import { resolveSubject, subjectMissing } from "@/lib/courses/subject";
+import { getStore, learnerDNA } from "@/lib/store";
+import { resolveIdentity } from "@/lib/auth/identity";
+import { checkLimit, limitKey } from "@/lib/limits";
+import { Trace, rid, serverLog } from "@/lib/observe";
+import { clientIp, withIdentityCookie } from "@/lib/http";
+import { err } from "@/lib/types";
+import { bandLabelFor } from "@/lib/mastery";
+import { assessAnswer, gradeAnswer, scoreTeachback, sealAnswerKey, verifyResponse } from "@/lib/tutor";
+import { checkClaim, composeClaimReply, composeInterruptReply, sentencesOf, type ClaimCheck } from "@/lib/tutor/claim";
+import { LEARNING_INTENT, MAX_ATTEMPTS, confirmPlan, planTurn, quizQuestionFor, readHistory, tutorReply } from "@/lib/tutor/respond";
+import type { ExamQuestion } from "@/lib/courses";
+import type { CompileDraft } from "@/lib/compiler";
+
+/**
+ * A two-minute answer is what the recorder allows and what a teach-it-back
+ * actually runs to, so the turn endpoint has to accept one. At 2000 the
+ * product could produce a transcript its own endpoint refused, and the refusal
+ * came back as "text is required." — which was false, and sent the screen into
+ * offering a retry on an input that could never succeed.
+ */
+const MAX_TEXT = 6000;
+
+const Body = z.object({
+  // `transcript`/`inputKind`/`courseId` are the names the study screen posts
+  // today; `text`/`origin`/`subjectId` are the names in the spec. Both work.
+  text: z.string().min(1).max(MAX_TEXT).optional(),
+  transcript: z.string().min(1).max(MAX_TEXT).optional(),
+  subjectId: z.string().max(80).optional(),
+  courseId: z.string().max(80).optional(),
+  origin: z.enum(["voice", "typed", "external-dictation"]).optional(),
+  inputKind: z.enum(["voice", "typed", "external-dictation"]).optional(),
+  confidence: z.number().nullable().optional(),
+  latencyMs: z.number().nullable().optional(),
+  transcriptionSessionId: z.string().nullable().optional(),
+  asr: z
+    .object({
+      mode: z.enum(["dictation", "sync"]).nullable().optional(),
+      confidence: z.number().nullable().optional(),
+      requestTimeMs: z.number().nullable().optional(),
+      audioMs: z.number().nullable().optional(),
+      sessionId: z.string().nullable().optional(),
+      clean: z.string().max(MAX_TEXT).nullable().optional(),
+      /** The endpoint that failed first, when Dictation handed off to Sync. */
+      fellBackFrom: z.enum(["dictation", "sync"]).nullable().optional(),
+      /** What the microphone heard, before the student edited it. */
+      verbatim: z.string().max(MAX_TEXT).nullable().optional(),
+    })
+    .optional(),
+  selection: z.string().optional(),
+  clientEventId: z.string().max(80).optional(),
+});
+
+/** Say what was actually wrong with the body, not "text is required." */
+function bodyProblem(issues: { code: string; path: PropertyKey[] }[]): string {
+  if (issues.some((i) => i.code === "too_big")) {
+    return "That was longer than VIVA takes in one go — say it in a shorter burst.";
+  }
+  const field = issues[0]?.path.join(".") || "the request";
+  if (issues.some((i) => i.code === "too_small")) return "There were no words in that.";
+  return `That request was not shaped the way VIVA expects (${field}).`;
+}
+
+/**
+ * POST /api/study/turn — one spoken (or typed) exchange.
+ *
+ * Words → first-pass reading → model confirmation → top-3 passages → grounded
+ * reply (or a graded answer when a question is open) → mastery fold. The model
+ * only ever proposes; passages, citations and every mastery number are decided
+ * here and in `src/lib/mastery.ts`.
+ */
+export async function POST(req: NextRequest) {
+  const trace = new Trace(rid());
+  const { identity, setCookie } = await resolveIdentity(req);
+  const done = (res: Response) => withIdentityCookie(res, setCookie);
+
+  const rl = checkLimit(limitKey(["compile", clientIp(req)]), "compile");
+  if (!rl.ok) {
+    return done(Response.json(
+      { error: { code: "RATE_LIMITED", message: "Slow down a little — try again in a moment.", retryable: true } },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    ));
+  }
+
+  let body: unknown;
+  try { body = await req.json(); } catch { return done(err("BAD_REQUEST", "Expected JSON.", false, 400)); }
+  const parsed = Body.safeParse(body);
+  if (!parsed.success) return done(err("BAD_REQUEST", bodyProblem(parsed.error.issues), false, 400));
+  const raw = parsed.data.text ?? parsed.data.transcript;
+  if (!raw) return done(err("BAD_REQUEST", "There were no words in that.", false, 400));
+  const input = parsed.data;
+  const origin = input.origin ?? input.inputKind ?? "voice";
+  const asrConfidence = input.asr?.confidence ?? input.confidence ?? null;
+  const asrLatency = input.asr?.requestTimeMs ?? input.latencyMs ?? null;
+  const asrSession = input.asr?.sessionId ?? input.transcriptionSessionId ?? null;
+  // Only a turn VIVA dictated carries AssemblyAI evidence. A student pasting
+  // from their own tool is `external-dictation`, and claiming a confidence
+  // number for a transcript this app never made would be the same lie in a
+  // new costume.
+  const dictated = origin === "voice";
+
+  const store = getStore();
+  const course = await resolveSubject(store, identity.userId, input.subjectId ?? input.courseId).catch(subjectMissing);
+  if (course instanceof Response) return done(course);
+  await store.seedCourse(identity.userId, course.id);
+
+  trace.start("plan");
+  const draft = compileTranscript(raw, { selection: input.selection, hasActiveSource: true, concepts: course.concepts });
+  const priorEvents = await store.listEvents(identity.userId, 30);
+  const { memory, openQuestion, open } = readHistory(priorEvents, course);
+  let plan = planTurn(draft, memory, openQuestion);
+  plan = await confirmPlan(plan, { text: draft.cleanedTranscript, course, history: memory });
+  trace.end("plan");
+
+  trace.start("retrieval");
+  const concept = course.concepts.find((c) => c.id === plan.primaryConceptId) ?? null;
+  const query = [draft.cleanedTranscript, input.selection ?? "", concept?.name ?? "", plan.openQuestion?.question ?? ""].join(" ");
+  const retrieved = await store.retrieveEvidence(identity.userId, query, {
+    sourceId: null, conceptIds: plan.conceptIds, limit: 3, courseId: course.id,
+  });
+  const chunks = retrieved.map((r) => r.chunk).filter((c) => /^[A-Za-z0-9_:-]+$/.test(c.id));
+  trace.end("retrieval");
+
+  // The two branches: grade an open question, or answer Socratically.
+  trace.start("tutor");
+  let text: string;
+  let question: string | null;
+  let strategy: string;
+  let citedIds: string[];
+  let citations: { chunkId: string; quote: string }[];
+  let masterySignal: "up" | "down" | "flat" | null = null;
+  let assessment: "correct" | "partial" | "incorrect" | null = null;
+  let misconception: string | null = null;
+  let source: "model" | "heuristic";
+  let latencyMs: number | null = null;
+  let graded: Awaited<ReturnType<typeof gradeAnswer>> | null = null;
+
+  // What this turn asks, if it asks anything gradeable.
+  let opensQuestion: ExamQuestion | null = null;
+  let claimCheck: ClaimCheck | null = null;
+  let closed = false;
+
+  if (plan.intent === "answer" && plan.openQuestion) {
+    const q = plan.openQuestion;
+
+    /*
+     * An open question used to swallow the turn. Every sentence typed while
+     * one was live was graded as an attempt at it and nothing else, so a
+     * flatly false claim landed under a friendly "What was right" and was
+     * never checked against the passage that disproves it — while the same
+     * sentence typed cold got the correction. And a sentence about something
+     * else entirely was marked against a question it was not answering.
+     *
+     * So the message is read for what it says first, on its own retrieval
+     * rather than the one biased by the open question's wording, and only
+     * then graded. Neither branch below consumes an attempt: the learner did
+     * not answer the question, and being corrected on the way past must not
+     * cost them one of their three tries at it.
+     */
+    const ownRetrieval = await store.retrieveEvidence(identity.userId, draft.cleanedTranscript, {
+      sourceId: null, conceptIds: draft.conceptIds, limit: 3, courseId: course.id,
+    });
+    const ownChunks = ownRetrieval.map((r) => r.chunk).filter((c) => /^[A-Za-z0-9_:-]+$/.test(c.id));
+    const asideCheck = checkClaim({
+      claim: draft.cleanedTranscript,
+      chunks: ownChunks,
+      course,
+      conceptId: draft.primaryConceptId ?? plan.primaryConceptId,
+    });
+    /*
+     * Named a concept, not this one, and lands under half of what the question
+     * asks for: that is a different subject, not a wrong answer to this one.
+     *
+     * The half-a-question threshold is what keeps a thin but genuine attempt —
+     * "because attention is permutation-equivariant", which names neither
+     * "positional" nor "order" — on the graded path, while a complete true
+     * sentence about another concept ("multi-head attention runs several heads
+     * in parallel") stops being marked Mixed up against a question it was
+     * never answering. Bouncing a real answer costs the learner one repeat;
+     * grading a sentence that was not one moves their map on nothing.
+     */
+    const landed = scoreTeachback(draft.cleanedTranscript, q.requiredKeywords).hits.length;
+    const elsewhere =
+      draft.conceptIds.length > 0 &&
+      !draft.conceptIds.includes(q.conceptId) &&
+      landed * 2 < Math.max(1, q.requiredKeywords.length);
+
+    if (asideCheck.status === "contradicted" || elsewhere) {
+      plan = { ...plan, conceptIds: draft.conceptIds, primaryConceptId: draft.primaryConceptId };
+      claimCheck = asideCheck;
+      const other = course.concepts.find((c) => c.id === draft.primaryConceptId)?.name ?? null;
+      const asked = course.concepts.find((c) => c.id === q.conceptId)?.name ?? null;
+      if (asideCheck.status === "contradicted") {
+        text = composeInterruptReply(asideCheck, q.question);
+        misconception = asideCheck.lead;
+        // Wrong about the thing they raised, not about the question they have
+        // not answered yet, so the move is smaller than a failed attempt.
+        masterySignal = "down";
+        strategy = "contrast";
+        const cited = asideCheck.chunkId ? ownChunks.filter((c) => c.id === asideCheck.chunkId) : [];
+        citations = cited.map((c) => ({ chunkId: c.id, quote: c.text.slice(0, 160) }));
+        citedIds = citations.map((c) => c.chunkId);
+        source = "heuristic";
+      } else {
+        /*
+         * Not an answer to the open question — but still a sentence, and the
+         * lexical checks caught nothing in it. Declining to GRADE it against a
+         * question it is not answering is right; letting a false one past
+         * unread is not. The mastery lane measured exactly that: a flatly
+         * false statement said while a question was open on another concept
+         * was filed `flat` under "I have kept it as a note", while the same
+         * sentence typed cold was refuted, because only the cold path ever
+         * reached the tutor.
+         *
+         * So it gets the same read the cold path gives it, on its own
+         * retrieval, and then hands the open question back. A correction still
+         * needs a line to stand on: `groundReply` strips a citation that is
+         * not in the retrieved set and blanks the correction with it, so a
+         * refutation counts here only when one survived. Without one, the note
+         * line is what an honest answer looks like.
+         */
+        const aside = await tutorReply({
+          course, plan, text: draft.cleanedTranscript, history: memory, chunks: ownChunks,
+          conceptName: other, unchecked: true,
+        });
+        const refutation = aside.reply.wrong?.trim() ?? "";
+        /*
+         * A model correction may not outrank a line of the source. `asideCheck`
+         * has just run on this sentence's own retrieval, and when it comes back
+         * `supported` it has FOUND the line that states it — so there is
+         * nothing here to refute, whatever the model made of a sentence it was
+         * shown next to somebody else's question.
+         *
+         * Measured on a local server: with a question open on Queries, keys,
+         * values, a verbatim paste of the multi-head passage — a sentence the
+         * check confirms against p.16 — came back "You didn't explain the
+         * distinct roles of queries, keys and values", which is a complaint
+         * about the QUESTION's topic dressed as a correction of the sentence,
+         * and it debited the map for it.
+         */
+        const refuted =
+          refutation.length > 0 && aside.reply.citations.length > 0 && asideCheck.status !== "supported";
+        text = [
+          other ? `That one is about ${other}, not the question on the table${asked ? ` — that is still ${asked}` : ""}.` : "That one is not an answer to the question on the table.",
+          refuted ? refutation : "I have kept it as a note rather than marking it against a question it is not answering.",
+          `The question still stands: ${q.question}`,
+        ].join(" ");
+        // Wrong about the thing they raised, not about the question they have
+        // not answered yet. Nothing moves when nothing was caught.
+        masterySignal = refuted ? "down" : "flat";
+        strategy = refuted ? "contrast" : "probe";
+        misconception = refuted ? aside.reply.misconception : null;
+        citations = refuted ? aside.reply.citations : [];
+        citedIds = citations.map((x) => x.chunkId);
+        source = aside.source;
+        latencyMs = aside.latencyMs;
+      }
+      question = q.question;
+    } else {
+    const baseline = assessAnswer(q.id, raw, { course });
+    graded = await gradeAnswer({
+      subject: course.title,
+      question: q.question,
+      requiredKeywords: q.requiredKeywords,
+      hint: q.hint,
+      answer: raw,
+      chunks,
+      // The deterministic read of the passages travels with the answer: a
+      // model may not call something correct that the source contradicts.
+      check: baseline.check,
+      baseline: {
+        verdict: baseline.verdict,
+        correctPoints: baseline.correctPoints,
+        missingPoints: baseline.missingPoints,
+        possibleMisconception: baseline.possibleMisconception,
+        feedback: baseline.feedback,
+        evidenceIds: baseline.evidenceIds.length > 0 ? baseline.evidenceIds : chunks.map((c) => c.id),
+      },
+    });
+    // Cleared, or out of attempts: either way the question is finished, and
+    // only now may the learner see what a full answer covers.
+    closed = graded.verdict === "correct" || open.attempts + 1 >= MAX_ATTEMPTS;
+    question = graded.nextQuestion;
+    text = [graded.feedback, closed ? null : "Answer it again when you are ready.", question]
+      .filter(Boolean)
+      .join(" ");
+    strategy = "recall";
+    citedIds = graded.evidenceIds;
+    citations = chunks.filter((c) => citedIds.includes(c.id)).slice(0, 2).map((c) => ({ chunkId: c.id, quote: c.text.slice(0, 160) }));
+    assessment = graded.verdict;
+    misconception = graded.possibleMisconception;
+    /*
+     * "Partly there" over an answer that named a mistaken belief is a miss.
+     * The judge answered with the two algorithms exactly reversed, was told so
+     * to their face — "You reversed the roles of the two algorithms" — and
+     * watched mastery go 0.45 → 0.47 with MISSED still on 0. The verdict alone
+     * cannot separate that from "you have half of it": the diagnosis can, and
+     * `masterySignal` is the channel the reducer and the replay already carry,
+     * so it costs no new field on the event.
+     */
+    masterySignal = graded.verdict === "partial" && graded.possibleMisconception ? "down" : null;
+    source = graded.gradedBy === "model" ? "model" : "heuristic";
+    // Reported for every model call, not just the tutor ones: a graded answer
+    // came back `{"source":"model","latencyMs":null}`, which reads as a model
+    // that answered in no time at all.
+    latencyMs = graded.latencyMs;
+    }
+  } else if (plan.intent === "hint" && !plan.openQuestion) {
+    // Stuck, with nothing open to be stuck on. Offer the way in rather than
+    // filing the request as a statement about whatever retrieval returned.
+    text = "There is nothing open to hint at yet. Say \"quiz me\" and I will ask you something — then a hint has something to point at.";
+    question = null;
+    strategy = "probe";
+    citations = [];
+    citedIds = [];
+    source = "heuristic";
+  } else if (plan.intent === "hint" && plan.openQuestion) {
+    // The next-smallest nudge, and on a second ask the line it came from.
+    // Never "Noted." — a stuck student saying so is the whole product working.
+    const q = plan.openQuestion;
+    const line = chunks[0] ? sentencesOf(chunks[0].text)[0] ?? null : null;
+    const at = chunks[0]?.locator.page ? `p.${chunks[0].locator.page}` : chunks[0]?.locator.section ?? null;
+    text = open.hintsUsed === 0 || !line
+      ? q.hint
+      : `${q.hint} ${at ? `${at} says: ` : "The passage says: "}“${line.slice(0, 200)}”`;
+    question = q.question;
+    strategy = "hint";
+    citations = chunks.slice(0, 1).map((c) => ({ chunkId: c.id, quote: c.text.slice(0, 160) }));
+    citedIds = citations.map((c) => c.chunkId);
+    source = "heuristic";
+  } else if (plan.stopped) {
+    text = "Alright — that one is parked. Say what you want to look at instead.";
+    question = null;
+    strategy = "probe";
+    citations = [];
+    citedIds = [];
+    source = "heuristic";
+  } else if (plan.intent === "claim") {
+    // S-1-03: a stated belief is checked against the passages before it is
+    // filed. A wrong one is contradicted, with the line that disproves it.
+    claimCheck = checkClaim({ claim: draft.cleanedTranscript, chunks, course, conceptId: plan.primaryConceptId });
+    if (claimCheck.status === "contradicted") {
+      text = composeClaimReply(claimCheck, concept?.name ?? null);
+      question = claimCheck.question;
+      strategy = "contrast";
+      const cited = claimCheck.chunkId ? chunks.filter((c) => c.id === claimCheck?.chunkId) : chunks.slice(0, 1);
+      citations = cited.map((c) => ({ chunkId: c.id, quote: c.text.slice(0, 160) }));
+      citedIds = citations.map((c) => c.chunkId);
+      assessment = "incorrect";
+      misconception = claimCheck.lead;
+      // The correction earns its question: the next turn grades the answer.
+      opensQuestion = claimCheck.openQuestion;
+      source = "heuristic";
+    } else if (claimCheck.status === "supported") {
+      // The one case where VIVA may say a learner is right: a line of their own
+      // source says the same thing, in the same polarity, and it is quoted
+      // underneath. "Not quite —" over a sentence that is nearly the source's
+      // own words is the error a student cannot recover from at 1am.
+      text = composeClaimReply(claimCheck, concept?.name ?? null);
+      question = claimCheck.question;
+      strategy = "recall";
+      const cited = claimCheck.chunkId ? chunks.filter((c) => c.id === claimCheck?.chunkId) : chunks.slice(0, 1);
+      citations = cited.map((c) => ({ chunkId: c.id, quote: c.text.slice(0, 160) }));
+      citedIds = citations.map((c) => c.chunkId);
+      /*
+       * The learner's tally is a record of what was checked, so it may only
+       * move when something did the checking — and it may only move on the
+       * concept the thing that checked it was about. Both halves were wrong
+       * for one build, and a student judge found both in twenty minutes:
+       *
+       *   - a passage pasted off the screen word for word satisfies "a line of
+       *     the source says this" trivially, and was logged as a successful
+       *     recall. Reading is not recall. `recited` is the shape of a copy
+       *     (see `claim.ts`), and a copy earns exposure and nothing else;
+       *   - the concept came from the words, where the alias "attention" beat
+       *     "query"/"key"/"value" on a passage about queries, keys and values.
+       *     A got-it now lands on the concept the VERIFYING LINE names, so a
+       *     credit cannot reach a concept the source never connected it to.
+       *
+       * What survives is the case the mechanism exists for: the learner's own
+       * sentence, checked against a line that is quoted underneath it. That
+       * has the standing an exam answer has and is recorded the same way, via
+       * `assessment` — which keeps the got-it out of reach of a model's
+       * opinion, since the model can only ever emit "down" or "flat" below.
+       */
+      if (claimCheck.conceptId && claimCheck.conceptId !== plan.primaryConceptId) {
+        plan = { ...plan, conceptIds: [claimCheck.conceptId], primaryConceptId: claimCheck.conceptId };
+      }
+      masterySignal = claimCheck.recited ? "flat" : "up";
+      assessment = claimCheck.recited ? null : "correct";
+      opensQuestion = claimCheck.openQuestion;
+      source = "heuristic";
+    } else if (claimCheck.status === "unsupported") {
+      text = composeClaimReply(claimCheck, concept?.name ?? null);
+      question = claimCheck.question;
+      strategy = "probe";
+      citations = [];
+      citedIds = [];
+      opensQuestion = claimCheck.openQuestion;
+      // Not checked is not wrong: nothing was learned about this concept, so
+      // nothing may move. A correct sentence VIVA could not grade used to cost
+      // the learner 0.02 for the privilege of saying it.
+      masterySignal = "flat";
+      source = "heuristic";
+    } else {
+      const turn = await tutorReply({
+        course, plan, text: draft.cleanedTranscript, history: memory, chunks,
+        conceptName: concept?.name ?? null,
+        // Checked, caught nothing, confirmed nothing. The reply says so instead
+        // of handing the learner's own sentence back as VIVA's line.
+        unchecked: true,
+      });
+      text = turn.text;
+      question = turn.reply.question;
+      strategy = turn.reply.strategy;
+      citedIds = turn.citedIds;
+      citations = turn.reply.citations;
+      // Same rule for the claim the checks did not catch: a heuristic reply
+      // emits no direction, and "no direction" must mean "no movement" rather
+      // than a quiet penalty for a sentence nobody graded.
+      //
+      // "up" is refused outright here. The reply on this path says out loud
+      // that VIVA could not check the sentence, and a map that rises anyway is
+      // the same unearned "you got it right" written as a number instead of a
+      // sentence. Only a correction the model can point at moves anything.
+      masterySignal = turn.reply.masterySignal === "down" ? "down" : "flat";
+      misconception = turn.reply.misconception;
+      source = turn.source;
+      latencyMs = turn.latencyMs;
+    }
+  } else {
+    const turn = await tutorReply({
+      course, plan, text: draft.cleanedTranscript, history: memory, chunks,
+      conceptName: concept?.name ?? null,
+    });
+    text = turn.text;
+    question = turn.reply.question;
+    strategy = turn.reply.strategy;
+    citedIds = turn.citedIds;
+    citations = turn.reply.citations;
+    masterySignal = turn.reply.masterySignal;
+    misconception = turn.reply.misconception;
+    source = turn.source;
+    latencyMs = turn.latencyMs;
+  }
+
+  // Only a turn that asks a gradeable question opens one, and asking is the
+  // only way a later sentence gets routed to the scorer.
+  const asks = plan.intent === "quiz" || opensQuestion !== null;
+  const requestedAction: CompileDraft["requestedAction"] =
+    asks ? "quiz" : draft.requestedAction === "quiz" ? "none" : draft.requestedAction;
+  // `plan.openQuestion` is the one that was already open; a quiz turn asks a
+  // NEW one, picked the same way the reply picked it.
+  const askedQuestion: ExamQuestion | null =
+    plan.intent === "quiz" ? quizQuestionFor(course, plan.primaryConceptId) ?? null : opensQuestion;
+
+  const userChunks = await store.getCourseChunks(identity.userId, course.id);
+  const known = new Set(userChunks.map((c) => c.id));
+  const v = verifyResponse(text, citedIds, known);
+  if (!v.pass) text = v.repaired;
+
+  /*
+   * The note's source line follows the passage the REPLY used, not the top
+   * retrieval hit. Those are often different: a correction quoted p.11 and
+   * cited Passage 5 while the note filed underneath it said p.5. Notes outlive
+   * everything else on the screen, so a note pointing at a page the correcting
+   * sentence is not on is worse than a note with no page at all — which is
+   * also why a turn that cited nothing (a hint, a process turn) gets null.
+   */
+  const citedChunk = citedIds.map((id) => chunks.find((c) => c.id === id)).find(Boolean) ?? null;
+  const citedLocator = citedChunk ? { section: citedChunk.locator.section, page: citedChunk.locator.page } : null;
+  trace.end("tutor");
+
+  const sessionId = `sess_${trace.id}`;
+  trace.start("persist");
+  const outcome = await store.recordLearning(identity.userId, {
+    idempotencyKey: input.clientEventId ?? `t_${trace.id}`,
+    sessionId,
+    courseId: course.id,
+    sourceId: course.sources[0]?.id ?? null,
+    transcript: raw,
+    cleanedTranscript: draft.cleanedTranscript,
+    origin,
+    transcriptionConfidence: dictated ? asrConfidence : null,
+    transcriptionLatencyMs: dictated ? asrLatency : null,
+    transcriptionSessionId: dictated ? asrSession : null,
+    transcriptionMode: dictated ? input.asr?.mode ?? null : null,
+    transcriptionFellBackFrom: dictated ? input.asr?.fellBackFrom ?? null : null,
+    // Stored only when it says something the transcript does not: an unedited
+    // answer would otherwise write every sentence into the record twice.
+    transcriptVerbatim:
+      dictated && input.asr?.verbatim && input.asr.verbatim !== raw ? input.asr.verbatim : null,
+    intent: LEARNING_INTENT[plan.intent],
+    conceptIds: plan.conceptIds,
+    primaryConceptId: plan.primaryConceptId,
+    importance: draft.importance,
+    confusion: plan.intent === "confused" ? 0.9 : assessment === "incorrect" ? 0.6 : draft.confusion,
+    interpretationConfidence: draft.interpretationConfidence,
+    evidenceIds: citedIds,
+    requestedAction,
+    status: "responded",
+    sourceLocator: citedLocator,
+    assessment,
+    masterySignal,
+    hint: (askedQuestion ?? plan.openQuestion)?.hint ?? null,
+  });
+  trace.end("persist");
+  await store.saveTutorMessage(identity.userId, sessionId, "assistant", text, citedIds).catch(() => {});
+
+  const events = await store.listEvents(identity.userId, 20);
+  const masteryDelta: Record<string, number> =
+    outcome.event.primaryConceptId && outcome.delta !== null ? { [outcome.event.primaryConceptId]: outcome.delta } : {};
+
+  serverLog("study.turn", trace.id, {
+    intent: plan.intent, source, cited: citedIds.length, timings: JSON.stringify(trace.timings()),
+  });
+
+  // What the student is shown instead of a signed point delta.
+  const movedConceptId = outcome.event.primaryConceptId;
+  const band = movedConceptId
+    ? { conceptId: movedConceptId, label: bandLabelFor(outcome.mastery[movedConceptId]) }
+    : null;
+
+  // The open-question state machine, spelled out for the screen: which
+  // question is live, how many attempts are left, whether a retry is offered.
+  const stillOpen: ExamQuestion | null = askedQuestion ?? (plan.stopped || closed ? null : plan.openQuestion);
+  const attemptsUsed = askedQuestion ? 0 : assessment ? open.attempts + 1 : open.attempts;
+  const quiz = {
+    open: stillOpen !== null,
+    questionId: stillOpen?.id ?? null,
+    question: stillOpen?.question ?? null,
+    attemptsUsed,
+    attemptsLeft: stillOpen ? Math.max(0, MAX_ATTEMPTS - attemptsUsed) : 0,
+    // Offered once an attempt exists and the question is still live — a caught
+    // claim opens a question the learner has not tried yet, and asking for a
+    // hint does not take the retry away.
+    canRetry: stillOpen !== null && attemptsUsed > 0,
+    canHint: stillOpen !== null,
+  };
+
+  const tutor = { text, question, citations, strategy, evidenceIds: citedIds, missingConcepts: [] as string[] };
+  return done(Response.json({
+    turn: {
+      id: outcome.event.id,
+      subjectId: course.id,
+      userId: outcome.event.userId,
+      at: outcome.event.createdAt,
+      transcriptVerbatim: raw,
+      transcriptClean: input.asr?.clean ?? null,
+      usedText: input.asr?.clean ? "clean" : "verbatim",
+      asr: {
+        mode: input.asr?.mode ?? null,
+        confidence: asrConfidence,
+        requestTimeMs: asrLatency,
+        audioMs: input.asr?.audioMs ?? null,
+        sessionId: asrSession,
+      },
+      intent: plan.intent,
+      conceptIds: plan.conceptIds,
+      tutor,
+      masteryDelta,
+      misconception,
+      band,
+      quiz,
+    },
+    // Same fields the study screen reads today, so nothing has to change at once.
+    event: outcome.event,
+    tutor,
+    assessment: graded
+      ? sealAnswerKey({ ...graded, question: plan.openQuestion?.question ?? null }, closed)
+      : null,
+    quiz,
+    band,
+    claim: claimCheck
+      ? { status: claimCheck.status, quote: claimCheck.quote, chunkId: claimCheck.chunkId }
+      : null,
+    verifier: { pass: v.pass, violations: v.violations },
+    mastery: outcome.mastery,
+    learner: learnerDNA(outcome.mastery, events.filter((e) => e.intent === "confusion").map((e) => e.id), events.length),
+    masteryDelta,
+    delta: outcome.delta,
+    reason: outcome.reason,
+    duplicate: outcome.duplicate,
+    transcription: {
+      transcript: raw,
+      confidence: dictated ? asrConfidence : null,
+      latencyMs: dictated ? asrLatency : null,
+      sessionId: dictated ? asrSession : null,
+      origin,
+    },
+    reasoning: { source, latencyMs },
+    timings: trace.timings(),
+    traceId: trace.id,
+  }));
+}

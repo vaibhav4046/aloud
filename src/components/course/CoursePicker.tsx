@@ -1,0 +1,123 @@
+"use client";
+
+/**
+ * Shared course picker + the one storage key all pages agree on.
+ * The selection is cosmetic; every API call still resolves the course
+ * server-side and falls back to the default lab for unknown ids.
+ */
+
+export const COURSE_STORAGE_KEY = "viva_course";
+export const DEFAULT_COURSE_ID = "course_transformers_w4";
+
+export type CourseMeta = {
+  id: string;
+  code: string;
+  title: string;
+  subject: string;
+  /** true for everything VIVA ships; false or absent for the student's own. */
+  demo?: boolean;
+  conceptCount: number;
+  chunkCount: number;
+  examCount: number;
+  trapCount: number;
+};
+
+/** The two names the whole product uses for the two kinds of subject. */
+export const SHIPPED_GROUP = "VIVA's subjects";
+export const OWN_GROUP = "Your subjects";
+
+export async function fetchCourses(): Promise<CourseMeta[]> {
+  const res = await fetch("/api/courses");
+  if (!res.ok) throw new Error("courses fetch failed");
+  const data = (await res.json()) as { courses?: CourseMeta[] };
+  return Array.isArray(data.courses) ? data.courses : [];
+}
+
+export function readStoredCourse(): string {
+  try {
+    return window.localStorage.getItem(COURSE_STORAGE_KEY) || DEFAULT_COURSE_ID;
+  } catch {
+    return DEFAULT_COURSE_ID;
+  }
+}
+
+export function writeStoredCourse(id: string): void {
+  try {
+    window.localStorage.setItem(COURSE_STORAGE_KEY, id);
+  } catch {
+    /* private mode / storage disabled, selection simply doesn't persist */
+  }
+}
+
+/** Read ?course= without useSearchParams (keeps these pages Suspense-free). */
+export function readCourseParam(): string | null {
+  try {
+    return new URLSearchParams(window.location.search).get("course");
+  } catch {
+    return null;
+  }
+}
+
+export function CoursePicker({
+  courses,
+  value,
+  onChange,
+  allOption = false,
+  label = "Course",
+}: {
+  courses: CourseMeta[];
+  value: string;
+  onChange: (id: string) => void;
+  /** Today defaults to all labs: adds an explicit "All courses" option. */
+  allOption?: boolean;
+  label?: string;
+}) {
+  /*
+   * Two groups, because the list is thirteen shipped subjects long now and a
+   * flat thirteen-line menu makes a student read every line to find the one
+   * they built. Order is preserved inside each group, the server already
+   * returns starters first, then the newest of their own.
+   */
+  const shipped = courses.filter((c) => c.demo !== false);
+  const own = courses.filter((c) => c.demo === false);
+  const option = (c: CourseMeta) => (
+    <option key={c.id} value={c.id}>
+      {c.code} · {c.title}
+    </option>
+  );
+
+  return (
+    <label className="flex min-w-0 items-center gap-2">
+      {/* shrink-0: body sets `overflow-wrap: anywhere` so a student's own long
+          words cannot widen a page, and on /study this label shares a squeezed
+          row with the orb, so the rule broke "SUBJECT" into SUB / JEC / T,
+          three lines, at 390 px. The select beside it already carries min-w-0,
+          so it is the one that gives way. */}
+      <span className="mono shrink-0 text-xs tracking-widest" style={{ color: "var(--color-ash)" }}>
+        {label.toUpperCase()}
+      </span>
+      {/* The chevron is ours, not the OS's: globals.css strips `appearance`
+          from every select and paints /ui/chevron-down.svg in its place, and
+          this control keeps the system's own 44 px floor. */}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label="Select course"
+        className="mono max-w-[15rem] min-w-0 rounded-lg border px-3 text-xs"
+        style={{ borderColor: "var(--color-hairline)" }}
+      >
+        {allOption ? <option value="">All courses</option> : null}
+        {/* One group collapses to a plain list, so a student with nothing of
+            their own never sees a heading over a single section. */}
+        {own.length === 0 || shipped.length === 0 ? (
+          courses.map(option)
+        ) : (
+          <>
+            <optgroup label={SHIPPED_GROUP}>{shipped.map(option)}</optgroup>
+            <optgroup label={OWN_GROUP}>{own.map(option)}</optgroup>
+          </>
+        )}
+      </select>
+    </label>
+  );
+}

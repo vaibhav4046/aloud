@@ -1,0 +1,45 @@
+import { CORPUS } from "@/lib/corpus";
+import type { Course } from "./types";
+import { TRANSFORMERS } from "./transformers";
+import { PROBABILITY } from "./probability";
+
+export type { Course, ConceptDef, ExamQuestion, Explainer, Trap, CourseSource, SourceLicence } from "./types";
+
+/**
+ * Everything VIVA ships, keyed by course id: the two labs written for this
+ * project, then the preloaded library built from openly licensed textbooks
+ * (src/lib/corpus). Add hand-written labs here; add library subjects by
+ * re-running scripts/seed-corpus.mjs.
+ */
+export const COURSES: Record<string, Course> = {
+  [TRANSFORMERS.id]: TRANSFORMERS,
+  [PROBABILITY.id]: PROBABILITY,
+  ...Object.fromEntries(CORPUS.map((c) => [c.id, c])),
+};
+
+export const DEFAULT_COURSE_ID = "course_transformers_w4";
+
+/**
+ * True only for an id VIVA ships. `COURSES[id]` is also truthy for "constructor"
+ * and "__proto__", which would hand a caller the Object prototype as a course.
+ */
+export function hasCourse(id: string | null | undefined): id is string {
+  return typeof id === "string" && Object.hasOwn(COURSES, id);
+}
+
+/** Resolve a course by id; unknown or missing ids fall back to the default. */
+export function getCourse(idOrNull?: string | null): Course {
+  if (hasCourse(idOrNull)) return COURSES[idOrNull];
+  return COURSES[DEFAULT_COURSE_ID];
+}
+
+/** Lightweight list for pickers/navigation (no chunk bodies). */
+export function listCourses(): { id: string; code: string; title: string; subject: string; demo: boolean }[] {
+  return Object.values(COURSES).map((c) => ({
+    id: c.id,
+    code: c.code,
+    title: c.title,
+    subject: c.subject,
+    demo: c.demo,
+  }));
+}

@@ -1,0 +1,495 @@
+/**
+ * TranscriptionProvider, AssemblyAI behind a stable interface.
+ * Key never reaches the browser; all calls are server-side.
+ *
+ * Modes (ASSEMBLYAI_TRANSCRIPTION_MODE, default "dictation"):
+ * - "dictation": POST ASSEMBLYAI_DICTATION_URL. Contract probed live
+ *                2026-09-12: multipart/form-data, `config` part
+ *                (application/json) FIRST, then `audio` as raw 16 kHz mono
+ *                S16LE PCM (anything else is downmixed and resampled to that
+ *                before send, the declaration is read as truth upstream).
+ *                Config keys are `sample_rate`, `channels`,
+ *                `language_codes`, `keyterms_prompt` (array), `stt_prompt`,
+ *                `llm_instruction`. Response carries both `text` (verbatim)
+ *                and `llm_response` (cleaned); `llm_error` is not a request
+ *                failure, fall back to `text`.
+ * - "sync":      POST {syncBase}/transcribe, multipart audio+config,
+ *                X-AAI-Model: universal-3-5-pro. The fallback path.
+ * - "async":     /v2/upload + /v2/transcript poll. NOT the hold-to-talk path
+ *                (poll loops don't belong in the hot path); retained for long
+ *                audio (lecture uploads).
+ *
+ * Error bodies from both live endpoints are {status, title, detail}.
+ * Production NEVER selects fixture transcription (see resolve + test).
+ */
+
+import { isWavType, TARGET_RATE, toPcm16kMono } from "./audio/wav";
+
+export type TranscriptionMode = "sync" | "dictation" | "async";
+
+export type TranscriptionRequest = {
+  audio: Buffer;
+  /** Must be a WAV type: both paths below declare a format to AssemblyAI, and
+   *  only a RIFF header lets that declaration be verified rather than believed.
+   *  Checked again here, not assumed of the caller. */
+  contentType: string;
+  /** Recognition bias terms (concept names + aliases). Capped before send. */
+  keyterms?: string[];
+  /** Conversation context, plain prose. Callers must strip speaker labels.
+   *  Seen once on 12 Sep putting "Student:" into a transcript; the re-probe on
+   *  13 Sep (`.viva/probe-stt-prompt-leak.mjs`, two clips x three prompts) did
+   *  NOT reproduce it, six byte-identical transcripts, no leak. So this is an
+   *  unreproduced observation, not a documented behaviour. The strip stays
+   *  either way: a prompt is a bad place to put words the learner never said.
+   *  Capped at 6000. */
+  sttPrompt?: string;
+  /** Cleanup instruction for the rewrite pass. Omit for verbatim-only. */
+  llmInstruction?: string;
+  /** BCP-47-ish codes, e.g. ["en"] or ["en","hi"]. */
+  languageCodes?: string[];
+  signal?: AbortSignal;
+};
+
+export type TranscriptionResult = {
+  /** What was actually said, filler words and all. */
+  text: string;
+  /** The rewrite pass output, or null when it was not asked for or failed. */
+  clean: string | null;
+  /** "timeout" | "error" | null, never a request failure on its own. */
+  llmError: string | null;
+  confidence: number | null;
+  words?: { text: string; confidence: number }[];
+  audioDurationMs: number | null;
+  sessionId: string | null;
+  requestTimeMs: number | null;
+  syncTimeMs: number | null;
+  latencyMs: number;
+  provider: "assemblyai" | "fixture";
+  mode: TranscriptionMode;
+  demoFixture: boolean;
+};
+
+export interface TranscriptionProvider {
+  readonly name: string;
+  transcribe(req: TranscriptionRequest): Promise<TranscriptionResult>;
+}
+
+export class TranscriptionError extends Error {
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly status: number,
+    readonly retryable: boolean,
+    readonly retryAfterSec?: number
+  ) {
+    super(message);
+  }
+}
+
+function baseUrl(): string {
+  return (process.env.ASSEMBLYAI_BASE_URL ?? "https://api.assemblyai.com").replace(/\/$/, "");
+}
+
+function syncBase(): string {
+  return (process.env.ASSEMBLYAI_SYNC_BASE_URL ?? "https://sync.assemblyai.com").replace(/\/$/, "");
+}
+
+function apiKey(): string {
+  const k = process.env.ASSEMBLYAI_API_KEY;
+  if (!k) throw new TranscriptionError("NO_API_KEY", "Live transcription needs ASSEMBLYAI_API_KEY.", 503, false);
+  return k;
+}
+
+/**
+ * Abort budgets, measured against the platform ceiling rather than the vendor's.
+ *
+ * `vercel.json` declares `maxDuration: 60` for /api/voice/transcribe. Vercel
+ * kills the invocation at that point and answers with an HTML gateway page, so
+ * an abort set past 60 s never fires: the learner gets a parse error where a
+ * coded PROVIDER_TIMEOUT should have been, and every `ctrl.abort()` below is
+ * dead code. The two legs run in sequence on the worst path (Dictation fails,
+ * Sync retries the same clip), so their SUM is what has to fit, with room left
+ * over for the multipart read, WAV validation and the subject lookup.
+ *
+ * 28 + 20 = 48 s worst case. The headroom is deliberate and large: a 120 s clip
+ * is 3.84 MB of 16 kHz mono PCM posted from a datacentre, and measured
+ * `request_time_ms` on the 9.55 s reference clip is 538-1700 ms, median 552
+ * over twelve runs straight at the endpoint (`.viva/probe-dictation-contract.mjs`)
+ *, eleven of those inside 538-583 and one at 1700. Through the deployment it
+ * is 567-673, median 605 over twelve (`.viva/lat.mjs`). The outlier is why the
+ * headroom is not tuned down: it is fast, but it is not a stable property of
+ * the audio.
+ */
+export const ROUTE_BUDGET_MS = 60_000;
+export const DICTATION_TIMEOUT_MS = 28_000;
+export const SYNC_TIMEOUT_MS = 20_000;
+/** Long-audio path. Not mounted on a route today; kept inside the same ceiling
+ *  so nothing in this file can outlive a function that hosts it later. */
+export const ASYNC_DEADLINE_MS = 45_000;
+
+async function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Our budget AND the caller's cancellation, never one in place of the other. */
+function budgetedSignal(budget: AbortSignal, caller: AbortSignal | undefined): AbortSignal {
+  return caller ? AbortSignal.any([caller, budget]) : budget;
+}
+
+function mapSyncError(status: number, body: unknown, retryAfterHeader: string | null): TranscriptionError {
+  // Live error body (probed 2026-09-12): {status, title, detail}.
+  const b = (body ?? {}) as { error?: string; error_code?: string; message?: string; detail?: string };
+  const msg = b.message ?? b.detail ?? b.error ?? `AssemblyAI request failed (${status}).`;
+  const retryAfterSec = retryAfterHeader ? Math.max(1, parseInt(retryAfterHeader, 10) || 1) : undefined;
+  switch (status) {
+    case 400: return new TranscriptionError("BAD_AUDIO", msg, 400, false);
+    case 401: return new TranscriptionError("AUTH_FAILED", "AssemblyAI rejected the API key.", 502, false);
+    // 404 on these endpoints means the key is not enabled for them, not a
+    // missing route, same remedy as 401, and the same trigger to fall back.
+    case 404: return new TranscriptionError("AUTH_FAILED", "AssemblyAI rejected the API key.", 502, false);
+    case 413: return new TranscriptionError("AUDIO_TOO_LONG", "Clip exceeds 120 s / 40 MB.", 413, false);
+    case 415: return new TranscriptionError("UNSUPPORTED_FORMAT", msg, 415, false);
+    case 429: return new TranscriptionError("RATE_LIMITED", "AssemblyAI rate limit hit. Try again shortly.", 429, true, retryAfterSec ?? 5);
+    case 503: return new TranscriptionError("PROVIDER_BUSY", "AssemblyAI is at capacity. Try again shortly.", 503, true, retryAfterSec ?? 5);
+    case 504: return new TranscriptionError("PROVIDER_TIMEOUT", "AssemblyAI exceeded its 30 s deadline.", 504, true, 2);
+    default: return new TranscriptionError("TRANSCRIPTION_FAILED", msg, 502, status >= 500);
+  }
+}
+
+/** `keyterms_prompt` is an ARRAY (a string is a 400); ≤100 terms, ≤2048 chars. */
+export function capKeyterms(keyterms: string[] | undefined): string[] {
+  const out: string[] = [];
+  let budget = 2048;
+  for (const t of (keyterms ?? []).slice(0, MAX_KEYTERMS)) {
+    const term = t.trim();
+    if (!term || term.length + 1 > budget) continue;
+    out.push(term);
+    budget -= term.length + 1;
+  }
+  return out;
+}
+
+export const MAX_KEYTERMS = 100;
+export const MAX_STT_PROMPT = 6000;
+export const MAX_LLM_INSTRUCTION = 2048;
+
+/**
+ * The language codes the two BATCH endpoints accept, read out of their own 400
+ * rather than a docs page. Probed 2026-09-13,
+ * `scripts/api-probes/probe-dictation-contract.mjs` §6:
+ *
+ *   config {"language_codes":["zzz"]}
+ *   400 {"status":400,"title":"Bad Request","detail":"invalid config part:
+ *        language_codes.0: Input should be 'en', 'es', … 'xh' or 'nn'"}
+ *
+ * Note what is NOT in it: `multi`. The streaming socket's otherwise identical
+ * enumeration ends "… 'nn' or 'multi'" (see STREAM_LANGUAGES in ./audio/stream),
+ * and `multi` is the picker's default. Both batch endpoints answer 400 to it,
+ * and to `pl` and `uk`, which the picker used to offer. A refused code is not
+ * a worse transcript, it is no transcript.
+ */
+export const BATCH_LANGUAGES = [
+  "en", "es", "de", "fr", "it", "pt", "tr", "nl", "sv", "no", "da", "fi",
+  "hi", "vi", "ar", "he", "ja", "ur", "zh", "ko", "ca", "gl", "ru", "ro",
+  "et", "fa", "yue", "af", "mr", "zu", "xh", "nn",
+] as const;
+
+const BATCH_LANGUAGE_SET: ReadonlySet<string> = new Set(BATCH_LANGUAGES);
+
+/**
+ * What actually goes in `language_codes`, or an empty list meaning: leave the
+ * key out.
+ *
+ * Leaving it out IS this endpoint's automatic detection, and that is measured
+ * rather than assumed, the same probe posted a 4.69 s Hindi clip and a 4.60 s
+ * Spanish one with the key omitted and got correct Devanagari and correct
+ * Spanish back. So everything the endpoint refuses becomes detection here:
+ * `multi`, a language it does not serve, a subject carrying a junk code. That
+ * is exactly what `toStreamLanguage` does with the same values on the socket,
+ * which is the point, one picker, one meaning, two transcribers.
+ *
+ * A code it DOES serve is still a hint worth sending, and a wrong one is worth
+ * avoiding: `["hi"]` over the Spanish clip came back as Spanish romanised into
+ * Devanagari ("नो एंटी एंडो पोर्के…"), so the field biases the writing system
+ * even where it cannot override detection.
+ */
+export function batchLanguageCodes(codes: readonly string[] | undefined): string[] {
+  const out: string[] = [];
+  for (const raw of codes ?? []) {
+    const code = String(raw ?? "").trim().toLowerCase();
+    if (!BATCH_LANGUAGE_SET.has(code) || out.includes(code)) continue;
+    out.push(code);
+  }
+  return out;
+}
+
+export class AssemblyAIProvider implements TranscriptionProvider {
+  readonly name = "assemblyai";
+  constructor(readonly mode: TranscriptionMode = "sync") {}
+
+  transcribe(req: TranscriptionRequest): Promise<TranscriptionResult> {
+    switch (this.mode) {
+      case "sync": return this.transcribeSync(req);
+      case "dictation": return this.transcribeDictation(req);
+      case "async": return this.transcribeAsync(req);
+    }
+  }
+
+  /** Fallback path. Config keys verified live 2026-09-12 (`language_codes`). */
+  private async transcribeSync(req: TranscriptionRequest): Promise<TranscriptionResult> {
+    const started = Date.now();
+    // This path labels the bytes audio/wav to the vendor, so it must not be
+    // handed anything else: the fallback used to re-send headerless PCM inside
+    // a Blob typed audio/wav, which is the same mislabelling one layer down.
+    if (!isWavType(req.contentType)) {
+      throw new TranscriptionError("UNSUPPORTED_FORMAT", "Sync transcription needs a 16-bit PCM WAV.", 415, false);
+    }
+    const form = new FormData();
+    const bytes = new Uint8Array(req.audio.buffer, req.audio.byteOffset, req.audio.byteLength);
+    form.append("audio", new Blob([bytes as unknown as BlobPart], { type: "audio/wav" }), "clip.wav");
+    // Same enumeration and the same 400 as Dictation, probed on the Hindi clip:
+    // omitted and ["hi"] both returned Devanagari, ["multi"] and ["pl"] were 400.
+    const syncLanguages = batchLanguageCodes(req.languageCodes);
+    form.append("config", JSON.stringify({
+      ...(syncLanguages.length ? { language_codes: syncLanguages } : {}),
+      keyterms_prompt: capKeyterms(req.keyterms),
+      prompt: (req.sttPrompt ?? "").slice(0, MAX_STT_PROMPT) || undefined,
+      timestamps: false,
+    }));
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), SYNC_TIMEOUT_MS);
+    try {
+      const res = await fetch(`${syncBase()}/transcribe`, {
+        method: "POST",
+        headers: { Authorization: apiKey(), "X-AAI-Model": "universal-3-5-pro" },
+        body: form,
+        // Both signals, not the caller's instead of ours: `req.signal ?? ctrl.signal`
+        // meant any caller passing a signal silently disabled the budget above.
+        signal: budgetedSignal(ctrl.signal, req.signal),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw mapSyncError(res.status, body, res.headers.get("retry-after"));
+      }
+      const data = (await res.json()) as {
+        text: string; confidence: number; words?: { text: string; confidence: number }[];
+        audio_duration_ms: number; session_id: string; request_time_ms?: number; sync_time_ms?: number;
+      };
+      if (typeof data.text !== "string") throw new TranscriptionError("BAD_RESPONSE", "AssemblyAI returned an unexpected shape.", 502, false);
+      return {
+        text: data.text,
+        // Sync has no rewrite pass: the caller shows verbatim in both tabs.
+        clean: null,
+        llmError: null,
+        confidence: data.confidence ?? null,
+        words: data.words, audioDurationMs: data.audio_duration_ms ?? null,
+        sessionId: data.session_id ?? null, requestTimeMs: data.request_time_ms ?? null,
+        syncTimeMs: data.sync_time_ms ?? null,
+        latencyMs: Date.now() - started, provider: "assemblyai", mode: "sync", demoFixture: false,
+      };
+    } catch (e) {
+      if (e instanceof TranscriptionError) throw e;
+      if ((e as Error).name === "AbortError") throw new TranscriptionError("PROVIDER_TIMEOUT", "Transcription timed out.", 504, true, 2);
+      throw new TranscriptionError("TRANSCRIPTION_FAILED", e instanceof Error ? e.message : "Transcription failed.", 502, true, 2);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async transcribeDictation(req: TranscriptionRequest): Promise<TranscriptionResult> {
+    const started = Date.now();
+    const url = process.env.ASSEMBLYAI_DICTATION_URL;
+    if (!url) throw new TranscriptionError("NO_DICTATION_URL", "Dictation mode needs ASSEMBLYAI_DICTATION_URL.", 503, false);
+
+    // Dictation reads the byte stream at the rate the config DECLARES, so the
+    // bytes have to actually be 16 kHz mono S16LE. Normalising here rather than
+    // asserting it is the whole fix for the mislabelling bug: the AudioWorklet
+    // path already produces 16 kHz mono, but every other entry point (a direct
+    // API caller, a browser with no worklet) hands us whatever the machine
+    // recorded, and a 48 kHz stereo clip posted as 16 kHz mono is consumed at
+    // one sixth speed, the 9.55 s reference clip would arrive as roughly 57 s
+    // of nothing: 200, empty transcript, six times the bill. (Recalled from
+    // 12 Sep; the 6x is arithmetic. docs/API-FEEDBACK.md §8 labels it the same.)
+    const norm = toPcm16kMono(req.audio, req.contentType);
+    if (!norm.ok) throw new TranscriptionError(norm.code, norm.message, 415, false);
+    const pcm = norm.pcm;
+
+    // Verified contract: multipart `config` FIRST (application/json), then
+    // `audio` as raw PCM. Not a style preference, reversing the two parts is
+    // a 400, reproduced by `.viva/probe-dictation-contract.mjs`:
+    //   config first -> 200; audio first -> 400 "the `config` part must be sent
+    //   before the `audio` part on the streaming endpoint, because the upstream
+    //   call cannot be opened without it".
+    // The clip itself is buffered and posted whole on release, so nothing is
+    // streamed while recording (see the note on `transcribe` above).
+    const config: Record<string, unknown> = {
+      // Guaranteed by toPcm16kMono above, not assumed of the caller.
+      sample_rate: TARGET_RATE,
+      channels: 1,
+      keyterms_prompt: capKeyterms(req.keyterms),
+    };
+    // Omitted, not defaulted to English: the key left out is this endpoint's
+    // automatic detection, which is what the picker's Automatic means and what
+    // the socket does with the same value. See batchLanguageCodes.
+    const languages = batchLanguageCodes(req.languageCodes);
+    if (languages.length) config.language_codes = languages;
+    const sttPrompt = (req.sttPrompt ?? "").slice(0, MAX_STT_PROMPT);
+    if (sttPrompt) config.stt_prompt = sttPrompt;
+    if (req.llmInstruction) config.llm_instruction = req.llmInstruction.slice(0, MAX_LLM_INSTRUCTION);
+
+    const form = new FormData();
+    form.append("config", new Blob([JSON.stringify(config)], { type: "application/json" }), "config.json");
+    form.append("audio", new Blob([pcm as unknown as BlobPart], { type: "audio/pcm" }), "clip.pcm");
+
+    const ctrl = new AbortController();
+    // The vendor contract allows 90 s; the function this runs in does not.
+    // See DICTATION_TIMEOUT_MS. A 6-10 s clip returns in about a second.
+    const timer = setTimeout(() => ctrl.abort(), DICTATION_TIMEOUT_MS);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: apiKey() },
+        body: form,
+        signal: budgetedSignal(ctrl.signal, req.signal),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (res.status === 400) {
+          const b = (body ?? {}) as { error?: string; message?: string; detail?: string };
+          throw new TranscriptionError(
+            "DICTATION_BAD_REQUEST",
+            b.detail ?? b.error ?? b.message ?? "Dictation request was malformed.",
+            400,
+            false
+          );
+        }
+        throw mapSyncError(res.status, body, res.headers.get("retry-after"));
+      }
+      const data = (await res.json()) as Record<string, unknown>;
+      // `text` is the verbatim transcript. `llm_response` is the cleaned
+      // rewrite; both are returned so the learner can see exactly what they
+      // said next to what was tidied - the rewrite never silently replaces it.
+      if (typeof data.text !== "string") {
+        throw new TranscriptionError("BAD_RESPONSE", "Dictation returned no text.", 502, false);
+      }
+
+      const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+      const words = Array.isArray(data.words)
+        ? (data.words as Array<{ text?: unknown; confidence?: unknown }>)
+            .filter((w) => typeof w?.text === "string")
+            .map((w) => ({ text: w.text as string, confidence: num(w.confidence) ?? 0 }))
+        : undefined;
+      let confidence = num(data.confidence);
+      if (confidence === null && words?.length) {
+        confidence = words.reduce((a, w) => a + w.confidence, 0) / words.length;
+      }
+      // A failed rewrite is not a failed request: `clean` goes null and the
+      // caller falls back to verbatim rather than showing the learner nothing.
+      const llmError = typeof data.llm_error === "string" ? data.llm_error : null;
+      const clean = typeof data.llm_response === "string" && data.llm_response.trim() ? data.llm_response : null;
+
+      return {
+        text: data.text,
+        clean,
+        llmError,
+        confidence,
+        words,
+        audioDurationMs: num(data.audio_duration_ms),
+        sessionId: typeof data.session_id === "string" ? data.session_id : null,
+        requestTimeMs: num(data.request_time_ms),
+        syncTimeMs: num(data.sync_time_ms),
+        latencyMs: Date.now() - started,
+        provider: "assemblyai",
+        mode: "dictation",
+        demoFixture: false,
+      };
+    } catch (e) {
+      if (e instanceof TranscriptionError) throw e;
+      if ((e as Error).name === "AbortError" || (e as Error).name === "TimeoutError") {
+        throw new TranscriptionError("PROVIDER_TIMEOUT", "Transcription timed out.", 504, true, 2);
+      }
+      throw new TranscriptionError("TRANSCRIPTION_FAILED", e instanceof Error ? e.message : "Transcription failed.", 502, true, 2);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /** Long-audio path only (lecture uploads). Bounded server wait; NOT the hot path. */
+  private async transcribeAsync(req: TranscriptionRequest): Promise<TranscriptionResult> {
+    const started = Date.now();
+    const key = apiKey();
+    const up = await fetch(`${baseUrl()}/v2/upload`, {
+      method: "POST", headers: { Authorization: key },
+      body: new Uint8Array(req.audio.buffer, req.audio.byteOffset, req.audio.byteLength) as unknown as BodyInit,
+    });
+    if (!up.ok) throw new TranscriptionError("UPLOAD_FAILED", `Upload failed (${up.status}).`, 502, true, 2);
+    const { upload_url } = (await up.json()) as { upload_url: string };
+    const sub = await fetch(`${baseUrl()}/v2/transcript`, {
+      method: "POST",
+      headers: { Authorization: key, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        audio_url: upload_url,
+        speech_models: ["universal-3-5-pro", "universal-2"],
+        language_detection: true,
+        disfluencies: false, punctuate: true, format_text: true,
+        keyterms_prompt: capKeyterms(req.keyterms),
+      }),
+    });
+    if (!sub.ok) throw new TranscriptionError("SUBMIT_FAILED", `Submit failed (${sub.status}).`, 502, true, 2);
+    const { id } = (await sub.json()) as { id: string };
+    const deadline = Date.now() + ASYNC_DEADLINE_MS;
+    while (Date.now() < deadline) {
+      await sleep(2500);
+      const poll = await fetch(`${baseUrl()}/v2/transcript/${id}`, { headers: { Authorization: key } });
+      if (!poll.ok) throw new TranscriptionError("POLL_FAILED", `Poll failed (${poll.status}).`, 502, true, 2);
+      const t = (await poll.json()) as { status: string; text?: string; error?: string; confidence?: number };
+      if (t.status === "completed") {
+        return {
+          text: t.text ?? "", clean: null, llmError: null, confidence: t.confidence ?? null,
+          audioDurationMs: null, sessionId: id, requestTimeMs: null, syncTimeMs: null,
+          latencyMs: Date.now() - started, provider: "assemblyai", mode: "async", demoFixture: false,
+        };
+      }
+      if (t.status === "error") throw new TranscriptionError("TRANSCRIPTION_FAILED", t.error ?? "Transcription failed.", 502, false);
+    }
+    throw new TranscriptionError("PROVIDER_TIMEOUT", "Transcription is still processing; try a shorter clip.", 504, true, 5);
+  }
+}
+
+/** Test-only double. Refuses to run in production, loudly. */
+export function assertFixtureAllowed(nodeEnv: string | undefined, allowFlag: string | undefined): void {
+  if (nodeEnv === "production" && allowFlag !== "1") {
+    throw new Error("Fixture transcription forbidden in production");
+  }
+}
+
+export class FixtureTranscriptionProvider implements TranscriptionProvider {
+  readonly name = "fixture";
+  constructor(private text = "fixture transcript") {
+    assertFixtureAllowed(process.env.NODE_ENV, process.env.ALLOW_FIXTURE_IN_PROD);
+  }
+  async transcribe(): Promise<TranscriptionResult> {
+    // Provenance is honest: a fixture never claims to be AssemblyAI output.
+    return {
+      text: this.text, clean: null, llmError: null, confidence: null, audioDurationMs: null,
+      sessionId: null, requestTimeMs: null, syncTimeMs: null, latencyMs: 0,
+      provider: "fixture", mode: "sync", demoFixture: true,
+    };
+  }
+}
+
+/** Default is dictation: it is the primary path, sync is only the fallback.
+ *  "event-dictation" is still accepted so an already-deployed env var keeps
+ *  selecting the same mode after the rename. */
+export function resolveTranscriptionMode(): TranscriptionMode {
+  const m = (process.env.ASSEMBLYAI_TRANSCRIPTION_MODE ?? "dictation").toLowerCase();
+  if (m === "sync") return "sync";
+  if (m === "async") return "async";
+  return "dictation";
+}
+
+/** Production entry point. No key → coded NO_API_KEY (never a silent fixture). */
+export function resolveTranscriptionProvider(): TranscriptionProvider {
+  apiKey(); // throws NO_API_KEY when absent, the honest failure, not a fixture
+  return new AssemblyAIProvider(resolveTranscriptionMode());
+}
