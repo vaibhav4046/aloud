@@ -5,7 +5,7 @@ import type { Level, LevelResult, Progress, ProofCard, Run } from "@/lib/game/ty
 import { PlayScreen } from "./PlayScreen";
 import { ResultView } from "./ResultView";
 import { useLevelSession } from "./useLevelSession";
-import { applyResult, clockNow, finishLevel, grantCrateXp, grantFreeze, mergeProgress } from "./engine-port";
+import { applyResult, clockNow, finishLevel, grantCrateXp, grantFreeze, leaveResult, mergeProgress } from "./engine-port";
 import { crateEligible, rollCrate, XP_CRATE, type Crate } from "./result-model";
 import { prefersReducedMotion, useSettings } from "./settings";
 import { subjectIdOfRun, syncProgress } from "./game-client";
@@ -72,6 +72,22 @@ export function LevelPlay({ run, level, progress, commit, onRetry }: { run: Run;
     });
   }, [settled, v.play.run, run, level, commit]);
 
+  const mapHref = `/run/${encodeURIComponent(run.id)}`;
+
+  // Leaving mid-level keeps what was earned so far: proof cards and play time, as a quit result.
+  const leave = useCallback(() => {
+    v.actions.end();
+    const ctx = clockNow();
+    const left = applied.current ? null : leaveResult(v.play.run, ctx.now.toISOString());
+    if (left) {
+      applied.current = true;
+      const a = applyResult(progressRef.current, run, left.result, left.proofs, ctx);
+      commit(a.progress);
+      void syncProgress(subjectIdOfRun(run.id), a.progress, left);
+    }
+    router.push(mapHref);
+  }, [v.actions, v.play.run, run, commit, router, mapHref]);
+
   const onCrate = useCallback(
     (c: Crate) => {
       const p = progressRef.current;
@@ -82,7 +98,6 @@ export function LevelPlay({ run, level, progress, commit, onRetry }: { run: Run;
   );
 
   const next = useMemo(() => run.levels.find((l) => l.index === level.index + 1) ?? null, [run, level.index]);
-  const mapHref = `/run/${encodeURIComponent(run.id)}`;
 
   if (finished) {
     return (
@@ -112,7 +127,7 @@ export function LevelPlay({ run, level, progress, commit, onRetry }: { run: Run;
     <>
       <OfflineBanner />
       <PlayScreen
-        v={{ ...v, actions: { ...v.actions, end: () => { v.actions.end(); router.push(mapHref); } } }}
+        v={{ ...v, actions: { ...v.actions, end: leave } }}
         worldName={world?.name ?? `World ${level.world}`}
         reduced={reduced}
       />

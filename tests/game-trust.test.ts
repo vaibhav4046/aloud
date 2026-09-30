@@ -5,7 +5,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { __resetLimits } from "@/lib/limits";
 import { COURSES } from "@/lib/courses";
 import { generateRun } from "@/lib/game/run";
-import { scoreLevel } from "@/lib/game/scoring";
+import { applyRound, scoreLevel, startLevel } from "@/lib/game/scoring";
+import { leaveResult } from "@/components/game/engine-port";
 import { checkResultByReplay, streakFromResults } from "@/lib/game/trust";
 import type { Level, LevelResult, Progress, ProofCard, Run, RoundOutcome } from "@/lib/game/types";
 import { FileEventStore } from "@/lib/store/file";
@@ -208,5 +209,44 @@ describe("stored progress that no longer parses", () => {
     expect(await store.getGameDoc(USER, `progress:${SAMPLE}.unreadable`)).toEqual(garbage);
     const p = (await store.getGameDoc(USER, `progress:${SAMPLE}`)) as Progress;
     expect(typeof p.xp).toBe("number");
+  });
+});
+
+describe("leaving a level in the middle", () => {
+  const run = generateRun(COURSES[SAMPLE] as never, { now: "2026-09-30T00:00:00.000Z" });
+  const level = run.levels[0];
+  const chunk = COURSES[SAMPLE].sources[0].chunks[0];
+  const quote = chunk.text.split(/(?<=[.!?])\s+/)[0];
+  const midway = () => {
+    let r = startLevel(level);
+    r = applyRound(r, { conceptId: level.conceptIds[0], outcome: "correct", grounded: true, ms: 40_000, proof: { conceptId: level.conceptIds[0], quote, page: chunk.locator.page ?? null, passageId: chunk.id } }).run;
+    return r;
+  };
+
+  it("yields a quit result with the proofs and play time so far, and no stars or XP", () => {
+    const left = leaveResult(midway(), "2026-09-30T10:05:00.000Z")!;
+    expect(left.result).toMatchObject({ outcome: "quit", stars: 0, xp: 0, ms: 40_000 });
+    expect(left.result.rounds).toEqual(["correct"]);
+    expect(left.proofs).toHaveLength(1);
+  });
+
+  it("yields nothing when no round was closed or the level already ended", () => {
+    expect(leaveResult(startLevel(level), "t")).toBeNull();
+    let done = startLevel(level);
+    for (let i = 0; i < level.rounds; i++) done = applyRound(done, { conceptId: "c", outcome: "correct", grounded: false, ms: 0 }).run;
+    expect(leaveResult(done, "t")).toBeNull();
+  });
+
+  it("is accepted by the server, which keeps the proof card and the minutes without paying XP", async () => {
+    const live = await getRun();
+    const left = leaveResult(midway(), new Date().toISOString())!;
+    const res = await post({ subjectId: SAMPLE, result: left.result, proofs: left.proofs });
+    expect(res.status).toBe(200);
+    const { progress: p } = (await res.json()) as { progress: Progress };
+    expect(p.proofs.map((c) => c.quote)).toEqual([quote]);
+    expect(p.todayMinutes).toBeGreaterThan(0);
+    expect(p.xp).toBe(60);
+    expect(p.unlockedIndex).toBe(1);
+    expect(p.results[live.levels[0].id].outcome).toBe("quit");
   });
 });

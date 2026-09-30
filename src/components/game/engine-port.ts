@@ -1,5 +1,5 @@
 import type { LevelResult, Progress, ProofCard, Run } from "@/lib/game/types";
-import { rankProgress } from "@/lib/game/scoring";
+import { finishLevel, rankProgress, type LevelRun } from "@/lib/game/scoring";
 import { applyLevelResult, ENDOWED_XP, grantCrateXp, grantFreeze, localDay, mergeProgress, newProgress, rebaseProgress, setDailyGoal, streakStatus, dailyGoalFraction, type Ctx, type StreakStatus } from "@/lib/game/progress";
 
 /**
@@ -96,4 +96,14 @@ export function applyResult(p: Progress, run: Run, result: LevelResult, proofs: 
     freezeEarned: next.freezes > p.freezes && next.streakDays > p.streakDays,
     streakExtended,
   };
+}
+
+/**
+ * What leaving a level in the middle leaves behind: a quit result with the proof
+ * cards and play time earned so far (no stars, no XP). Null when the level is
+ * already finished or no round was closed, so opening and leaving saves nothing.
+ */
+export function leaveResult(run: LevelRun, playedAt: string): { result: LevelResult; proofs: ProofCard[] } | null {
+  if (run.status !== "playing" || run.rounds.length === 0) return null;
+  return finishLevel(run, { playedAt });
 }
