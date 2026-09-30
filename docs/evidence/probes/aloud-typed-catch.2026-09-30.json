@@ -1,0 +1,407 @@
+{
+ "scenario": "typed-catch",
+ "tag": "",
+ "measuredOn": "2026-09-30T09:24:11.037Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "base": "http://localhost:3261",
+ "levelId": "l_catch_c_self_attention_1",
+ "learnerVoice": "synthetic (Windows System.Speech)",
+ "plan": [],
+ "greetSecAssumed": 14,
+ "gapSec": 40,
+ "ws": [],
+ "http": [
+  {
+   "t": 1790760254108,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 57
+  },
+  {
+   "t": 1790760254721,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 55
+  },
+  {
+   "t": 161,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 1001,
+   "result": {
+    "verdict": "supported",
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the sco",
+    "page": 4,
+    "passage_id": "ch_sa_1",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 1181,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 527,
+   "result": {
+    "verdict": "supported",
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token.",
+    "page": 4,
+    "passage_id": "ch_sa_1",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "Self-attention lets every token in a sequence compare itself with every other token.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 3666,
+   "url": "/api/oral/tool",
+   "method": "POST",
+   "status": 200,
+   "ms": 479,
+   "result": {
+    "verdict": "supported",
+    "quote": "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: self-attention without position information is permutation-e",
+    "page": 5,
+    "passage_id": "ch_sa_2",
+    "next_focus": false
+   },
+   "name": "verify_claim",
+   "levelId": "l_catch_c_self_attention_1",
+   "args": {
+    "claim": "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: backpropagation without position information is permutation-equivariant.",
+    "concept": "c_self_attention"
+   }
+  },
+  {
+   "t": 8249,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 51
+  }
+ ],
+ "dom": [
+  {
+   "t": 3,
+   "phase": "ready",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 3",
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": "Bluff check: Self-attention",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 218,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 3",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": null,
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors.",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 1280,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 2 of 3",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": "THAT CLAIM WAS REAL YOUR PAGE, P. 4 For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. The page line is checked by code against your notes. Continue",
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 3442,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 2 of 3",
+   "combo": "Combo 1, multiplier 1",
+   "xp": "125 XP",
+   "state": null,
+   "claim": "Self-attention lets every token in a sequence compare itself with every other token.",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 3861,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 3 of 3",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "250 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": "THAT CLAIM WAS REAL YOUR PAGE, P. 4 Self-attention lets every token in a sequence compare itself with every other token. The page line is checked by code against your notes. Continue",
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 5877,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 3 of 3",
+   "combo": "Combo 2, multiplier 1",
+   "xp": "250 XP",
+   "state": null,
+   "claim": "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: backpropagation without position information is permutation-equivariant.",
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 6295,
+   "phase": "won",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 3 of 3",
+   "combo": "Combo 3, multiplier 1.2",
+   "xp": "430 XP",
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": "THAT WAS A BLUFF CLAIMED If you permute the input tokens and permute the outputs the same way, the computation is unchanged: backpropagation without position information is permutation-equivariant. YOUR PAGE, P. 5 If you permute the input tokens and permute the outputs the same way, the computation is unchanged: self-attention without position information is permutation-equivariant. The page line ",
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 8412,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · BLUFF CHECK: SELF-ATTENTION Three stars. Every round held up. +0XP 3 of 3 hearts left. Best combo 3. Rank up 1 to 3 Proof cards earned PROOF CARD p. 4 Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Checked by code against your page PROOF CARD p. 4 Self-attention lets every token in a ",
+   "failure": null
+  },
+  {
+   "t": 9053,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · BLUFF CHECK: SELF-ATTENTION Three stars. Every round held up. +201XP 3 of 3 hearts left. Best combo 3. Rank up 1 to 3 Proof cards earned PROOF CARD p. 4 Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Checked by code against your page PROOF CARD p. 4 Self-attention lets every token in ",
+   "failure": null
+  },
+  {
+   "t": 9256,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · BLUFF CHECK: SELF-ATTENTION Three stars. Every round held up. +315XP 3 of 3 hearts left. Best combo 3. Rank up 1 to 3 Proof cards earned PROOF CARD p. 4 Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Checked by code against your page PROOF CARD p. 4 Self-attention lets every token in ",
+   "failure": null
+  },
+  {
+   "t": 9472,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · BLUFF CHECK: SELF-ATTENTION Three stars. Every round held up. +395XP 3 of 3 hearts left. Best combo 3. Rank up 1 to 3 Proof cards earned PROOF CARD p. 4 Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Checked by code against your page PROOF CARD p. 4 Self-attention lets every token in ",
+   "failure": null
+  },
+  {
+   "t": 9687,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · BLUFF CHECK: SELF-ATTENTION Three stars. Every round held up. +424XP 3 of 3 hearts left. Best combo 3. Rank up 1 to 3 Proof cards earned PROOF CARD p. 4 Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Checked by code against your page PROOF CARD p. 4 Self-attention lets every token in ",
+   "failure": null
+  },
+  {
+   "t": 9901,
+   "phase": "result",
+   "hearts": null,
+   "round": null,
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": null,
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": "LEVEL CLEARED · BLUFF CHECK: SELF-ATTENTION Three stars. Every round held up. +430XP 3 of 3 hearts left. Best combo 3. Rank up 1 to 3 Proof cards earned PROOF CARD p. 4 Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a compatibility score, normalises the scores with a softmax into weights, and returns a weighted average of the value vectors. Checked by code against your page PROOF CARD p. 4 Self-attention lets every token in ",
+   "failure": null
+  }
+ ],
+ "agentDeltas": [],
+ "errors": [],
+ "clickAt": 1790760255525,
+ "__lastClaim": "If you permute the input tokens and permute the outputs the same way, the computation is unchanged: backpropagation without position information is permutation-equivariant.",
+ "__typedCatch": 3,
+ "typedCatch": [
+  {
+   "claim": "For each pair, the model computes a compatibility score, normalises the scores w",
+   "tapped": "real",
+   "tapAt": 416
+  },
+  {
+   "claim": "Self-attention lets every token in a sequence compare itself with every other to",
+   "tapped": "real",
+   "tapAt": 3564
+  },
+  {
+   "claim": "If you permute the input tokens and permute the outputs the same way, the comput",
+   "tapped": "bluff",
+   "tapAt": 6076
+  }
+ ],
+ "revealClicks": 3,
+ "localProgress": {
+  "xp": 690,
+  "rank": 3,
+  "unlockedIndex": 3,
+  "results": {
+   "l_catch_c_self_attention_1": {
+    "stars": 3,
+    "xp": 430,
+    "heartsLeft": 3,
+    "rounds": [
+     "correct",
+     "correct",
+     "bluff_caught"
+    ],
+    "outcome": "won",
+    "proofIds": [
+     "proof_1mqt3ej",
+     "proof_1a7tycn"
+    ]
+   }
+  },
+  "proofs": [
+   {
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token. For each pair, the model computes a",
+    "page": 4,
+    "passageId": "ch_sa_1"
+   },
+   {
+    "quote": "Self-attention lets every token in a sequence compare itself with every other token.",
+    "page": 4,
+    "passageId": "ch_sa_1"
+   }
+  ]
+ },
+ "failure": null,
+ "audioFrames": 0,
+ "audioBytes": 0,
+ "examinerAudioSec": 0
+}
