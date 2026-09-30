@@ -93,21 +93,23 @@ export function DownloadIcon(props: IconProps) {
   );
 }
 
-/** The VIVA mark: a V drawn as one pen stroke, with a caret at the turn. */
+/**
+ * The Aloud mark: an ink squircle holding five lavender bars, a voice caught
+ * mid-sentence. The bars are tallest at the centre and taper, so the shape
+ * reads as a mouth and a sound wave at once. Colours come from tokens, so it
+ * follows the theme; public/icon.svg carries the same drawing in fixed hex.
+ */
 export function MarkIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      focusable="false"
-    >
-      <rect x="1" y="1" width="22" height="22" rx="4" fill="var(--primary)" />
-      <path d="M6.5 7.5 12 17l5.5-9.5" stroke="var(--on-primary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M8.5 19.5h7" stroke="var(--correction-tint)" strokeWidth="1.5" strokeLinecap="round" />
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden focusable="false">
+      <rect x="0.5" y="0.5" width="23" height="23" rx="8.5" fill="var(--primary)" />
+      <g stroke="var(--accent)" strokeWidth="2" strokeLinecap="round">
+        <path d="M5.5 10.5v3" />
+        <path d="M8.75 8v8" />
+        <path d="M12 5.5v13" />
+        <path d="M15.25 8.5v7" />
+        <path d="M18.5 10.75v2.5" />
+      </g>
     </svg>
   );
 }

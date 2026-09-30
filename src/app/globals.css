@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import '../styles/tokens.css';
+@import '../styles/wash.css';
+@import '../styles/primitives.css';
 
 /*
  * Tailwind theme bridge. The values live in src/styles/tokens.css; this block
@@ -26,6 +28,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-accent: var(--accent);
+  --color-panel-dark: var(--panel);
   --color-rule: var(--border);
   --color-rule-strong: var(--border-strong);
 
@@ -66,7 +70,7 @@
   --ease-out-soft: var(--ease-standard);
 }
 
-html { background: var(--canvas); }
+html { background: var(--canvas); scroll-behavior: smooth; }
 
 body {
   background: var(--canvas);
@@ -85,10 +89,13 @@ body {
 
 /* ------------------------------- type ------------------------------- */
 
-.display { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-display); letter-spacing: -0.015em; line-height: var(--lh-display); }
-.heading { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.008em; line-height: 1.2; }
+.display { font-family: var(--font-display); font-weight: 380; font-size: var(--fs-display); letter-spacing: var(--tracking-display); line-height: var(--lh-display); font-variation-settings: "SOFT" 60; }
+.hero-type { font-family: var(--font-display); font-weight: 340; font-size: var(--fs-hero); letter-spacing: var(--tracking-display); line-height: var(--lh-hero); font-variation-settings: "SOFT" 70; }
+.heading { font-family: var(--font-display); font-weight: 420; letter-spacing: -0.015em; line-height: 1.15; font-variation-settings: "SOFT" 50; }
+.lede { font-size: var(--fs-lede); line-height: var(--lh-lede); color: var(--text-secondary); }
+.italic-accent { font-style: italic; font-weight: 340; }
 .mono { font-family: var(--font-mono); font-size: var(--fs-code); line-height: var(--lh-code); font-variant-numeric: tabular-nums; }
-.eyebrow { font-family: var(--font-ui); font-size: var(--fs-label); line-height: var(--lh-label); font-weight: 500; color: var(--text-muted); }
+.eyebrow { font-family: var(--font-ui); font-size: var(--fs-label); line-height: var(--lh-label); font-weight: 500; letter-spacing: 0.02em; color: var(--text-muted); }
 .tnum { font-variant-numeric: tabular-nums; }
 
 /* Measure: about 68 characters for anything that reads as prose. */
@@ -100,10 +107,11 @@ body {
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
 }
 .hairline { border-color: var(--border); }
 
-/* Status chip: the only pill in the product. Always carries a word. */
+/* Status chip: a small pill that always carries a word. */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -121,7 +129,7 @@ body {
 }
 a.chip, button.chip { cursor: pointer; }
 /* A chip used as a tab is a control, not a status: interface font, control radius. */
-.chip[role="tab"] { font-family: var(--font-ui); font-size: var(--fs-body-sm); border-radius: var(--radius-sm); color: var(--text-primary); }
+.chip[role="tab"] { font-family: var(--font-ui); font-size: var(--fs-body-sm); color: var(--text-primary); }
 .chip-link:hover { border-color: var(--border-strong); background: var(--surface-2); color: var(--text-primary); }
 .chip-quoted { border-color: var(--text-primary); color: var(--text-primary); }
 
@@ -147,26 +155,32 @@ a.chip, button.chip { cursor: pointer; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  padding: 10px 20px;
+  min-height: 48px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid transparent;
+  padding: 12px 26px;
   font-family: var(--font-ui);
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 550;
   line-height: 1.2;
   text-decoration: none;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-standard),
-              border-color var(--dur-fast) var(--ease-standard),
-              color var(--dur-fast) var(--ease-standard);
+  transition: background-color var(--dur-base) var(--ease-standard),
+              border-color var(--dur-base) var(--ease-standard),
+              color var(--dur-base) var(--ease-standard),
+              transform var(--dur-panel) var(--ease-out-expo);
 }
+.btn-primary:active, .btn-ghost:active, .btn-lime:active { transform: scale(0.97); }
 .btn-primary, .btn-lime { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-.btn-ghost { background: transparent; color: var(--text-primary); border-color: var(--border-strong); }
+.btn-ghost { background: var(--surface-1); color: var(--text-primary); border-color: var(--border-strong); }
+.btn-accent { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: var(--radius-pill); border: 1.5px solid var(--accent-strong); padding: 12px 26px; background: var(--accent); color: var(--on-accent); font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color var(--dur-base) var(--ease-standard), transform var(--dur-panel) var(--ease-out-expo); }
+.btn-accent:hover { background: var(--accent-strong); }
+.btn-accent:active { transform: scale(0.97); }
 @media (hover: hover) and (pointer: fine) {
   .btn-primary:hover, .btn-lime:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
   .btn-ghost:hover { background: var(--surface-2); border-color: var(--text-secondary); }
+  .btn-primary:hover, .btn-lime:hover, .btn-accent:hover { transform: translateY(-1px); }
 }
 .btn-primary:active, .btn-lime:active { background: var(--primary-active); border-color: var(--primary-active); }
 .btn-ghost:active { background: var(--border-subtle); }
@@ -194,8 +208,8 @@ a.chip, button.chip { cursor: pointer; }
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  border-radius: var(--radius-sm);
-  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  padding: 0 16px;
   font-size: var(--fs-body-sm);
   color: var(--text-secondary);
   text-decoration: none;
@@ -205,9 +219,7 @@ a.chip, button.chip { cursor: pointer; }
 .nav-link[aria-current="page"] {
   color: var(--text-primary);
   font-weight: 600;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 8px;
+  background: var(--surface-2);
 }
 
 /* ------------------------------ fields ------------------------------- */
@@ -272,11 +284,11 @@ select:disabled { cursor: not-allowed; color: var(--text-muted); }
 /* Clicking a citation chip jumps the source rail to the passage it quoted.
  * The card says so for a moment. :target rather than JS, the anchor exists. */
 [id^="chunk-"] { scroll-margin-top: 3rem; }
-@keyframes viva-jumped {
+@keyframes aloud-jumped {
   from { border-color: var(--info); background: var(--info-tint); }
   to   { border-color: var(--border); background: transparent; }
 }
-[id^="chunk-"]:target { animation: viva-jumped 1600ms var(--ease-standard) 1; }
+[id^="chunk-"]:target { animation: aloud-jumped 1600ms var(--ease-standard) 1; }
 
 /* ------------------------------- focus ------------------------------- */
 
@@ -286,9 +298,9 @@ select:disabled { cursor: not-allowed; color: var(--text-muted); }
 /* ------------------------------ feedback ----------------------------- */
 
 /* Skeletons keep the size of the content they stand in for. Static tone, no pulse. */
-.skeleton { background: var(--surface-2); border-radius: var(--radius-xs); }
+.skeleton { background: var(--surface-2); border-radius: var(--radius-sm); }
 
-.meter { height: 6px; border-radius: var(--radius-xs); background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+.meter { height: 8px; border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
 .meter > span { display: block; height: 100%; background: var(--primary); transform-origin: left; transition: transform var(--dur-panel) var(--ease-standard); }
 
 .scroll-pane { scrollbar-gutter: stable; overscroll-behavior: contain; }
