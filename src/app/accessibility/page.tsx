@@ -5,8 +5,8 @@ import { PublicShell } from "@/components/PublicShell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Accessibility: VIVA",
-  description: "What was tested for accessibility in VIVA, and the known gaps.",
+  title: "Accessibility",
+  description: "What was tested for accessibility in Aloud, and the known gaps.",
 };
 
 export default function AccessibilityPage() {

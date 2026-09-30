@@ -44,13 +44,13 @@ export async function POST(req: NextRequest) {
   const did = didFromCookieValue(cookieValue) ?? didFromCookieValue(setCookie?.match(/viva_did=([0-9a-f]{32})/)?.[1]);
   if (!did) {
     return done(
-      err("NO_IDENTITY", "VIVA could not tell which study account this browser is. Reload the page and try again.", true, 409)
+      err("NO_IDENTITY", "Aloud could not tell which study account this browser is. Reload the page and try again.", true, 409)
     );
   }
   // The cookie and the identity the rest of the app derives must agree, or the
   // code would hand an assistant a different account than the one on screen.
   if (!identity.userId.endsWith(did)) {
-    return done(err("NO_IDENTITY", "VIVA could not tell which study account this browser is. Reload the page and try again.", true, 409));
+    return done(err("NO_IDENTITY", "Aloud could not tell which study account this browser is. Reload the page and try again.", true, 409));
   }
 
   return done(

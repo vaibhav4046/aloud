@@ -182,7 +182,7 @@ export type SyncReport = {
  * the browser rather than about the notes: it comes back here, and only here.
  */
 export const DEVICE_RECORD_NOTE =
-  "Your record lives in this browser. VIVA hands it back every time you open the app, so your map, your plan and your subjects come back, on this device only.";
+  "Your record lives in this browser. Aloud hands it back every time you open the app, so your map, your plan and your subjects come back, on this device only.";
 
 /** A timestamp from someone else's clock, made usable. */
 function safeTimestamp(raw: string | undefined, now: number): string | null {

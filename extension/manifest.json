@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "VIVA — study where you already read",
+  "name": "Aloud, study where you already read",
   "version": "0.1.0",
-  "description": "Turn the page you are reading into a VIVA subject, and say what you think about it without leaving the page.",
+  "description": "Turn the page you are reading into an Aloud subject, and say what you think about it without leaving the page.",
   "minimum_chrome_version": "116",
   "action": {
-    "default_title": "VIVA",
+    "default_title": "Aloud",
     "default_popup": "popup.html",
     "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
   },

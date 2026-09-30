@@ -61,7 +61,7 @@ describe("a turn is filed against the concept it is mostly about", () => {
  * a floor and not an equality because the preloaded library is generated
  * (`scripts/seed-corpus.mjs`) and the row count moves when it is re-seeded.
  */
-describe("routing accuracy across every subject VIVA ships", () => {
+describe("routing accuracy across every subject Aloud ships", () => {
   it("files at least 400 of its own labelled texts under the right concept", () => {
     const seen = new Set<string>();
     let rows = 0;

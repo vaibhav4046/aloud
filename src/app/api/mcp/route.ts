@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
  */
 export function GET() {
   return json(
-    { error: { code: "METHOD_NOT_ALLOWED", message: "VIVA answers tool calls on POST." } },
+    { error: { code: "METHOD_NOT_ALLOWED", message: "Aloud answers tool calls on POST." } },
     405
   );
 }

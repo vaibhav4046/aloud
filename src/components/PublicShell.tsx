@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { MarkIcon } from "@/components/ui/icons";
+import { Wordmark } from "@/components/ui/Wordmark";
 
 /**
  * Frame for the pages that are not the working app: recorded exam, privacy,
@@ -10,12 +10,9 @@ import { MarkIcon } from "@/components/ui/icons";
 export function PublicShell({ children, width = "prose" }: { children: ReactNode; width?: "prose" | "wide" }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b hairline" style={{ background: "var(--canvas)" }}>
+      <header>
         <nav aria-label="Primary" className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
-          <Link href="/" className="flex min-h-11 items-center gap-2" aria-label="VIVA home">
-            <MarkIcon size={22} />
-            <span className="heading text-xl">VIVA</span>
-          </Link>
+          <Wordmark href="/" size={26} />
           <div className="flex items-center gap-0.5">
             <Link href="/oral" className="nav-link">Oral exam</Link>
             <Link href="/subjects" className="nav-link">Your material</Link>

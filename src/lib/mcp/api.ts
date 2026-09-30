@@ -42,7 +42,7 @@ export class ToolFailure extends Error {
 }
 
 /** VIVA's routes already answer with one plain sentence. Use theirs, not ours. */
-const UNREACHABLE = "VIVA did not answer that just now. Try again in a moment.";
+const UNREACHABLE = "Aloud did not answer that just now. Try again in a moment.";
 
 function headersFor(ctx: ApiContext, extra?: Record<string, string>): Record<string, string> {
   const headers: Record<string, string> = { Cookie: ctx.cookie, ...extra };

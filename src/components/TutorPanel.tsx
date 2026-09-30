@@ -32,10 +32,10 @@ export function TutorPanel({
 }) {
   if (!text) {
     return (
-      <section aria-label="VIVA" className="surface-card p-5">
-        <p className="eyebrow">VIVA</p>
+      <section aria-label="Aloud" className="surface-card p-5">
+        <p className="eyebrow">Aloud</p>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-ash)" }}>
-          Say what you think. VIVA answers from your source, or tells you when it can&apos;t find it there.
+          Say what you think. Aloud answers from your source, or tells you when it can&apos;t find it there.
         </p>
       </section>
     );
@@ -44,9 +44,9 @@ export function TutorPanel({
   const verdict = strategy ? VERDICT[strategy] : undefined;
 
   return (
-    <section aria-label="What VIVA said" aria-live="polite" className="surface-card p-5">
+    <section aria-label="What Aloud said" aria-live="polite" className="surface-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="eyebrow">VIVA</p>
+        <p className="eyebrow">Aloud</p>
         {verdict ? (
           <span className="chip" style={{ color: verdict.color, borderColor: verdict.color }}>
             {verdict.label}

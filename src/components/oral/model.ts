@@ -43,7 +43,7 @@ export function stateHint(state: OralState, phase: Phase = "running"): string {
     case "CHECKING_SOURCE": return "The examiner is reading your own pages before it answers. Anything you say meanwhile is held until the check finishes.";
     case "SPEAKING": return "Talk over the examiner to cut in.";
     case "INTERRUPTED": return "The examiner dropped its sentence. Carry on.";
-    case "RECOVERING": return `The connection dropped. VIVA tries to resume the session, which the service holds for ${RESUME_WINDOW_SECONDS} seconds. If it cannot, a new session carries on from your last answers.`;
+    case "RECOVERING": return `The connection dropped. Aloud tries to resume the session, which the service holds for ${RESUME_WINDOW_SECONDS} seconds. If it cannot, a new session carries on from your last answers.`;
     case "ERROR": return "The exam stopped. Your answers so far are kept.";
     case "ENDED": return "The exam is over. Your debrief is below.";
     default: return "";
@@ -119,7 +119,7 @@ const ACTIONS: Record<string, FailureAction[]> = {
 const GENERIC: FailureView = {
   id: "generic",
   title: "The exam stopped",
-  cause: "Something went wrong that VIVA does not have a specific message for.",
+  cause: "Something went wrong that Aloud does not have a specific message for.",
   message: "Something went wrong with the exam. Start again in a moment.",
   blocking: true,
   actions: ["retry", "type"],
@@ -141,7 +141,7 @@ export function failureViewFor(id: string): FailureView {
 /** The screen receives sentences (errors are thrown as text), so find the failure that owns the sentence. */
 export function failureViewFromMessage(message: string): FailureView {
   const f = ORAL_FAILURES.find((x) => x.message === message);
-  return f ? failureViewFor(f.id) : { ...GENERIC, cause: "VIVA reported: " + message.slice(0, 200), message };
+  return f ? failureViewFor(f.id) : { ...GENERIC, cause: "Aloud reported: " + message.slice(0, 200), message };
 }
 
 export function failureViewFromCode(code: string): FailureView {

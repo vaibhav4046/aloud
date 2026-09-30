@@ -275,14 +275,14 @@ export default function ExamPage() {
                      rendered. An inline style beats the unlayered class. */
                   style={mode === m ? { background: "var(--color-panel)", color: "var(--color-paper)", fontWeight: 600 } : undefined}
                 >
-                  {m === "exam" ? "Answer questions" : "Teach VIVA"}
+                  {m === "exam" ? "Answer questions" : "Teach Aloud"}
                 </button>
               ))}
             </div>
           </>
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="eyebrow">{`${activeCourse?.code ?? "VIVA"} · Focused practice`}</p>
+            <p className="eyebrow">{`${activeCourse?.code ?? "Aloud"} · Focused practice`}</p>
             <button type="button" onClick={exitFocus} className="btn-ghost !px-4 !py-1.5 text-xs">
               Exit focus
             </button>
@@ -395,13 +395,13 @@ export default function ExamPage() {
               <section className="surface-card p-6">
                 <h2 className="heading text-xl">Teach it back</h2>
                 <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--color-mist)" }}>
-                  VIVA picks your weakest concept and listens while you teach it back.
+                  Aloud picks your weakest concept and listens while you teach it back.
                   Coverage is scored against your source, not against your wording.
                 </p>
                 {/* Same defect as the quiz panel above, same fix. */}
                 <div className="mt-6">
                   <button onClick={startTeach} disabled={busy === "teach"} className="btn-primary">
-                    {busy === "teach" ? "Preparing prompt…" : "Teach VIVA"}
+                    {busy === "teach" ? "Preparing prompt…" : "Teach Aloud"}
                   </button>
                 </div>
                 <p className="mono mt-3 text-xs" style={{ color: "var(--color-ash)" }}>

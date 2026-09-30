@@ -215,7 +215,7 @@ describe("cross-key isolation (IDOR)", () => {
     seen.length = 0;
     const out = await callTool("what_should_i_study_today", {}, envFor(null));
     expect(out.isError).toBe(true);
-    expect(out.text).toContain("not connected to a VIVA account");
+    expect(out.text).toContain("not connected to a Aloud account");
     expect(seen).toEqual([]);
   });
 

@@ -86,7 +86,7 @@ export const TRANSFORMERS: Course = {
   sources: [
     {
       id: SOURCE_ID,
-      title: "Introduction to Transformers (VIVA course notes)",
+      title: "Introduction to Transformers (Aloud course notes)",
       type: "notes",
       chunks: SOURCE_CHUNKS,
     },

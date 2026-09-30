@@ -61,7 +61,7 @@ describe("POST /api/subjects/create, storage honesty", () => {
     // And no longer a threat it cannot keep: the record travels back with the
     // response and is handed in again on the next load, so "it might be gone"
     // would now be the untrue sentence.
-    expect(said.some((l) => /Open VIVA here again and it is waiting/i.test(l))).toBe(true);
+    expect(said.some((l) => /Open Aloud here again and it is waiting/i.test(l))).toBe(true);
     expect(said.some((l) => /not survive|not stored anywhere lasting/i.test(l))).toBe(false);
 
     const done = out.find((l) => l.subject) as { subject: Record<string, unknown>; record?: Record<string, unknown> } | undefined;

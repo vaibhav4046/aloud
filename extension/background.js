@@ -77,8 +77,8 @@ async function rememberSubject(url, subject) {
 /** Capture: read this page, hand it to the VIVA tab, let the bridge stream. */
 async function capture() {
   const { page } = await readActiveTab();
-  if (!page) throw new Error("VIVA cannot read this kind of page.");
-  if (!page.ok) throw new Error("There is not enough text on this page to study — VIVA needs a few paragraphs.");
+  if (!page) throw new Error("Aloud cannot read this kind of page.");
+  if (!page.ok) throw new Error("There is not enough text on this page to study — Aloud needs a few paragraphs.");
   const { tabId } = await ensureBridge();
   // The bridge owns the capture record end to end — one writer, no races.
   await chrome.tabs.sendMessage(tabId, {
@@ -105,7 +105,7 @@ async function openPanel(selection) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({ id: "viva-ask", title: "Ask VIVA about this", contexts: ["selection"] });
+  chrome.contextMenus.create({ id: "viva-ask", title: "Ask Aloud about this", contexts: ["selection"] });
 });
 
 chrome.contextMenus.onClicked.addListener((info) => {
@@ -121,7 +121,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   if (msg?.type === "viva.openPanel") {
     openPanel(msg.selection).then(() => sendResponse({ ok: true }))
-      .catch((e) => sendResponse({ ok: false, message: e.message || "VIVA cannot open on this page." }));
+      .catch((e) => sendResponse({ ok: false, message: e.message || "Aloud cannot open on this page." }));
     return true;
   }
   // From the injected panel: relay one study turn through the VIVA tab.
@@ -131,8 +131,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       : { type: "viva.transcribe", subjectId: msg.subjectId, wav: msg.wav };
     ensureBridge()
       .then(({ tabId }) => chrome.tabs.sendMessage(tabId, forward))
-      .then((r) => sendResponse(r || { ok: false, error: { message: "VIVA did not answer." } }))
-      .catch(() => sendResponse({ ok: false, error: { message: "VIVA is not open in this browser." } }));
+      .then((r) => sendResponse(r || { ok: false, error: { message: "Aloud did not answer." } }))
+      .catch(() => sendResponse({ ok: false, error: { message: "Aloud is not open in this browser." } }));
     return true;
   }
   return false;
