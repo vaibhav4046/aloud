@@ -94,6 +94,8 @@ export type Run = {
   createdAt: string;
   /** Total levels, 12..30. */
   size: number;
+  /** True when the material was too thin to make 12 levels (the run is returned short, never padded). */
+  thin?: boolean;
 };
 
 /** One quote checked against the player's own pages by code. Collectible. */
