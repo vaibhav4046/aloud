@@ -181,7 +181,7 @@ function chooseConcepts(concepts: readonly ConceptDef[], owned: Map<string, Sour
   return concepts.filter((c) => keep.has(c.id));
 }
 
-type Plan = { content: Draft[]; thin: boolean };
+type Plan = { content: Draft[]; thin: boolean; owned: Map<string, SourceChunk[]>; chunks: SourceChunk[] };
 
 function planContent(subject: RunSource, concepts: ConceptDef[], owned: Map<string, SourceChunk[]>, chunks: SourceChunk[], cfg: Config): Draft[] {
   const pageText = chunks.map((c) => c.text).join(" ");
@@ -209,12 +209,12 @@ function plan(subject: RunSource): Plan {
   const chunks = subject.sources.flatMap((s) => s.chunks);
   const owned = assignChunks(subject.concepts, chunks);
   const concepts = chooseConcepts(subject.concepts, owned);
-  let best: Plan = { content: [], thin: true };
+  let best: Plan = { content: [], thin: true, owned, chunks };
   for (const cfg of CONFIGS) {
     const content = planContent(subject, concepts, owned, chunks, cfg);
     const trimmed = content.slice(0, capContent(content.length));
     const size = trimmed.length + Math.ceil(trimmed.length / CONTENT_PER_WORLD);
-    best = { content: trimmed, thin: size < MIN_LEVELS };
+    best = { content: trimmed, thin: size < MIN_LEVELS, owned, chunks };
     if (size >= MIN_LEVELS) break;
   }
   return best;
@@ -226,21 +226,66 @@ function difficultyAt(position: number, size: number): Difficulty {
   return Math.min(5, 1 + Math.floor((position * 5) / Math.max(1, size))) as Difficulty;
 }
 
-function bossFor(worldIndex: number, worldLevels: Draft[], names: Map<string, string>): Draft {
+type BossSource = { subject: RunSource; owned: Map<string, SourceChunk[]>; chunks: SourceChunk[] };
+
+const normText = (t: string): string => t.replace(/\s+/g, " ").trim().toLowerCase();
+
+/**
+ * Claims for a boss that the world's Catch levels have not already shown. A
+ * claim the player saw revealed (as stated, or as the page line behind it) is
+ * skipped, so the boss draws unused real sentences, unused course traps and
+ * fresh alterations of unused sentences. One bluff is reserved first; with no
+ * fresh bluff or no fresh real claim there are no claim rounds at all.
+ */
+function bossClaims(worldIndex: number, worldLevels: Draft[], want: number, src: BossSource): CatchItem[] {
   const conceptIds = [...new Set(worldLevels.flatMap((d) => d.conceptIds))];
-  const catches = worldLevels.filter((d) => d.kind === "catch").flatMap((d) => d.items as CatchItem[]);
+  const shownItems = worldLevels.filter((d) => d.kind === "catch").flatMap((d) => d.items as CatchItem[]);
+  const shown = new Set(shownItems.flatMap((i) => [normText(i.claim), normText(i.source)]));
+  const usedTraps = new Set(shownItems.map((i) => i.trapId).filter((t): t is string => Boolean(t)));
+  const rng = seeded(`boss|${worldIndex}|fresh|${conceptIds.join(",")}`);
+  const pageText = src.chunks.map((c) => c.text).join(" ");
+
+  const traps = src.subject.traps
+    .filter((t) => conceptIds.includes(t.conceptId) && !usedTraps.has(t.id))
+    .map((t) => trapClaim(t, src.chunks))
+    .filter((t): t is CatchItem => t !== null && !shown.has(normText(t.claim)) && !shown.has(normText(t.source)));
+  const reals = shuffled(
+    conceptIds.flatMap((id) => realClaims(id, src.owned.get(id) ?? [])).filter((r) => !shown.has(normText(r.text))),
+    rng
+  );
+
+  const wantBluffs = Math.max(1, Math.floor(want / 2));
+  const bluffs: CatchItem[] = [];
+  const takenSources = new Set<string>();
+  for (const t of shuffled(traps, rng)) {
+    if (bluffs.length >= wantBluffs) break;
+    bluffs.push(t);
+    takenSources.add(normText(t.source));
+  }
+  for (const r of reals) {
+    if (bluffs.length >= wantBluffs) break;
+    if (takenSources.has(normText(r.text))) continue;
+    const alt = alterSentence(r.text, src.subject.concepts, r.conceptId, seeded(`${src.subject.id}|boss-alt|${r.text}`), pageText);
+    if (!alt) continue;
+    bluffs.push(bluffItem(r, alt));
+    takenSources.add(normText(r.text));
+  }
+  const realItems = reals.filter((r) => !takenSources.has(normText(r.text))).slice(0, Math.max(0, want - bluffs.length)).map(realItem);
+  if (bluffs.length === 0 || realItems.length === 0) return [];
+  const order: CatchItem[] = [];
+  for (let i = 0; i < Math.max(bluffs.length, realItems.length); i++) {
+    if (bluffs[i]) order.push(bluffs[i]);
+    if (realItems[i]) order.push(realItems[i]);
+  }
+  return order;
+}
+
+function bossFor(worldIndex: number, worldLevels: Draft[], names: Map<string, string>, src: BossSource): Draft {
+  const conceptIds = [...new Set(worldLevels.flatMap((d) => d.conceptIds))];
   const says = worldLevels.flatMap((d) => (d.kind === "say" ? (d.items as SayItem[]) : []));
-  const bluffs = catches.filter((c) => c.isBluff);
-  const reals = catches.filter((c) => !c.isBluff);
   const rounds = Math.max(4, Math.min(6, conceptIds.length + 1));
   const rng = seeded(`boss|${worldIndex}|${conceptIds.join(",")}`);
-  const catchOrder: CatchItem[] = [];
-  const bs = shuffled(bluffs, rng);
-  const rs = shuffled(reals, rng);
-  for (let i = 0; i < Math.max(bs.length, rs.length); i++) {
-    if (bs[i]) catchOrder.push(bs[i]);
-    if (rs[i]) catchOrder.push(rs[i]);
-  }
+  const catchOrder = bossClaims(worldIndex, worldLevels, Math.ceil(rounds / 2), src);
   const sayOrder = shuffled(says, rng);
   const items: LevelItem[] = [];
   for (let k = 0; items.length < rounds && k < rounds * 4; k++) {
@@ -280,13 +325,13 @@ function worldsOf(levels: Level[], names: Map<string, string>): World[] {
 
 /** Build the base run: playable levels grouped into worlds, each closed by a boss. */
 function baseRun(subject: RunSource, createdAt: string): Run {
-  const { content, thin } = plan(subject);
+  const { content, thin, owned, chunks } = plan(subject);
   const names = new Map(subject.concepts.map((c) => [c.id, c.name]));
   const worldCount = Math.max(1, Math.ceil(content.length / CONTENT_PER_WORLD));
   const drafts: { d: Draft; world: number }[] = [];
   splitEvenly(content, worldCount).forEach((group, w) => {
     for (const d of group) drafts.push({ d, world: w + 1 });
-    drafts.push({ d: bossFor(w + 1, group, names), world: w + 1 });
+    drafts.push({ d: bossFor(w + 1, group, names, { subject, owned, chunks }), world: w + 1 });
   });
   const size = drafts.length;
   const levels: Level[] = drafts.map(({ d, world }, i) => ({
