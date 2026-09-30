@@ -1,11 +1,13 @@
 import type { Level, ProofCard, RoundReport } from "@/lib/game/types";
-import { buildsCombo, comboMultiplier, costsHeart, scoreRound } from "./engine-port";
+import { applyRound, comboMultiplier, proofCardFor, startLevel, type LevelRun } from "./engine-port";
 
 /**
- * The level flow as a pure reducer. Voice and typed play both feed it the same
- * RoundReport, so the two modes cannot drift: a heart, a combo step and a proof
- * card mean the same thing however the answer arrived. The reducer never reads
- * a clock or a random number; the caller passes the time and an id in.
+ * The level flow as a pure reducer over the engine's LevelRun. Voice and typed
+ * play both feed it the same RoundReport, so the two modes cannot drift: a
+ * heart, a combo step and a proof card mean the same thing however the answer
+ * arrived. Every number comes from the engine's scoring; this file adds only
+ * what a screen needs (the last round's feedback, the hint flag, proof cards
+ * built as they land). It never reads a clock or a random number.
  */
 
 export type PlayPhase = "ready" | "live" | "won" | "lost";
@@ -25,16 +27,13 @@ export type Feedback = {
 export type PlayState = {
   level: Level;
   phase: PlayPhase;
-  hearts: number;
+  run: LevelRun;
   /** Rounds finished so far. */
   roundIndex: number;
-  combo: number;
-  bestCombo: number;
-  xp: number;
-  reports: RoundReport[];
+  /** Proof cards earned this level, one per verified quote. */
   proofs: ProofCard[];
   last: Feedback | null;
-  /** A hint was taken on the round in progress. */
+  /** A hint or a peek was taken on the round in progress. */
   hinted: boolean;
   hintsUsed: number;
 };
@@ -42,33 +41,11 @@ export type PlayState = {
 export type PlayAction =
   | { type: "start" }
   | { type: "hint" }
-  | { type: "round"; report: RoundReport; proofId: string; now: string }
+  | { type: "round"; report: RoundReport; now: string }
   | { type: "quit" };
 
-/** A hint keeps the heart and takes this share of the round's XP. */
-export const HINT_XP_SHARE = 0.6;
-
 export function initialPlay(level: Level): PlayState {
-  return {
-    level,
-    phase: "ready",
-    hearts: level.hearts,
-    roundIndex: 0,
-    combo: 0,
-    bestCombo: 0,
-    xp: 0,
-    reports: [],
-    proofs: [],
-    last: null,
-    hinted: false,
-    hintsUsed: 0,
-  };
-}
-
-export function proofIdFor(levelId: string, passageId: string, quote: string): string {
-  let h = 5381;
-  for (let i = 0; i < quote.length; i++) h = ((h * 33) ^ quote.charCodeAt(i)) >>> 0;
-  return `proof_${levelId}_${passageId}_${h.toString(36)}`;
+  return { level, phase: "ready", run: startLevel(level), roundIndex: 0, proofs: [], last: null, hinted: false, hintsUsed: 0 };
 }
 
 export function playReducer(s: PlayState, a: PlayAction): PlayState {
@@ -81,44 +58,27 @@ export function playReducer(s: PlayState, a: PlayAction): PlayState {
       return s.phase === "live" || s.phase === "ready" ? { ...s, phase: "lost" } : s;
     case "round": {
       if (s.phase !== "live") return s;
-      const isBoss = s.level.kind === "boss";
-      const { report } = a;
-      const scored = scoreRound(report, s.combo, isBoss);
-      const xpGain = s.hinted ? Math.round(scored.xp * HINT_XP_SHARE) : scored.xp;
-      const heartLost = costsHeart(report.outcome);
-      const hearts = heartLost ? s.hearts - 1 : s.hearts;
-      const combo = buildsCombo(report.outcome) ? s.combo + 1 : report.outcome === "partial" ? s.combo : 0;
-      const proof: ProofCard | null =
-        report.proof && report.outcome !== "incorrect" && report.outcome !== "bluff_missed"
-          ? {
-              ...report.proof,
-              id: a.proofId,
-              levelId: s.level.id,
-              earnedAt: a.now,
-            }
-          : null;
-      const dup = proof ? s.proofs.some((p) => p.id === proof.id) : false;
-      const roundIndex = s.roundIndex + 1;
-      const phase: PlayPhase = hearts <= 0 ? "lost" : roundIndex >= s.level.rounds ? "won" : "live";
+      const report: RoundReport = { ...a.report, hinted: s.hinted || a.report.hinted === true };
+      const { run, delta } = applyRound(s.run, report);
+      // A missed round never earns a proof card: the quote did not back the player.
+      const card = report.proof && !delta.heartLost ? proofCardFor(s.level.id, report.proof, a.now) : null;
+      const fresh = card && !s.proofs.some((p) => p.id === card.id) ? card : null;
+      const phase: PlayPhase = run.status === "won" ? "won" : run.status === "lost" ? "lost" : "live";
       return {
         ...s,
         phase,
-        hearts,
-        roundIndex,
-        combo,
-        bestCombo: Math.max(s.bestCombo, combo),
-        xp: s.xp + xpGain,
-        reports: [...s.reports, report],
-        proofs: proof && !dup ? [...s.proofs, proof] : s.proofs,
+        run,
+        roundIndex: run.rounds.length,
+        proofs: fresh ? [...s.proofs, fresh] : s.proofs,
         last: {
           seq: (s.last?.seq ?? 0) + 1,
           outcome: report.outcome,
-          xpGain,
-          multiplier: scored.multiplier,
-          heartLost,
-          comboAfter: combo,
-          proof: proof && !dup ? proof : null,
-          hinted: s.hinted,
+          xpGain: delta.xpGained,
+          multiplier: delta.multiplier,
+          heartLost: delta.heartLost,
+          comboAfter: delta.comboAfter,
+          proof: fresh,
+          hinted: report.hinted === true,
         },
         hinted: false,
       };
@@ -156,7 +116,6 @@ export function announceRound(f: Feedback, hearts: number): string {
   return `${head}${xp}${heart}.`;
 }
 
-/** Whether the level still has rounds to play. */
 export function roundsLeft(s: PlayState): number {
   return Math.max(0, s.level.rounds - s.roundIndex);
 }

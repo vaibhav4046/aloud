@@ -1,128 +1,50 @@
-import type { Level, LevelResult, Progress, ProofCard, RoundOutcome, RoundReport, Run } from "@/lib/game/types";
+import type { Level, LevelResult, Progress, ProofCard, Run } from "@/lib/game/types";
+import { rankProgress } from "@/lib/game/scoring";
 
 /**
  * The seam between the game screens and the game engine.
  *
- * The screens import the rules, the progress store and the run fetch from this
- * one file and from nowhere else in src/lib/game. The engine lives in
- * src/lib/game (run.ts, scoring.ts, progress.ts, session.ts) and is written by
- * another stream; the functions below are thin adapters over it. Where the
- * engine had not landed when a screen was written, the adapter holds a small
- * local version of the rule from the design brief so the screens run and the
- * screen tests have something real to assert against. Each such rule is marked
- * `local rule` and is replaced by the engine export when it exists.
+ * The screens import scoring, progress and the run fetch from this one file and
+ * from nowhere else in src/lib/game. Scoring comes straight from the engine
+ * (src/lib/game/scoring.ts). The progress adapters in the second half are the
+ * one part that was still a local rule when the screens were written; each is
+ * marked `local rule` and is replaced by the engine's progress.ts export.
  */
 
-/* --------------------------------- rules --------------------------------- */
-
-/** local rule: XP per round outcome, before the grounded bonus and multipliers. */
-const BASE_XP: Record<RoundOutcome, number> = {
-  correct: 100,
-  partial: 50,
-  bluff_caught: 150,
-  bluff_missed: 0,
-  incorrect: 0,
-  skipped: 0,
-};
-const GROUNDED_BONUS = 25;
-const BOSS_MULTIPLIER = 1.5;
-
-/** local rule: combo multiplier from the number of good rounds in a row. */
-export function comboMultiplier(streak: number): number {
-  if (streak >= 8) return 2;
-  if (streak >= 5) return 1.5;
-  if (streak >= 3) return 1.2;
-  return 1;
-}
-
-/** A round costs a heart when it is wrong or a bluff got past the player. */
-export function costsHeart(outcome: RoundOutcome): boolean {
-  return outcome === "incorrect" || outcome === "bluff_missed";
-}
-
-/** Rounds that build the combo. Partial neither builds nor breaks it. */
-export function buildsCombo(outcome: RoundOutcome): boolean {
-  return outcome === "correct" || outcome === "bluff_caught";
-}
-
-export type RoundScore = { xp: number; multiplier: number };
-
-export function scoreRound(report: Pick<RoundReport, "outcome" | "grounded">, comboBefore: number, isBoss: boolean): RoundScore {
-  const base = BASE_XP[report.outcome];
-  if (base === 0) return { xp: 0, multiplier: 1 };
-  const multiplier = comboMultiplier(comboBefore + (buildsCombo(report.outcome) ? 1 : 0)) * (isBoss ? BOSS_MULTIPLIER : 1);
-  const bonus = report.grounded ? GROUNDED_BONUS : 0;
-  return { xp: Math.round((base + bonus) * multiplier), multiplier };
-}
-
-/** local rule: 3 stars = no wrong rounds and at most 1 partial, 2 = at most 1 heart lost, 1 = won. */
-export function starsFor(outcomes: RoundOutcome[], heartsLost: number): 1 | 2 | 3 {
-  const wrong = outcomes.filter(costsHeart).length;
-  const partial = outcomes.filter((o) => o === "partial").length;
-  if (wrong === 0 && partial <= 1) return 3;
-  if (heartsLost <= 1) return 2;
-  return 1;
-}
+export {
+  applyRound,
+  comboMultiplier,
+  finishLevel,
+  isMiss,
+  isSuccess,
+  proofCardFor,
+  rankForXp,
+  rankProgress,
+  startLevel,
+  starsFor,
+  xpForRank,
+  type LevelRun,
+  type RoundDelta,
+} from "@/lib/game/scoring";
 
 export type RankInfo = { rank: number; xpIntoRank: number; xpForNext: number; fraction: number; maxed: boolean };
 
-const RANK_MAX = 30;
-const RANK_FIRST = 300;
-const RANK_GROWTH = 1.08;
-
-/** local rule: the XP that starts rank r (rank 1 starts at 0, rank 2 at 300, each step 8% larger). */
-export function rankStart(rank: number): number {
-  let total = 0;
-  for (let r = 2; r <= rank; r++) total += Math.round(RANK_FIRST * Math.pow(RANK_GROWTH, r - 2));
-  return total;
-}
-
+/** The rank card's numbers. `xpForNext` is 0 at the top rank, where `maxed` is true. */
 export function rankInfo(xp: number): RankInfo {
-  let rank = 1;
-  while (rank < RANK_MAX && xp >= rankStart(rank + 1)) rank += 1;
-  const start = rankStart(rank);
-  if (rank >= RANK_MAX) return { rank, xpIntoRank: xp - start, xpForNext: 0, fraction: 1, maxed: true };
-  const span = rankStart(rank + 1) - start;
-  return { rank, xpIntoRank: xp - start, xpForNext: span, fraction: Math.min(1, (xp - start) / span), maxed: false };
-}
-
-/* ------------------------------ result scoring ---------------------------- */
-
-export type FinishedLevel = {
-  level: Level;
-  reports: RoundReport[];
-  proofs: ProofCard[];
-  xp: number;
-  heartsLeft: number;
-  bestCombo: number;
-  outcome: "won" | "lost" | "quit";
-  now: Date;
-};
-
-export function toLevelResult(f: FinishedLevel): LevelResult {
-  const outcomes = f.reports.map((r) => r.outcome);
-  const lost = f.level.hearts - f.heartsLeft;
-  return {
-    levelId: f.level.id,
-    stars: f.outcome === "won" ? starsFor(outcomes, lost) : 0,
-    xp: f.xp,
-    heartsLeft: f.heartsLeft,
-    bestCombo: f.bestCombo,
-    rounds: outcomes,
-    proofIds: f.proofs.map((p) => p.id),
-    outcome: f.outcome,
-    playedAt: f.now.toISOString(),
-  };
+  const r = rankProgress(xp);
+  return { rank: r.rank, xpIntoRank: r.xpIntoRank, xpForNext: r.xpForNext ?? 0, fraction: r.fraction, maxed: r.xpForNext === null };
 }
 
 /* --------------------------------- progress ------------------------------- */
 
 const PROGRESS_PREFIX = "aloud.progress.";
+/** local rule: the head start a new run begins with (endowed progress). */
+export const HEAD_START_XP = 60;
 
 export function emptyProgress(run: Run, now: Date): Progress {
   return {
     runId: run.id,
-    xp: 0,
+    xp: HEAD_START_XP,
     rank: 1,
     unlockedIndex: 1,
     streakDays: 0,
@@ -208,7 +130,7 @@ export function applyResult(p: Progress, run: Run, level: Level, result: LevelRe
     results: { ...p.results, [level.id]: keep },
     proofs: [...p.proofs, ...proofs.filter((x) => !seen.has(x.id))],
     weakConceptIds: [...weak],
-    todayMinutes: (sameDay || !p.lastPlayedDay || p.lastPlayedDay === today ? p.todayMinutes : 0) + minutes,
+    todayMinutes: (p.lastPlayedDay === today || !p.lastPlayedDay ? p.todayMinutes : 0) + minutes,
     updatedAt: new Date().toISOString(),
   };
   return { progress: merged, rankBefore: p.rank, rankAfter: merged.rank, unlockedNext, freezeEarned, streakExtended };
