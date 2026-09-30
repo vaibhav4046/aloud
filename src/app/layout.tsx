@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono, Onest } from "next/font/google";
 import "./globals.css";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -10,23 +10,23 @@ import { SiteFooter } from "@/components/SiteFooter";
  * also emits a size-adjusted local fallback for each family, which keeps the
  * layout still when the real font arrives.
  *
- * Newsreader sets the display type and the exam question, the one thing on the
- * exam screen that is read for longer than a second. IBM Plex Sans carries the
- * interface. IBM Plex Mono carries page numbers, timings and passage ids.
- * Weights are the ones the interface uses and no others.
+ * Fraunces (variable, with its soft and optical-size axes) sets the display
+ * type: big, light, slightly wobbly, warm. Onest carries the interface. IBM
+ * Plex Mono carries page numbers, timings and passage ids. The weights are
+ * variable, so the interface can ask for 340 or 550 without a second file.
  */
-const newsreader = Newsreader({
+const fraunces = Fraunces({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-newsreader",
-  weight: ["400", "500"],
+  variable: "--font-fraunces",
+  axes: ["SOFT", "opsz"],
+  style: ["normal", "italic"],
 });
 
-const plexSans = IBM_Plex_Sans({
+const onest = Onest({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-plex-sans",
-  weight: ["400", "500", "600"],
+  variable: "--font-onest",
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -37,44 +37,37 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const DESCRIPTION =
-  "Upload your lecture notes. VIVA asks you questions out loud, checks your answers against your own pages, and tells you what to revise tomorrow.";
+  "Drop your notes. Play it out loud. Aloud turns your own material into a run of spoken levels, catches your bluffs, and shows the page that proves each answer.";
+const TITLE = "Aloud: learn it by saying it";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://viva-five-murex.vercel.app"),
-  title: "VIVA: an oral exam on your own lecture notes",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://aloud.vercel.app"),
+  title: { default: TITLE, template: "%s | Aloud" },
   description: DESCRIPTION,
-  applicationName: "VIVA",
+  applicationName: "Aloud",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
-  openGraph: {
-    title: "VIVA: an oral exam on your own lecture notes",
-    description: DESCRIPTION,
-    siteName: "VIVA",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "VIVA: an oral exam on your own lecture notes",
-    description: DESCRIPTION,
-  },
+  openGraph: { title: TITLE, description: DESCRIPTION, siteName: "Aloud", type: "website" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F1EDE4",
+  themeColor: "#FBF8F2",
   colorScheme: "light",
   viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${onest.variable} ${plexMono.variable}`}>
       <body>
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-sm focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-[var(--on-primary)]"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-[var(--on-primary)]"
         >
           Skip to content
         </a>

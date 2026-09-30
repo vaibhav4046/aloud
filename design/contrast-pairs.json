@@ -30,5 +30,16 @@
   { "fg": "border-strong", "bg": "elevated", "min": 3, "use": "input edges on the field surface" },
   { "fg": "border-focus", "bg": "canvas", "min": 3, "use": "focus ring on the page" },
   { "fg": "border-focus", "bg": "surface-1", "min": 3, "use": "focus ring inside cards" },
-  { "fg": "border-focus", "bg": "surface-2", "min": 3, "use": "focus ring on the recessed sheet" }
+  { "fg": "border-focus", "bg": "surface-2", "min": 3, "use": "focus ring on the recessed sheet" },
+  { "fg": "on-accent", "bg": "accent", "min": 4.5, "use": "label on the lavender pill" },
+  { "fg": "on-accent", "bg": "accent-strong", "min": 4.5, "use": "label on the lavender pill on hover" },
+  { "fg": "on-panel", "bg": "panel", "min": 4.5, "use": "text on the dark panel" },
+  { "fg": "on-panel-muted", "bg": "panel", "min": 4.5, "use": "secondary text on the dark panel" },
+  { "fg": "on-panel", "bg": "panel-2", "min": 4.5, "use": "text on the lighter dark panel tile" },
+  { "fg": "on-panel-muted", "bg": "panel-2", "min": 4.5, "use": "secondary text on the lighter dark panel tile" },
+  { "fg": "text-primary", "bg": "wash-lavender", "min": 4.5, "use": "text over the lavender wash pool" },
+  { "fg": "text-primary", "bg": "wash-peach", "min": 4.5, "use": "text over the peach wash pool" },
+  { "fg": "text-secondary", "bg": "wash-mint", "min": 4.5, "use": "text over the mint wash pool" },
+  { "fg": "text-muted", "bg": "wash-butter", "min": 4.5, "use": "text over the butter wash pool" },
+  { "fg": "border-strong", "bg": "surface-1", "min": 3, "use": "input edge on a white card" }
 ]
