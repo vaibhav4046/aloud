@@ -9,6 +9,7 @@
 <style>
   /* The site fonts (Fraunces, Onest, IBM Plex Mono) are loaded by next/font inside the app. They are not
      embedded here, so the token fallback stacks show: Palatino for display, Segoe UI for text, Cascadia for mono. */
+  :root { --font-fraunces: "Fraunces"; --font-onest: "Onest"; --font-plex-mono: "IBM Plex Mono"; }
   @page { size: 1280px 720px; margin: 0; }
   * { box-sizing: border-box; }
   html { background: var(--surface-2); }
@@ -71,10 +72,10 @@
   /* 4 game */
   .s4 .body { display: grid; grid-template-columns: 1fr 250px; column-gap: 48px; }
   .kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
-  .kinds .card { padding: 16px 20px; }
+  .kinds .card { padding: 22px 24px; }
   .kinds h3 { font-size: 22px; }
-  .kinds p { font-size: 15px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; }
-  .rules { margin-top: 14px; font-size: 15px; color: var(--text-secondary); }
+  .kinds p { font-size: 17px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; }
+  .rules { margin-top: 20px; font-size: 17px; color: var(--text-secondary); }
   .s4 .shot { height: 470px; }
   .s4 figcaption { font-size: 12px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 8px; }
   .s4 figure { margin: 0; }
@@ -98,11 +99,11 @@
   .s6 svg .ln { stroke: var(--text-secondary); stroke-width: 1.5; fill: none; }
 
   /* 7 assemblyai */
-  .s7 table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .s7 table { width: 100%; border-collapse: collapse; font-size: 19px; }
   .s7 th { text-align: left; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; padding: 0 14px 8px 0; }
-  .s7 td { padding: 9px 14px 9px 0; vertical-align: top; border-top: 1px solid var(--border); }
+  .s7 td { padding: 13px 14px 13px 0; vertical-align: top; border-top: 1px solid var(--border); }
   .s7 td:first-child { font-weight: 600; white-space: nowrap; }
-  .s7 code { font-family: var(--font-mono); font-size: 13px; }
+  .s7 code { font-family: var(--font-mono); font-size: 15px; }
 
   /* 8 numbers */
   .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -114,7 +115,7 @@
 
   /* 9 limits */
   .s9 .body { display: grid; grid-template-columns: 1.15fr 1fr; column-gap: 48px; }
-  .s9 ul { margin: 12px 0 0; padding-left: 20px; font-size: 16px; line-height: 1.4; }
+  .s9 ul { margin: 14px 0 0; padding-left: 20px; font-size: 18px; line-height: 1.4; }
   .s9 li + li { margin-top: 7px; }
   .s9 .links p { font-size: 16px; margin-top: 8px; }
   .s9 .links .mono { font-size: 14px; }
@@ -242,7 +243,7 @@
       <rect class="box" x="0" y="20" width="170" height="90" rx="20"/><text class="h" x="16" y="52">Your notes</text><text class="t2" x="16" y="76">PDF, text, paste</text><text class="t2" x="16" y="94">or the sample</text>
       <rect class="box" x="230" y="20" width="200" height="90" rx="20"/><text class="h" x="246" y="52">generateRun</text><text class="t2" x="246" y="76">12 to 30 levels,</text><text class="t2" x="246" y="94">worlds, bluffs. Pure.</text>
       <rect class="box" x="490" y="20" width="170" height="90" rx="20"/><text class="h" x="506" y="52">Play a level</text><text class="t2" x="506" y="76">voice or typed</text>
-      <rect class="ink" x="720" y="20" width="200" height="90" rx="20"/><text class="h" x="736" y="52">Voice Agent</text><text class="t2" x="736" y="76" style="fill:var(--on-panel-muted)">AssemblyAI, wss,</text><text class="t2" x="736" y="94" style="fill:var(--on-panel-muted)">turn detection</text>
+      <rect class="ink" x="720" y="20" width="200" height="90" rx="20"/><text class="h" x="736" y="52" style="fill:var(--on-panel)">Voice Agent</text><text class="t2" x="736" y="76" style="fill:var(--on-panel-muted)">AssemblyAI, wss,</text><text class="t2" x="736" y="94" style="fill:var(--on-panel-muted)">turn detection</text>
       <rect class="box" x="720" y="180" width="200" height="90" rx="20"/><text class="h" x="736" y="212">/api/oral/tool</text><text class="t2" x="736" y="236">verify_claim,</text><text class="t2" x="736" y="254">grade_my_answer</text>
       <rect class="box" x="960" y="180" width="176" height="90" rx="20"/><text class="h" x="976" y="212">Your pages</text><text class="t2" x="976" y="236">quote must be a</text><text class="t2" x="976" y="254">verbatim substring</text>
       <rect class="box" x="490" y="180" width="170" height="90" rx="20"/><text class="h" x="506" y="212">session.ts</text><text class="t2" x="506" y="236">tool result + flag</text><text class="t2" x="506" y="254">to round outcome</text>
