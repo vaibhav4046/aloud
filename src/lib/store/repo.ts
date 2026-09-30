@@ -94,4 +94,11 @@ export interface EventStore {
   /** Aggregated counts per event name over the last `days` days. */
   productEventSummary(userId: string, days?: number): Promise<ProductEventSummary[]>;
   deleteUserData(userId: string): Promise<void>;
+  /**
+   * Small JSON documents the game keeps per learner (a run per subject, one
+   * progress record per subject). Keyed by a caller-chosen string, scoped to the
+   * user like everything else here. Returns null when nothing is stored.
+   */
+  getGameDoc(userId: string, key: string): Promise<unknown | null>;
+  putGameDoc(userId: string, key: string, doc: unknown): Promise<void>;
 }

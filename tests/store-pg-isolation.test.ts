@@ -68,12 +68,13 @@ vi.mock("pg", () => {
 });
 
 /** Tables whose rows belong to one student. `users` is keyed BY the student. */
-const OWNED = /\b(?:courses|sources|source_chunks|concepts|concept_edges|subjects|learning_events|mastery_state|review_queue|tutor_messages|product_events)\b/;
+const OWNED = /\b(?:courses|sources|source_chunks|concepts|concept_edges|subjects|learning_events|mastery_state|review_queue|tutor_messages|product_events|game_docs)\b/;
 
 /** True when this statement was actually checked, so a case cannot pass empty. */
 function expectScopedToOwner({ sql, params }: Statement, userId: string): boolean {
   const s = sql.replace(/\s+/g, " ").trim();
   if (!OWNED.test(s)) return false; // BEGIN/COMMIT, and the users row itself.
+  if (/^CREATE TABLE/i.test(s)) return false; // DDL: no rows to scope.
   expect(params, `owner not bound: ${s}`).toContain(userId);
   if (/^INSERT/i.test(s)) {
     const columns = s.slice(s.indexOf("(") + 1, s.indexOf(")"));
@@ -136,6 +137,8 @@ const CALLS: { name: string; run: (s: PgEventStore, u: string) => Promise<unknow
   { name: "addSource", run: (s, u) => s.addSource(u, { title: "Upload", type: "notes", chunks: [{ text: "A chunk.", section: "1" }] }) },
   { name: "recordProductEvent", run: (s, u) => s.recordProductEvent(u, "study_turn") },
   { name: "productEventSummary", run: (s, u) => s.productEventSummary(u) },
+  { name: "getGameDoc", run: (s, u) => s.getGameDoc(u, "run:probe") },
+  { name: "putGameDoc", run: (s, u) => s.putGameDoc(u, "run:probe", { a: 1 }) },
   { name: "deleteUserData", run: (s, u) => s.deleteUserData(u) },
 ];
 
@@ -196,7 +199,7 @@ describe("PgEventStore scopes every statement to one owner", () => {
     for (const call of CALLS) {
       for (const { sql } of await capture(() => call.run(store, USER_A))) {
         const s = sql.replace(/\s+/g, " ").trim();
-        if (!OWNED.test(s) || /^INSERT/i.test(s)) continue;
+        if (!OWNED.test(s) || /^INSERT/i.test(s) || /^CREATE TABLE/i.test(s)) continue;
         expect(s, `${call.name} would touch every student's rows`).toMatch(/\buser_id\s*=\s*\$\d/);
       }
     }
