@@ -39,7 +39,7 @@ export function LevelPlay({ run, level, progress, commit, onRetry }: { run: Run;
   const reduced = prefersReducedMotion(settings);
 
   // The last round's reveal or proof card is shown before the result replaces the screen.
-  const settled = (v.play.phase === "won" || v.play.phase === "lost") && !v.reveal && !v.proofView;
+  const settled = (v.play.phase === "won" || v.play.phase === "lost") && !v.reveal && !v.proofView && v.examinerDone !== false;
 
   useEffect(() => {
     if (!settled || applied.current) return;

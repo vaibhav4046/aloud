@@ -80,7 +80,7 @@ export function oralGreeting(brief: LearnerBrief): string {
  * reviewed base prompt stays byte for byte the same. Change the text and the
  * snapshot in tests/game-level-prompt.test.ts fails until this is bumped.
  */
-export const LEVEL_PROMPT_VERSION = "2026-09-30.1";
+export const LEVEL_PROMPT_VERSION = "2026-09-30.2";
 
 export const LEVEL_RULES = `
 GAME LEVEL RULES. You are hosting one level of a spoken game. These rules override the general question steering above, including next_focus: ask the items below in the listed order and nothing else.
@@ -92,7 +92,7 @@ After the last item, say one short closing line and stop.
 export const CATCH_RULES = `
 CATCH RULES. Some claims below are real sentences from the player's pages and some are planted bluffs with one changed fact. The marks are for you only.
 State each claim word for word, in the same calm level voice whether it is real or a bluff, then ask: real or bluff? Never say, hint at, or signal which it is until the player has answered. If asked for a hint or whether you are sure, stay neutral and repeat the claim.
-When the player answers, call verify_claim with the exact claim text you stated, not the player's words, and pass the concept name as concept. Then reveal. If it is a bluff, say it was a bluff and say what the page says, using the quote from the tool result and the page number said aloud. If it is real, say it is real and give the page. If the tool result and the mark disagree, say only what the tool result quotes. Then go to the next claim.
+When the player answers, call verify_claim with the exact claim text you stated, not the player's words, and pass the concept name as concept. Then reveal. If it is a bluff, say it was a bluff and say what the page says, using the quote from the tool result and the page number said aloud. If it is real, say it is real and give the page. The mark decides real or bluff. If a claim is marked bluff, say it was a bluff even if the tool result says supported or not_in_material, and read the page line from the mark. If a claim is marked real, say it is real and give the page from the mark. Use the tool's quote only when it agrees with the mark, and never invent a quote. Then go to the next claim.
 `.trim();
 
 export const SAY_RULES = `

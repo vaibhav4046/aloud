@@ -17,6 +17,8 @@ import type { OrbMode } from "./VoiceOrb";
 import type { ProofView } from "./PlayParts";
 import type { GameSettings } from "./settings";
 import { playCue, type Cue } from "./sound";
+import { runVoiceTool } from "./voice-tools";
+import { END_GRACE_IDLE_MS, END_GRACE_MAX_MS, quietStep } from "./level-quiet";
 
 const SESSION_TIMEOUT_MS = 15_000;
 /** A tap on Real or Bluff waits at most this long for the prefetched page check. */
@@ -113,14 +115,35 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
   }, [level, subjectId, onClosed]);
 
   /* ---- level end: release the microphone and freeze the controller ---- */
+  const ended = play.phase === "won" || play.phase === "lost";
+  const [examinerDone, setExaminerDone] = useState(false);
   useEffect(() => {
-    if (play.phase !== "won" && play.phase !== "lost") return;
-    ctl.current?.stop();
+    if (ended) ctl.current?.stop();
+  }, [ended]);
+
+  // After the last round the examiner still owes its reveal and closing line. Wait for it to go quiet
+  // (busy, then listening) before the session is closed and the result replaces the screen.
+  const busySeen = useRef(false);
+  const liveVoice = mode === "voice" && connection === "live";
+  useEffect(() => {
+    if (!ended || !liveVoice) return;
+    const step = quietStep(busySeen.current, machine.state);
+    busySeen.current = step.busySeen;
+    if (step.quiet) setExaminerDone(true);
+  }, [ended, liveVoice, machine.state]);
+  useEffect(() => {
+    if (!ended || !liveVoice) return;
+    const id = setTimeout(() => setExaminerDone(true), busySeen.current ? END_GRACE_MAX_MS : END_GRACE_IDLE_MS);
+    return () => clearTimeout(id);
+  }, [ended, liveVoice]);
+  const releaseMic = ended && (!liveVoice || examinerDone);
+  useEffect(() => {
+    if (!releaseMic) return;
     const handle = mic.current;
     mic.current = null;
     void handle?.stop();
     setConnection("ended");
-  }, [play.phase]);
+  }, [releaseMic]);
 
   useEffect(
     () => () => {
@@ -239,11 +262,8 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
           },
           {
             getToken: mintVoiceAgentToken,
-            runTool: async (name, args, callId) => {
-              const result = await runLevelTool(name, args, callId, { subjectId, levelId: level.id, sessionId: sessionId.current });
-              c.tool(name, args, result);
-              return result;
-            },
+            runTool: (name, args, callId) =>
+              runVoiceTool(c, name, args, callId, (n, a, id) => runLevelTool(n, a, id, { subjectId, levelId: level.id, sessionId: sessionId.current })),
           }
         );
         if (attempt.current !== my) {
@@ -397,6 +417,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
       reveal,
       proofView,
       peekPassageId,
+      examinerDone: !ended || releaseMic,
       announce: play.last ? announceRound(play.last, play.run.hearts) : "",
       actions: {
         startVoice,
@@ -415,7 +436,7 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
         end,
       },
     };
-  }, [level, subjectId, play, mode, connection, machine.state, pending, canSkip, examinerText, examinerCut, youText, failure, notice, stance, reveal, proofView, peekPassageId, readLevels, startVoice, startTyped, switchToTyped, submitTyped, skip, choose, noteHint, end]);
+  }, [level, subjectId, play, mode, connection, machine.state, pending, canSkip, examinerText, examinerCut, youText, failure, notice, stance, reveal, proofView, peekPassageId, ended, releaseMic, readLevels, startVoice, startTyped, switchToTyped, submitTyped, skip, choose, noteHint, end]);
 
   return view;
 }

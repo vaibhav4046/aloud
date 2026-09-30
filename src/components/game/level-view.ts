@@ -46,6 +46,8 @@ export type LevelView = {
   reveal: CatchReveal | null;
   proofView: ProofView | null;
   peekPassageId: string | null;
+  /** After the last round: false while the examiner is still speaking its reveal and closing line. Undefined means nothing to wait for. */
+  examinerDone?: boolean;
   announce: string;
   actions: {
     startVoice: () => void;
