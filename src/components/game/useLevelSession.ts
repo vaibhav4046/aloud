@@ -1,0 +1,414 @@
+"use client";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import type { Level, Run, RoundReport, CatchItem } from "@/lib/game/types";
+import type { SourceChunk } from "@/lib/types";
+import { initialMachine, type OralMachine } from "@/lib/oral/machine";
+import { voiceMessage } from "@/lib/audio/messages";
+import { mintVoiceAgentToken, startOralExam, type MicHandle } from "@/components/oral/mic";
+import { CONNECT_TIMEOUT_MS } from "@/components/oral/useOralSession";
+import { failureViewFor, failureViewFromCode, failureViewFromMessage, stateHint, stateLine, type FailureView } from "@/components/oral/model";
+import { mirroredChunks } from "@/components/mirror";
+import { initialPlay, playReducer, announceRound } from "./play-model";
+import { LevelController, type RoundClosed } from "./level-controller";
+import type { CatchReveal, Connection, LevelView, Stance } from "./level-view";
+import type { OrbMode } from "./VoiceOrb";
+import type { ProofView } from "./PlayParts";
+import type { GameSettings } from "./settings";
+import { playCue, type Cue } from "./sound";
+import { buildLevelPrompt, levelGreeting, LEVEL_MARKER } from "./level-prompt";
+
+const SESSION_TIMEOUT_MS = 15_000;
+const TOOL_TIMEOUT_MS = 12_000;
+/** A tap on Real or Bluff waits at most this long for the prefetched page check. */
+const PREFETCH_WAIT_MS = 1_500;
+
+type ToolResult = Record<string, unknown>;
+
+/** Run one tool on our server, scoped to the level so the examiner's own claims never touch the player's mastery. */
+async function runLevelTool(name: string, args: Record<string, unknown>, callId: string, ctx: { subjectId: string; levelId: string; sessionId: string | null }): Promise<ToolResult> {
+  const res = await fetch("/api/oral/tool", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ callId, name, arguments: args, subjectId: ctx.subjectId, sessionId: ctx.sessionId, levelId: ctx.levelId }),
+    signal: AbortSignal.timeout(TOOL_TIMEOUT_MS),
+  });
+  const body = (await res.json().catch(() => null)) as { result?: ToolResult; error?: { code?: string } } | null;
+  if (!res.ok) throw new Error(voiceMessage(body?.error?.code));
+  return body?.result ?? {};
+}
+
+const CUE: Record<RoundReport["outcome"], Cue> = {
+  correct: "good",
+  bluff_caught: "good",
+  partial: "soft",
+  skipped: "soft",
+  incorrect: "bad",
+  bluff_missed: "bad",
+};
+
+function orbFor(state: OralMachine["state"], pending: boolean): OrbMode {
+  if (pending) return "checking";
+  switch (state) {
+    case "USER_SPEAKING": return "user";
+    case "SPEAKING": return "examiner";
+    case "THINKING": return "thinking";
+    case "CHECKING_SOURCE": return "checking";
+    case "LISTENING": return "listening";
+    default: return "idle";
+  }
+}
+
+async function loadChunks(subjectId: string): Promise<SourceChunk[]> {
+  try {
+    const res = await fetch(`/api/sources?subject=${encodeURIComponent(subjectId)}`, { cache: "no-store", signal: AbortSignal.timeout(SESSION_TIMEOUT_MS) });
+    if (res.ok) {
+      const b = (await res.json()) as { chunks?: SourceChunk[] };
+      if (b.chunks?.length) return b.chunks;
+    }
+  } catch {
+    /* fall through to the copy this browser kept */
+  }
+  return mirroredChunks(subjectId);
+}
+
+/**
+ * One level of play. It owns the reducer, the round controller, the voice
+ * session (the same mic, socket and machine the oral exam uses) and the typed
+ * path, and returns the one view object the screen draws.
+ */
+export function useLevelSession({ run, level, settings }: { run: Run; level: Level; settings: GameSettings }): LevelView {
+  const subjectId = run.subjectId;
+  const [play, dispatch] = useReducer(playReducer, level, initialPlay);
+  const [mode, setMode] = useState<"voice" | "typed">(settings.typedOnly ? "typed" : "voice");
+  const [connection, setConnection] = useState<Connection>("idle");
+  const [machine, setMachine] = useState<OralMachine>(initialMachine);
+  const [examinerText, setExaminerText] = useState("");
+  const [examinerCut, setExaminerCut] = useState(false);
+  const [youText, setYouText] = useState("");
+  const [failure, setFailure] = useState<FailureView | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const [stance, setStance] = useState<Stance | null>(null);
+  const [reveal, setReveal] = useState<CatchReveal | null>(null);
+  const [proofView, setProofView] = useState<ProofView | null>(null);
+  const [peekPassageId, setPeekPassageId] = useState<string | null>(null);
+
+  const ctl = useRef<LevelController | null>(null);
+  const mic = useRef<MicHandle | null>(null);
+  const attempt = useRef(0);
+  const sessionId = useRef<string | null>(null);
+  const reply = useRef("");
+  const prefetch = useRef<Map<number, Promise<ToolResult | null>>>(new Map());
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  const playRef = useRef(play);
+  playRef.current = play;
+
+  const onClosed = useCallback((c: RoundClosed) => {
+    dispatch({ type: "round", report: c.report, now: new Date().toISOString() });
+    setPending(false);
+    setStance(null);
+    setPeekPassageId(null);
+    playCue(CUE[c.report.outcome], settingsRef.current.sound);
+    if (c.item?.type === "catch") setReveal({ item: c.item, outcome: c.report.outcome });
+    if (c.report.proof && c.report.outcome !== "incorrect" && c.report.outcome !== "bluff_missed") {
+      setProofView({ quote: c.report.proof.quote, page: c.report.proof.page, spans: c.source?.spans });
+      playCue("proof", settingsRef.current.sound);
+    }
+  }, []);
+
+  const makeController = useCallback(async (): Promise<LevelController> => {
+    const chunks = await loadChunks(subjectId);
+    const c = new LevelController(level, chunks, () => Date.now(), onClosed);
+    ctl.current = c;
+    return c;
+  }, [level, subjectId, onClosed]);
+
+  /* ---- level end: release the microphone and freeze the controller ---- */
+  useEffect(() => {
+    if (play.phase !== "won" && play.phase !== "lost") return;
+    ctl.current?.stop();
+    const handle = mic.current;
+    mic.current = null;
+    void handle?.stop();
+    setConnection("ended");
+  }, [play.phase]);
+
+  useEffect(
+    () => () => {
+      attempt.current += 1;
+      mic.current?.cancel();
+      mic.current = null;
+    },
+    []
+  );
+
+  /* ---- typed catch: check the claim against the page while the player reads it ---- */
+  const ensurePrefetch = useCallback(
+    (c: LevelController) => {
+      const it = c.item;
+      if (!it || it.type !== "catch" || prefetch.current.has(c.index)) return;
+      const idx = c.index;
+      const claim = (it as CatchItem).claim;
+      prefetch.current.set(
+        idx,
+        runLevelTool("verify_claim", { claim, concept: it.conceptId }, `pre_${level.id}_${idx}`, { subjectId, levelId: level.id, sessionId: sessionId.current }).catch(() => null)
+      );
+    },
+    [level.id, subjectId]
+  );
+
+  useEffect(() => {
+    const c = ctl.current;
+    if (c && play.phase === "live") ensurePrefetch(c);
+  }, [play.phase, play.roundIndex, ensurePrefetch]);
+
+  /** Wait (briefly) for the page check of the claim on screen and put it in the draft. */
+  const applyPrefetch = useCallback(async (c: LevelController) => {
+    const it = c.item;
+    if (!it || it.type !== "catch") return;
+    const idx = c.index;
+    const pre = prefetch.current.get(idx);
+    if (!pre) return;
+    const result = await Promise.race([pre, new Promise<null>((r) => setTimeout(() => r(null), PREFETCH_WAIT_MS))]);
+    if (result && c.index === idx) c.tool("verify_claim", { claim: it.claim, concept: it.conceptId }, result);
+  }, []);
+
+  /* ---- voice ---- */
+  const connectVoice = useCallback(
+    async (c: LevelController) => {
+      const my = ++attempt.current;
+      setFailure(null);
+      setConnection("connecting");
+      const fail = (view: FailureView) => {
+        if (attempt.current !== my) return;
+        mic.current?.cancel();
+        mic.current = null;
+        setFailure(view);
+        setConnection("idle");
+      };
+      try {
+        const res = await fetch(`/api/oral/session?subjectId=${encodeURIComponent(subjectId)}&levelId=${encodeURIComponent(level.id)}`, { cache: "no-store", signal: AbortSignal.timeout(SESSION_TIMEOUT_MS) });
+        const body = (await res.json().catch(() => null)) as (Record<string, unknown> & { error?: { code?: string; message?: string } }) | null;
+        if (attempt.current !== my) return;
+        if (!res.ok || typeof body?.system_prompt !== "string") {
+          const sentence = body?.error?.message ?? voiceMessage(body?.error?.code ?? "ORAL_UNAVAILABLE");
+          return fail({ ...failureViewFromMessage(sentence), title: "The level could not open", cause: "The server could not build the level from your material", actions: ["retry", "type"] });
+        }
+        const handle = await startOralExam(
+          {
+            config: {
+              // The server may already have added the level block (levelId is sent); if not, add it here.
+              system_prompt: body.system_prompt.includes(LEVEL_MARKER) ? body.system_prompt : `${body.system_prompt}
+
+${buildLevelPrompt(level)}`,
+              greeting: body.system_prompt.includes(LEVEL_MARKER) ? (body.greeting as string) : levelGreeting(level),
+              tools: body.tools as never,
+              keyterms: body.keyterms as string[],
+              language_codes: body.language_codes as string[],
+              transcription_mode: body.transcription_mode as never,
+              turn_detection: body.turn_detection as never,
+            },
+            subjectId,
+            onState: (m) => {
+              if (attempt.current !== my) return;
+              if (m.sessionId) sessionId.current = m.sessionId;
+              if (m.state === "LISTENING" || m.state === "SPEAKING") setConnection("live");
+              setMachine(m);
+            },
+            onTurn: (turn) => {
+              if (turn.speaker === "user") {
+                setYouText(turn.text);
+                // Catch rounds: the page check for the claim goes in first so the proof is in the draft when the words close the round.
+                const idx = c.index;
+                void applyPrefetch(c).then(() => c.index === idx && c.speech(turn.text));
+              } else {
+                setExaminerText(turn.text);
+                setExaminerCut(!!turn.interrupted);
+                reply.current = "";
+              }
+            },
+            onAgentDelta: (word, replyId) => {
+              setExaminerCut(false);
+              setExaminerText((prev) => {
+                if (reply.current !== replyId) {
+                  reply.current = replyId;
+                  return word;
+                }
+                return /^[.,!?;:%)\]'"]/.test(word) ? prev + word : `${prev} ${word}`;
+              });
+            },
+            onError: (message) => fail(failureViewFromMessage(message)),
+            onNotice: (_m, code) => setNotice(failureViewFromCode(code).message),
+            onEnded: () => {
+              mic.current?.cancel();
+              mic.current = null;
+              setConnection("ended");
+            },
+          },
+          {
+            getToken: mintVoiceAgentToken,
+            runTool: async (name, args, callId) => {
+              const result = await runLevelTool(name, args, callId, { subjectId, levelId: level.id, sessionId: sessionId.current });
+              c.tool(name, args, result);
+              return result;
+            },
+          }
+        );
+        if (attempt.current !== my) {
+          handle.cancel();
+          return;
+        }
+        mic.current = handle;
+      } catch (e) {
+        fail(failureViewFromMessage(e instanceof Error && e.message ? e.message : voiceMessage("NO_MIC")));
+      }
+    },
+    [subjectId, level.id, level, applyPrefetch]
+  );
+
+  // Connect watchdog: token, socket and session.ready carry no timeout of their own.
+  useEffect(() => {
+    if (connection !== "connecting") return;
+    const id = setTimeout(() => {
+      mic.current?.cancel();
+      mic.current = null;
+      attempt.current += 1;
+      setFailure(failureViewFor("token_timeout"));
+      setConnection("idle");
+    }, CONNECT_TIMEOUT_MS);
+    return () => clearTimeout(id);
+  }, [connection]);
+
+  /* ---- actions ---- */
+  const startVoice = useCallback(() => {
+    setMode("voice");
+    void (async () => {
+      const c = ctl.current ?? (await makeController());
+      dispatch({ type: "start" });
+      await connectVoice(c);
+    })();
+  }, [makeController, connectVoice]);
+
+  const startTyped = useCallback(() => {
+    setMode("typed");
+    setFailure(null);
+    void (async () => {
+      const c = ctl.current ?? (await makeController());
+      dispatch({ type: "start" });
+      ensurePrefetch(c);
+    })();
+  }, [makeController, ensurePrefetch]);
+
+  const switchToTyped = useCallback(() => {
+    attempt.current += 1;
+    mic.current?.cancel();
+    mic.current = null;
+    setConnection("idle");
+    setFailure(null);
+    setMode("typed");
+    void (async () => {
+      const c = ctl.current ?? (await makeController());
+      if (playRef.current.phase === "ready") dispatch({ type: "start" });
+      ensurePrefetch(c);
+    })();
+  }, [makeController, ensurePrefetch]);
+
+  const submitTyped = useCallback(
+    (text: string) => {
+      const c = ctl.current;
+      const it = c?.item;
+      if (!c || !it || it.type !== "say" || pending) return;
+      setPending(true);
+      setYouText(text);
+      const idx = c.index;
+      const ids = { subjectId, levelId: level.id, sessionId: sessionId.current };
+      void (async () => {
+        // The verifier supplies the proof, the grader the outcome. The grade goes in last: it closes the round.
+        const verify = await runLevelTool("verify_claim", { claim: text, concept: it.conceptId }, `tv_${level.id}_${idx}`, ids).catch(() => null);
+        if (c.index !== idx) return;
+        if (verify) c.tool("verify_claim", { claim: text, concept: it.conceptId }, verify);
+        try {
+          const grade = await runLevelTool("grade_my_answer", { question: it.question, answer: text }, `tg_${level.id}_${idx}`, ids);
+          if (c.index === idx) c.tool("grade_my_answer", { question: it.question, answer: text }, grade);
+        } catch {
+          setPending(false);
+          setNotice("That answer could not be checked. Your text is still here. Try again.");
+        }
+      })();
+    },
+    [subjectId, level.id, pending]
+  );
+
+  const choose = useCallback(
+    (s: Stance) => {
+      const c = ctl.current;
+      const it = c?.item;
+      if (!c || !it || it.type !== "catch" || pending) return;
+      setStance(s);
+      setPending(true);
+      const idx = c.index;
+      void applyPrefetch(c).then(() => c.index === idx && c.choose(s));
+    },
+    [pending, applyPrefetch]
+  );
+
+  const noteHint = useCallback(() => {
+    ctl.current?.hint();
+    dispatch({ type: "hint" });
+    const it = ctl.current?.item;
+    if (it && it.type === "catch") setPeekPassageId((it as CatchItem).passageId);
+  }, []);
+
+  const end = useCallback(() => {
+    attempt.current += 1;
+    ctl.current?.stop();
+    mic.current?.cancel();
+    mic.current = null;
+  }, []);
+
+  // Stable, so the orb's animation loop is not restarted by every render.
+  const readLevels = useCallback(() => mic.current?.levels() ?? { learner: 0, examiner: 0 }, []);
+
+  const view = useMemo<LevelView>(() => {
+    const voicePending = mode === "voice" && (machine.state === "THINKING" || machine.state === "CHECKING_SOURCE");
+    const idx = play.roundIndex;
+    return {
+      level,
+      subjectId,
+      play,
+      item: level.items?.[idx] ?? null,
+      mode,
+      connection,
+      orbMode: orbFor(machine.state, pending),
+      stateLine: connection === "connecting" ? "Connecting" : stateLine(machine.state, { phase: connection === "live" ? "running" : "idle" }),
+      stateHint: connection === "connecting" ? "Opening a session with the voice service." : stateHint(machine.state, connection === "live" ? "running" : "idle"),
+      examinerText,
+      examinerCut,
+      youText,
+      readLevels,
+      failure,
+      notice,
+      pending: pending || voicePending,
+      stance,
+      reveal,
+      proofView,
+      peekPassageId,
+      announce: play.last ? announceRound(play.last, play.run.hearts) : "",
+      actions: {
+        startVoice,
+        startTyped,
+        switchToTyped,
+        submitTyped,
+        choose,
+        hint: noteHint,
+        peek: noteHint,
+        dismissProof: () => setProofView(null),
+        dismissReveal: () => setReveal(null),
+        end,
+      },
+    };
+  }, [level, subjectId, play, mode, connection, machine.state, pending, examinerText, examinerCut, youText, failure, notice, stance, reveal, proofView, peekPassageId, readLevels, startVoice, startTyped, switchToTyped, submitTyped, choose, noteHint, end]);
+
+  return view;
+}
