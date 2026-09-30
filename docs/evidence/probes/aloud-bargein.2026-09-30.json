@@ -1,0 +1,460 @@
+{
+ "scenario": "bargein",
+ "tag": "",
+ "measuredOn": "2026-09-30T09:23:09.749Z",
+ "node": "v24.12.0",
+ "chromium": "153.0.8010.12",
+ "base": "http://localhost:3261",
+ "levelId": "l_say_c_self_attention_1",
+ "learnerVoice": "synthetic (Windows System.Speech)",
+ "plan": [
+  {
+   "wav": "interrupt",
+   "atSec": 2,
+   "durSec": 2.96
+  }
+ ],
+ "greetSecAssumed": 14,
+ "gapSec": 40,
+ "ws": [
+  {
+   "t": 611,
+   "dir": "out",
+   "type": "session.update"
+  },
+  {
+   "t": 839,
+   "dir": "in",
+   "type": "session.updated"
+  },
+  {
+   "t": 865,
+   "dir": "in",
+   "type": "session.ready",
+   "session_id": "sess_69f"
+  },
+  {
+   "t": 865,
+   "dir": "out",
+   "type": "input.audio.first"
+  },
+  {
+   "t": 871,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 1423,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 4484,
+   "n": 317,
+   "bytes": 152160
+  },
+  {
+   "t": 4493,
+   "dir": "in",
+   "type": "input.speech.started"
+  },
+  {
+   "t": 4498,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 5866,
+   "n": 138,
+   "bytes": 66240
+  },
+  {
+   "t": 5879,
+   "dir": "in",
+   "type": "input.speech.stopped"
+  },
+  {
+   "t": 5879,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "Self-attention. First question: In one or two sentences,"
+  },
+  {
+   "t": 5879,
+   "dir": "in",
+   "type": "transcript.agent",
+   "text": "Self-attention. First question: In one or two",
+   "interrupted": true
+  },
+  {
+   "t": 5879,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "interrupted"
+  },
+  {
+   "t": 5879,
+   "dir": "in",
+   "type": "transcript.user",
+   "text": "Wait, can you repeat the question?"
+  },
+  {
+   "t": 5887,
+   "dir": "in",
+   "type": "reply.started"
+  },
+  {
+   "t": 9399,
+   "dir": "in",
+   "type": "reply.audio",
+   "last": 13005,
+   "n": 372,
+   "bytes": 178560
+  },
+  {
+   "t": 13085,
+   "dir": "in",
+   "type": "reply.done",
+   "status": "completed"
+  }
+ ],
+ "http": [
+  {
+   "t": 1790760192639,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 92
+  },
+  {
+   "t": 1790760193534,
+   "url": "/api/game/progress",
+   "method": "POST",
+   "status": 200,
+   "ms": 55
+  },
+  {
+   "t": 117,
+   "url": "/api/oral/session",
+   "method": "GET",
+   "status": 200,
+   "ms": 38
+  },
+  {
+   "t": 370,
+   "url": "/api/voice-agent/token",
+   "method": "GET",
+   "status": 200,
+   "ms": 163
+  }
+ ],
+ "dom": [
+  {
+   "t": 4,
+   "phase": "ready",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": null,
+   "xp": null,
+   "state": null,
+   "claim": null,
+   "question": "Self-attention",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 215,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ConnectingOpening a session with the voice service.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 1053,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": null,
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 2097,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 4554,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "Hearing youKeep going. The examiner waits until you stop.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": null,
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 6009,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two",
+   "examinerCut": true,
+   "you": "You Wait, can you repeat the question?",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 9551,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two In",
+   "examinerCut": false,
+   "you": "You Wait, can you repeat the question?",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 9760,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "SpeakingTalk over the examiner to cut in.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You Wait, can you repeat the question?",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  },
+  {
+   "t": 13302,
+   "phase": "live",
+   "hearts": "3 of 3 hearts",
+   "round": "Round 1 of 2",
+   "combo": "Combo 0, multiplier 1",
+   "xp": "0 XP",
+   "state": "ListeningSay your answer. You can interrupt the examiner at any time.",
+   "claim": null,
+   "question": "In one or two sentences, say what an attention weight means.",
+   "examiner": "Examiner Self-attention. First question: In one or two In one or two sentences, say what an attention weight means.",
+   "examinerCut": false,
+   "you": "You Wait, can you repeat the question?",
+   "reveal": null,
+   "proof": null,
+   "toast": null,
+   "result": null,
+   "failure": null
+  }
+ ],
+ "agentDeltas": [
+  [
+   1922,
+   "800b4b",
+   "Self-attention."
+  ],
+  [
+   1928,
+   "800b4b",
+   "First"
+  ],
+  [
+   1933,
+   "800b4b",
+   "question:"
+  ],
+  [
+   1933,
+   "800b4b",
+   "In"
+  ],
+  [
+   1933,
+   "800b4b",
+   "one"
+  ],
+  [
+   1933,
+   "800b4b",
+   "or"
+  ],
+  [
+   1934,
+   "800b4b",
+   "two"
+  ],
+  [
+   1934,
+   "800b4b",
+   "sentences,"
+  ],
+  [
+   1935,
+   "800b4b",
+   "say"
+  ],
+  [
+   1935,
+   "800b4b",
+   "what"
+  ],
+  [
+   1935,
+   "800b4b",
+   "an"
+  ],
+  [
+   1935,
+   "800b4b",
+   "attention"
+  ],
+  [
+   1935,
+   "800b4b",
+   "weight"
+  ],
+  [
+   1935,
+   "800b4b",
+   "means."
+  ],
+  [
+   9543,
+   "5575d6",
+   "In "
+  ],
+  [
+   9551,
+   "5575d6",
+   "one "
+  ],
+  [
+   9559,
+   "5575d6",
+   "or "
+  ],
+  [
+   9559,
+   "5575d6",
+   "two "
+  ],
+  [
+   9559,
+   "5575d6",
+   "sentences, "
+  ],
+  [
+   9559,
+   "5575d6",
+   "say "
+  ],
+  [
+   9559,
+   "5575d6",
+   "what "
+  ],
+  [
+   9566,
+   "5575d6",
+   "an "
+  ],
+  [
+   9567,
+   "5575d6",
+   "attention "
+  ],
+  [
+   9567,
+   "5575d6",
+   "weight "
+  ],
+  [
+   9567,
+   "5575d6",
+   "means."
+  ]
+ ],
+ "errors": [],
+ "clickAt": 1790760194408,
+ "localProgress": {
+  "xp": 60,
+  "rank": 1,
+  "unlockedIndex": 1,
+  "results": {},
+  "proofs": []
+ },
+ "failure": null,
+ "audioFrames": 827,
+ "audioBytes": 396960,
+ "examinerAudioSec": 8.27
+}

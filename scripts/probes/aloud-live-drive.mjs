@@ -106,6 +106,7 @@ const T = () => Date.now() - t0;
 const ws = [];
 const http = [];
 const dom = [];
+const deltas = [];
 let audioBytes = 0;
 let audioFrames = 0;
 page.on("websocket", (sock) => {
@@ -114,14 +115,23 @@ page.on("websocket", (sock) => {
     let m;
     try { m = JSON.parse(String(payload)); } catch { return; }
     const t = T();
-    if (m.type === "reply.audio") { audioFrames++; audioBytes += Math.floor((String(m.data ?? "").length * 3) / 4); ws.push({ t, dir: "in", type: "reply.audio", bytes: Math.floor((String(m.data ?? "").length * 3) / 4) }); return; }
+    if (m.type === "reply.audio") {
+      const bytes = Math.floor((String(m.data ?? "").length * 3) / 4);
+      audioFrames++;
+      audioBytes += bytes;
+      // One entry per burst of frames: first and last arrival, frame count, bytes.
+      const prev = ws.at(-1);
+      if (prev?.type === "reply.audio") { prev.last = t; prev.n += 1; prev.bytes += bytes; } else ws.push({ t, dir: "in", type: "reply.audio", last: t, n: 1, bytes });
+      return;
+    }
     const e = { t, dir: "in", type: m.type };
     if (m.type === "transcript.user" || m.type === "transcript.agent") { e.text = String(m.text ?? "").slice(0, 400); if (m.interrupted) e.interrupted = true; }
     if (m.type === "reply.done") e.status = m.status;
     if (m.type === "tool.call") { e.name = m.name; e.call_id = m.call_id; e.args = m.args ?? m.arguments; }
     if (m.type === "session.ready") e.session_id = String(m.session_id ?? "").slice(0, 8);
     if (m.type === "session.error" || m.type === "session.ended") e.detail = JSON.stringify(m).slice(0, 200);
-    if (m.type === "transcript.agent.delta" || m.type === "transcript.user.delta") return;
+    if (m.type === "transcript.agent.delta") { deltas.push([t, String(m.reply_id ?? "").slice(-6), m.delta]); return; }
+    if (m.type === "transcript.user.delta") return;
     ws.push(e);
   });
   sock.on("framesent", ({ payload }) => {
@@ -175,7 +185,7 @@ const snapFn = () => {
   };
 };
 
-const doc = { scenario, tag, measuredOn: new Date().toISOString(), node: process.version, chromium: null, base, levelId, learnerVoice: "synthetic (Windows System.Speech)", plan, greetSecAssumed: greetSec, gapSec, ws, http, dom, errors };
+const doc = { scenario, tag, measuredOn: new Date().toISOString(), node: process.version, chromium: null, base, levelId, learnerVoice: "synthetic (Windows System.Speech)", plan, greetSecAssumed: greetSec, gapSec, ws, http, dom, agentDeltas: deltas, errors };
 let failure = null;
 try {
   doc.chromium = browser.version();
