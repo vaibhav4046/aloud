@@ -87,8 +87,42 @@ function compiledChunks(courseId: string): SourceChunk[] {
   return COURSES[courseId]?.sources.flatMap((src) => src.chunks) ?? [];
 }
 
+/**
+ * The game's documents table, created on first use so a deployment that has not
+ * run migrations/006_game_docs.sql yet still works. One attempt per process.
+ */
+let gameTableReady: Promise<void> | null = null;
+function ensureGameTable(): Promise<void> {
+  gameTableReady ??= dbQuery(
+    `CREATE TABLE IF NOT EXISTS game_docs (
+       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+       key TEXT NOT NULL,
+       doc JSONB NOT NULL,
+       updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+       PRIMARY KEY (user_id, key)
+     )`
+  ).then(() => undefined, (e) => { gameTableReady = null; throw e; });
+  return gameTableReady;
+}
+
 export class PgEventStore implements EventStore {
   readonly backend = "postgres" as const;
+
+  async getGameDoc(userId: string, key: string): Promise<unknown | null> {
+    await ensureGameTable();
+    const rows = await dbQuery<{ doc: unknown }>("SELECT doc FROM game_docs WHERE user_id=$1 AND key=$2", [userId, key]);
+    return rows[0]?.doc ?? null;
+  }
+
+  async putGameDoc(userId: string, key: string, doc: unknown): Promise<void> {
+    await this.ensureUser(userId);
+    await ensureGameTable();
+    await dbQuery(
+      `INSERT INTO game_docs(user_id, key, doc) VALUES ($1,$2,$3)
+       ON CONFLICT (user_id, key) DO UPDATE SET doc = EXCLUDED.doc, updated_at = now()`,
+      [userId, key, JSON.stringify(doc)]
+    );
+  }
 
   async ensureUser(userId: string, displayName?: string): Promise<void> {
     await dbQuery("INSERT INTO users(id, display_name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", [userId, displayName ?? null]);

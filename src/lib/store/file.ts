@@ -29,6 +29,8 @@ type UserDoc = {
   subjects: Record<string, Subject>;
   seeds: Record<string, boolean>;
   productEvents: StoredProductEvent[];
+  /** Game documents (runs, progress) keyed by a caller-chosen string. */
+  game?: Record<string, unknown>;
   sessionId: string;
 };
 
@@ -107,6 +109,7 @@ function seedDoc(userId: string): UserDoc {
     subjects: {},
     seeds: { [DEFAULT_COURSE_ID]: true },
     productEvents: [],
+    game: {},
     sessionId: `sess_${userId}`,
   };
 }
@@ -172,6 +175,7 @@ export class FileEventStore implements EventStore {
       if (!Array.isArray(doc.productEvents)) doc.productEvents = [];
       if (!doc.subjects || typeof doc.subjects !== "object") doc.subjects = {};
       if (!doc.seeds || typeof doc.seeds !== "object") doc.seeds = {};
+      if (!doc.game || typeof doc.game !== "object") doc.game = {};
       // Legacy docs were seeded with the default lab only.
       doc.seeds[DEFAULT_COURSE_ID] = true;
       for (const u of doc.uploads) if (!u.courseId) u.courseId = DEFAULT_COURSE_ID;
@@ -398,6 +402,19 @@ export class FileEventStore implements EventStore {
     return [...counts.entries()]
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }
+
+  async getGameDoc(userId: string, key: string): Promise<unknown | null> {
+    const doc = await this.load(userId);
+    return Object.hasOwn(doc.game ?? {}, key) ? doc.game![key] : null;
+  }
+
+  async putGameDoc(userId: string, key: string, value: unknown): Promise<void> {
+    await withLock(userId, async () => {
+      const doc = await this.loadForUpdate(userId);
+      doc.game = { ...(doc.game ?? {}), [key]: value };
+      await this.save(doc);
+    });
   }
 
   async deleteUserData(userId: string): Promise<void> {

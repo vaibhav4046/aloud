@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { COURSES } from "@/lib/courses";
 import type { Course } from "@/lib/courses/types";
+import { synthetic } from "./game-fixtures";
 import { guardBacksBluff, guardBacksReal, sentencesOf } from "@/lib/game/claims";
 import { MAX_LEVELS, MIN_LEVELS, findLevel, generateRun, withRecall } from "@/lib/game/run";
 import type { CatchItem, Level, Progress, Run } from "@/lib/game/types";
@@ -15,36 +16,6 @@ function progress(over: Partial<Progress> = {}): Progress {
     runId: "run_x", xp: 0, rank: 1, unlockedIndex: 1, streakDays: 0, lastPlayedDay: null, freezes: 0,
     results: {}, proofs: [], weakConceptIds: [], dailyGoalMinutes: 10, todayMinutes: 0, updatedAt: "2026-09-30T00:00:00.000Z",
     ...over,
-  };
-}
-
-/** A subject made of `n` concepts, each with `chunksEach` passages of three plain sentences. */
-export function synthetic(n: number, chunksEach: number, traps = 0, sentences = 3): Course {
-  const concepts = Array.from({ length: n }, (_, i) => ({
-    id: `c${i}`, name: `Widget${String.fromCharCode(65 + i)}`, aliases: [], description: `Widget ${i} handles the flow of items through stage ${i} of the line.`, related: i > 0 ? [`c${i - 1}`] : [],
-  }));
-  const chunks = concepts.flatMap((c, i) =>
-    Array.from({ length: chunksEach }, (_, k) => ({
-      id: `ch${i}_${k}`, sourceId: "s", ordinal: i * chunksEach + k,
-      text: [
-        `${c.name} moves items through stage ${i + 2} of the line every cycle.`,
-        `${c.name} always keeps the buffer above the minimum level number ${k + 3}.`,
-        `Operators usually increase the buffer before the shift ends when ${c.name} runs.`,
-      ].slice(0, sentences).join(" "),
-      locator: { page: i * chunksEach + k + 1, section: c.name },
-    }))
-  );
-  return {
-    id: `course_syn_${n}_${chunksEach}`, code: "SYN", title: "Synthetic", subject: "Test", demo: false,
-    sources: [{ id: "s", title: "Notes", type: "notes", chunks }],
-    concepts,
-    examQuestions: concepts.map((c) => ({ id: `q_${c.id}`, conceptId: c.id, question: `What does ${c.name} do?`, requiredKeywords: [], hint: "Think about the line." })),
-    teachback: { keywords: {}, hints: {} },
-    explainers: {},
-    traps: Array.from({ length: traps }, (_, i) => ({
-      id: `t${i}`, conceptId: `c${i % n}`, statement: `${concepts[i % n].name} lets the buffer fall below the minimum level.`,
-      whyWrong: `${concepts[i % n].name} keeps the buffer above the minimum level.`, correct: `${concepts[i % n].name} keeps the buffer above the minimum level.`,
-    })),
   };
 }
 
