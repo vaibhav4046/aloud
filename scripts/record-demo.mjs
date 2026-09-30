@@ -21,6 +21,18 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const argv = process.argv.slice(2);
+const ATTEMPTS = Number(process.env.ATTEMPTS ?? 4);
+if (!argv.includes("--child")) {
+  // The speech recogniser is stochastic: a take where the bluff is not caught is discarded and re-recorded whole.
+  let status = 1;
+  for (let a = 1; a <= ATTEMPTS; a++) {
+    console.log(`attempt ${a} of ${ATTEMPTS}`);
+    status = spawnSync(process.execPath, [process.argv[1], ...argv, "--child"], { stdio: "inherit" }).status ?? 1;
+    if (status !== 3) break;
+  }
+  if (status === 0 && !argv.includes("--no-render")) status = spawnSync(process.execPath, ["scripts/render-demo.mjs", ...(argv.includes("--mobile") ? ["--mobile"] : [])], { stdio: "inherit" }).status ?? 1;
+  process.exit(status);
+}
 const mobile = argv.includes("--mobile");
 const mode = mobile ? "mobile" : "desktop";
 const base = process.env.BASE_URL ?? "http://localhost:3321";
@@ -111,7 +123,11 @@ const tapScript = () => {
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required"] });
 const ctx = await browser.newContext({ viewport: size, recordVideo: { dir: path.join(outDir, "vid"), size }, permissions: ["microphone"], deviceScaleFactor: 1 });
 const taps = [];
-await ctx.exposeFunction("__tap", (e) => { taps.push(e); });
+let examinerBusyUntil = 0;
+await ctx.exposeFunction("__tap", (e) => {
+  taps.push(e);
+  if (e.kind === "examiner") examinerBusyUntil = Math.max(examinerBusyUntil, e.epochMs + ((e.pcm.length * 3) / 4 / 2 / e.rate) * 1000);
+});
 await ctx.addInitScript(tapScript);
 const errors = [];
 const marks = [];
@@ -172,6 +188,13 @@ const snapFn = () => {
 const wavB64 = (name) => fs.readFileSync(path.join(audioDir, `${name}.wav`)).toString("base64");
 const answerSeq = { [SAY]: ["say-weight", "say-why"], [CATCH]: ["claim-real", "claim-real", "claim-bluff"] };
 
+/** A player reads the card while the examiner talks: hold it until the voice has started and stopped (30 s at most). */
+async function quiet() {
+  const shownAt = Date.now();
+  while (Date.now() < shownAt + 9000 && examinerBusyUntil < shownAt) await dwell(250);
+  while (Date.now() < Math.min(shownAt + 30000, examinerBusyUntil + 700)) await dwell(250);
+}
+
 async function playLevel(levelId, kind) {
   const link = page.locator(`a[href*="${levelId}"]`).first();
   await link.scrollIntoViewIfNeeded();
@@ -192,8 +215,8 @@ async function playLevel(levelId, kind) {
   let s = await page.evaluate(snapFn);
   while (Date.now() < limit && s.phase !== "result") {
     if (s.failure || s.phase === "failed" || s.phase === "lost") throw new Error(`level ${levelId}: ${s.failure ?? s.phase}`);
-    if (s.reveal) { mark(`reveal-${kind}`); await dwell(3200); await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2500 }).catch(() => {}); }
-    else if (s.proof) { mark(`proof-${kind}`); await dwell(3800); await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2500 }).catch(() => {}); }
+    if (s.reveal) { mark(`reveal-${kind}`); await dwell(3200); await quiet(); await page.getByRole("button", { name: /^Continue$/ }).click({ timeout: 2500 }).catch(() => {}); }
+    else if (s.proof) { mark(`proof-${kind}`); await dwell(3800); await quiet(); await page.getByRole("button", { name: /Keep going/ }).click({ timeout: 2500 }).catch(() => {}); }
     else if (s.phase === "live" && /^Listening/.test(s.state ?? "") && replyDone > 0 && toolCalls === toolResults && Date.now() - lastReplyDoneAt > 900 && Date.now() - lastAnswerAt > 4000 && lastReplyDoneAt > lastAnswerAt) {
       const bluff = kind === "catch" && /backpropagation/i.test(s.claim ?? "");
       const name = kind === "catch" ? (bluff ? "claim-bluff" : "claim-real") : (seq[answered] ?? "say-why");
@@ -209,7 +232,13 @@ async function playLevel(levelId, kind) {
   }
   if (s.phase !== "result") throw new Error(`level ${levelId} did not finish in time`);
   mark(`result-${kind}`);
+  const resultText = await page.evaluate(() => document.querySelector('[data-testid="result"]')?.innerText?.replace(/\s+/g, " ").slice(0, 300) ?? "");
+  events.push({ epochMs: Date.now(), type: "result", kind, text: resultText });
+  if (kind === "catch" && !/Three stars/i.test(resultText)) throw Object.assign(new Error(`bluff not caught: ${resultText.slice(0, 80)}`), { retry: true });
   await dwell(3500);
+  // The XP figure counts up, so read it again once it has settled.
+  const settled = await page.evaluate(() => document.querySelector('[data-testid="result"]')?.innerText?.replace(/\s+/g, " ").slice(0, 300) ?? "");
+  events.push({ epochMs: Date.now(), type: "result", kind, text: settled });
   const crate = page.getByRole("button", { name: "Open the crate" });
   if (await crate.count()) { await crate.click().catch(() => {}); mark(`crate-${kind}`); }
   await dwell(5500);
@@ -218,6 +247,7 @@ async function playLevel(levelId, kind) {
 }
 
 let failure = null;
+let retry = false;
 try {
   await page.goto(`${base}/`, { waitUntil: "networkidle" });
   mark("landing");
@@ -241,15 +271,18 @@ try {
     await dwell(2000);
     await playLevel(CATCH, "catch");
     mark("map-final");
+    events.push({ epochMs: Date.now(), type: "map-text", text: await page.evaluate(() => document.querySelector("main")?.innerText?.replace(/\s+/g, " ").slice(0, 400) ?? "") });
     await dwell(6000);
   } else {
     mark("map-final");
+    events.push({ epochMs: Date.now(), type: "map-text", text: await page.evaluate(() => document.querySelector("main")?.innerText?.replace(/\s+/g, " ").slice(0, 400) ?? "") });
     await dwell(4500);
   }
   mark("end");
 } catch (e) {
   failure = String(e).slice(0, 400);
   console.error("FAILURE", failure);
+  if (e.retry) retry = true;
   await page.screenshot({ path: path.join(outDir, "failure.png") }).catch(() => {});
 }
 const videoEndEpoch = Date.now();
@@ -303,8 +336,4 @@ const sum = (k) => +chunkLog.filter((c) => c.kind === k).reduce((a, c) => a + c.
 const timeline = { mode, base, recordedOn: new Date(videoStartEpoch).toISOString(), videoStartEpoch, videoEndEpoch, wallSec: +((videoEndEpoch - videoStartEpoch) / 1000).toFixed(2), viewport: size, chromium: browser.version?.() ?? null, marks, events, chunkLog: chunkLog.filter((c) => c.cut), examinerSec: sum("examiner"), learnerSec: sum("learner"), errors, failure };
 fs.writeFileSync(path.join(outDir, "timeline.json"), JSON.stringify(timeline, null, 1) + "\n", "utf8");
 console.log("recorded", mode, "wall", timeline.wallSec, "s | examiner audio", timeline.examinerSec, "s | learner audio", timeline.learnerSec, "s | flushed chunks", timeline.chunkLog.length, "| failure:", failure ?? "none", "| console errors:", errors.length);
-if (failure) process.exit(1);
-if (!argv.includes("--no-render")) {
-  const r = spawnSync(process.execPath, ["scripts/render-demo.mjs", ...(mobile ? ["--mobile"] : [])], { stdio: "inherit" });
-  process.exit(r.status ?? 1);
-}
+process.exit(failure ? (retry ? 3 : 1) : 0);
