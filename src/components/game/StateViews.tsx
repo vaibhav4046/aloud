@@ -17,13 +17,15 @@ export function useOnline(): boolean {
 }
 
 /** Shown across the top while the browser reports no connection. Play continues in typed mode where it can. */
-export function OfflineBanner() {
+export function OfflineBanner({ kept = false }: { kept?: boolean }) {
   const online = useOnline();
-  if (online) return null;
+  if (online && !kept) return null;
   return (
     <div className="gx-banner-offline" role="status">
       <WifiOff size={16} aria-hidden="true" />
-      You look offline. Your progress is kept on this device and syncs when you are back.
+      {online
+        ? "The server did not answer, so this is the copy of your run saved on this device. Progress syncs when it is back."
+        : "You look offline. Your progress is kept on this device and syncs when you are back."}
     </div>
   );
 }

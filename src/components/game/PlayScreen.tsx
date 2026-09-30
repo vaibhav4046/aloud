@@ -49,7 +49,8 @@ function RevealCard({ reveal, onClose }: { reveal: CatchReveal; onClose: () => v
         <span className="gx-eyebrow">Your page{item.page != null ? `, p. ${item.page}` : ""} </span>
         <Marked text={item.source} marks={item.alteration ? [item.alteration.from] : []} tone="ok" />
       </p>
-      <button ref={closeRef} type="button" className="gx-btn gx-btn--ghost gx-btn--sm" style={{ justifySelf: "start" }} onClick={onClose}>Next claim</button>
+      <p className="gx-note" style={{ color: "var(--g-ok)", fontWeight: 600 }}>The page line is checked by code against your notes.</p>
+      <button ref={closeRef} type="button" className="gx-btn gx-btn--ghost gx-btn--sm" style={{ justifySelf: "start" }} onClick={onClose}>Continue</button>
     </section>
   );
 }
@@ -144,7 +145,7 @@ export function PlayScreen({ v, worldName, reduced }: { v: LevelView; worldName:
       <header className="gx-play-top">
         <button type="button" className="gx-iconbtn" onClick={v.actions.end} aria-label="Leave the level and go back to the map"><X size={20} aria-hidden="true" /></button>
         <div style={{ textAlign: "center", minWidth: 0 }}>
-          <div className="gx-eyebrow">{worldName}</div>
+          <div className="gx-eyebrow" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{worldName}</div>
           <div style={{ fontWeight: 600, fontSize: "0.95rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Level {level.index}</div>
         </div>
         <Hearts hearts={play.run.hearts} max={level.hearts} hitSeq={play.last?.heartLost ? play.last.seq : 0} />

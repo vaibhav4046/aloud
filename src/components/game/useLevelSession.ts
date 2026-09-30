@@ -111,7 +111,8 @@ export function useLevelSession({ run, level, settings }: { run: Run; level: Lev
     setPeekPassageId(null);
     playCue(CUE[c.report.outcome], settingsRef.current.sound);
     if (c.item?.type === "catch") setReveal({ item: c.item, outcome: c.report.outcome });
-    if (c.report.proof && c.report.outcome !== "incorrect" && c.report.outcome !== "bluff_missed") {
+    // A catch round shows its page line in the reveal card; the proof sheet is for say rounds.
+    if (c.item?.type !== "catch" && c.report.proof && c.report.outcome !== "incorrect" && c.report.outcome !== "bluff_missed") {
       setProofView({ quote: c.report.proof.quote, page: c.report.proof.page, spans: c.source?.spans });
       playCue("proof", settingsRef.current.sound);
     }

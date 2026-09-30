@@ -132,7 +132,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   style={{
                     color: active ? "var(--text-primary)" : "var(--text-secondary)",
                     fontWeight: active ? 600 : 400,
-                    textDecoration: active ? "underline" : "none",
+                    textDecorationLine: active ? "underline" : "none",
                     textDecorationThickness: "2px",
                     textUnderlineOffset: "6px",
                   }}

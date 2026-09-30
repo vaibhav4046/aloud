@@ -84,6 +84,8 @@ export function ResultView(p: ResultProps) {
   const rankUp = p.rankAfter > p.rankBefore;
 
   useEffect(() => {
+    // The result opens at the top, not wherever the last round left the page.
+    window.scrollTo(0, 0);
     if (won) playCue("star", p.sound);
     // once per mount: the sound is a reaction to arriving on this screen
     // eslint-disable-next-line react-hooks/exhaustive-deps

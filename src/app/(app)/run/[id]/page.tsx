@@ -50,7 +50,7 @@ export default function RunPage() {
 
   return (
     <Stage>
-      {data.offline ? <OfflineBanner /> : null}
+      <OfflineBanner kept={data.offline} />
       <div className="gx-wrap gx-wide">
         <div className="gx-map-layout">
           <aside className="gx-map-rail" aria-label="Your run">
