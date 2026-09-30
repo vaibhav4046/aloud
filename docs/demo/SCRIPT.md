@@ -35,7 +35,7 @@ Rules for the take:
 | First examiner audio | 958 ms median, n=3, 2026-09-29 | same file |
 | Interruption detection | 1286 ms median from the first loud sample to the service reporting speech, n=3; not a measured playback stop | `docs/evidence/probes/oral-live-bargein.2026-09-29.json` |
 | Claim check | 54 labelled claims, 0 false supported, 0 false contradicted | `docs/evidence/probes/verify-claim-live-2026-09-29.json` |
-| Tests | 1670 passed, 1 skipped, 100 files, 2026-09-30 | `docs/evidence/vitest.2026-09-30.txt` |
+| Tests | 1817 passed, 1 skipped, 110 files, 2026-09-30 | `docs/evidence/vitest.2026-09-30.txt` |
 
 The first three rows are from a synthetic learner voice against a local server, not a human in a browser. Say "with a synthetic learner voice" every time you quote them. Do not put them on screen as if the take produced them.
 

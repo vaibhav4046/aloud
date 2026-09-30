@@ -258,15 +258,15 @@
     "note": "Planted bluff claims that the live page check wrongly returned supported. Synthetic learner voice, Node v24.12.0, Chromium 153.0.8010.12."
   },
   "tests.vitest.passed": {
-    "value": 1670,
+    "value": 1817,
     "n": 1,
     "date": "2026-09-30",
     "evidence": "docs/evidence/vitest.2026-09-30.txt",
     "cmd": "npx vitest run",
-    "note": "100 test files, 1 skipped."
+    "note": "110 test files, 1 skipped. Branch wt/pack on main 2543421."
   },
   "tests.vitest.files": {
-    "value": 100,
+    "value": 110,
     "n": 1,
     "date": "2026-09-30",
     "evidence": "docs/evidence/vitest.2026-09-30.txt",

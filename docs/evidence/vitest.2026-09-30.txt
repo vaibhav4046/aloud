@@ -1,8 +1,8 @@
 Command: npx vitest run
-Run 2026-09-30 about 09:08 UTC, cwd D:\project\aloud (branch main at 24868fe plus three uncommitted files: package-lock.json and two prompt snapshots).
+Run 2026-09-30 about 15:57 UTC in D:projectaloud-wtpack, branch wt/pack rebased on main at 2543421 (the live worker's tests merged).
 Output below is verbatim from the run (final summary block).
 
- Test Files  100 passed (100)
-      Tests  1670 passed | 1 skipped (1671)
-   Start at  10:07:55
-   Duration  15.32s (transform 9.43s, setup 0ms, import 39.35s, tests 54.36s, environment 46ms)
+Test Files  110 passed (110)
+      Tests  1817 passed | 1 skipped (1818)
+   Start at  15:56:56
+   Duration  19.74s (transform 11.19s, setup 0ms, import 45.95s, tests 62.52s, environment 61ms)

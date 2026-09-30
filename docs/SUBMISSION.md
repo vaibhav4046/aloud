@@ -40,7 +40,7 @@ Aloud turns your own notes into a run of 12 to 30 spoken levels, built on Assemb
 
 **Voice.** The examiner is the AssemblyAI Voice Agent API, opened from the browser with a short-lived token. It uses native turn detection, calls three tools on the server, and stops mid-sentence when you interrupt. Every level can also be typed.
 
-**What it does not do yet.** The game loop has not been played by voice with a human microphone in a browser, and there is no live probe of it in the repository. The voice engine numbers below come from the engine before the game layer, with a synthetic learner voice. See the limits.
+**What it does not do yet.** The game loop was played by voice only with a synthetic learner voice on a local dev server, never by a human on a real microphone. One Catch it run misheard the synthetic voice and did not finish. See the limits.
 
 **Who it is for, and who it is not.** For students revising from their own text notes who want to rehearse explaining out loud. Not for scans without a text layer, not a check on whether your notes are right, and not a substitute for an examiner's marking.
 
@@ -89,7 +89,7 @@ The 1.3 to 1.5 s barge-in figure is detection latency. The probe's playback is a
 
 Game screen rows: Chromium driven through typed rounds against a local dev server, real grader, file store, 2026-09-30 (`docs/evidence/visual/REVIEW-play.md`). Click on "Check my answer" to the round result: 1.7 to 6.4 s over 9 rounds (a model call), with the busy label inside 150 ms. Tap on a catch claim to the reveal card: 81, 104, 107, 113, 145 and 160 ms (6 taps). axe-core wcag2a, wcag2aa and wcag21aa: 0 violations on 6 screens at 390 px.
 
-Test suite, 2026-09-30, `npx vitest run`: 1670 passed, 1 skipped, 100 files (`docs/evidence/vitest.2026-09-30.txt`).
+Test suite, 2026-09-30, `npx vitest run`: 1817 passed, 1 skipped, 110 files (`docs/evidence/vitest.2026-09-30.txt`).
 
 ## Verified live, and unit-tested only
 
@@ -104,17 +104,33 @@ Test suite, 2026-09-30, `npx vitest run`: 1670 passed, 1 skipped, 100 files (`do
 | Run generation, 12 to 30 levels on 26 subjects | n/a | yes (`tests/game-run.test.ts`) |
 | Hearts, XP, combo, stars, rank, streak, freezes, progress merge | n/a | yes (`tests/game-scoring.test.ts`, `tests/game-progress.test.ts`) |
 | Page proof on the sample run's Catch it claims: 8 of 8 real supported, 7 of 11 bluffs contradicted with quote and page, 3 not in material, 1 wrongly supported (n=19, 2026-09-30, `docs/evidence/probes/game-claims-live.2026-09-30.json`) | yes, local server, real judge | n/a |
-| Level prompt and round outcomes from tool results | not run live | yes (`tests/game-level-prompt.test.ts`, `tests/game-session.test.ts`) |
-| Level played over the Voice Agent socket | not run live; see below | yes, fake socket (`tests/game-level-flow.test.ts`) |
+| Level prompt and round outcomes from tool results | yes, inside the level drives below | yes (`tests/game-level-prompt.test.ts`, `tests/game-session.test.ts`) |
+| Levels played over the Voice Agent socket through the real UI (Say it and Catch it, voice and typed) | yes: 17 levels reached the result screen, 16 voice runs, synthetic learner voice, local dev server, 2026-09-30 (`docs/evidence/probes/aloud-summary.2026-09-30.json`) | yes, fake socket (`tests/game-level-flow.test.ts`) |
+| Spoken Say it answer earns a proof card; Catch it bluff caught by voice; streak, rank and profile update after a level | yes, same drives (for example `aloud-say-rebased`, `aloud-catch-rebased`: 3 stars, proof cards p. 4 and p. 5, rank 1 to 2, streak 1) | yes |
+| Barge-in inside a level | yes, n=4, event to event median 86 ms (min 5, max 1386), not an audio stop | yes |
 | Typed level in a real browser with the real grader | yes, local, 2026-09-30 | yes |
 | Level by voice with a human microphone in a browser | not done | n/a |
 | Live deployment | not done | n/a |
 
-Live verification of the new game loop by voice: not yet verified as of this commit (no `aloud-*.json` probe was committed when this file was written).
+Live verification of the game loop by voice: done on 2026-09-30 with a synthetic learner voice, numbers below. Setup: Chromium 153 driven by Playwright against a local dev server, the real Voice Agent service, the real tool route and the sample course. The microphone is the browser's fake device, or a stream the driver plays each utterance into once the examiner has finished; the audio path (AudioContext, worklet, socket) is the one a real microphone uses. Driver: `scripts/probes/aloud-live-drive.mjs`. Summary: `docs/evidence/probes/aloud-summary.2026-09-30.json`, built by `node scripts/probes/aloud-numbers.mjs`.
+
+| Measure (click on Start talking unless stated) | Median | n | Range |
+|---|---|---|---|
+| Session ready | 880 ms | 16 | 825 to 11007 (a route compile on the dev server) |
+| First examiner audio | 1399 ms | 16 | 1323 to 11517 |
+| Tool call received to tool result sent | 777 ms | 31 | 261 to 2345 |
+| `grade_my_answer` HTTP round trip | 829 ms | 20 | 492 to 2343 |
+| `verify_claim` HTTP round trip | 626 ms | 56 | 261 to 1001 |
+| Learner's final transcript to tool call | 4320 ms | 31 | 2165 to 7539 |
+| Tool result sent to next examiner audio | 512 ms | 30 | 443 to 749 |
+| `input.speech.started` to interrupted `reply.done` inside a level | 86 ms | 4 | 5 to 1386 |
+| Last examiner reply done to result screen | 106 ms | 4 | 85 to 208 |
+
+Outcomes over the 17 levels played to the result screen: 24 rounds correct, 10 partial, 7 bluffs caught. Page proof for Catch it claims over the live socket: 26 of 26 real claims supported; of 32 planted bluffs, 20 contradicted, 6 wrongly supported, 6 not in material (`docs/evidence/probes/aloud-verify-catch.2026-09-30.json`). The learner voice is synthetic (Windows System.Speech), not a human.
 
 ## Known limits
 
-- The game loop has not been played by voice with a human microphone in a browser. The take is the first such run.
+- The game loop was played by voice only with a synthetic learner voice, on a local dev server. A human on a real microphone in a browser has not played it. The take is the first such run. One Catch it run heard the synthetic voice wrongly and did not finish the level (`docs/evidence/probes/aloud-catch-rebased-misheard.2026-09-30.json`), so recognition errors can cost a round.
 - Typed Catch it rounds score from the claim's flag and the tap. The correction field is practice and is labelled not scored.
 - Claim verification is quote-checked and the judge model can still be wrong. Code guarantees the quoted words are in the named page, not that the verdict is right. The labelled set has 54 claims over two courses, written in this repository, with no recorded tuning and test split. Read 0 false supported on 54 as a small result, not a rate.
 - The judge on 2026-09-29 was `openai/gpt-oss-120b` through a chain of model providers. Passage text is sent to the providers in the configured chain. `docs/evidence/data-inventory.md` lists where the chain is set.

@@ -296,10 +296,10 @@
       <div class="grid" style="margin-top:14px">
         <div class="card stat"><span class="v" data-num="game.catch.bluffProofOk">7</span><span class="u">of 11</span><p>Sample-run bluffs proven with a quote and page. 8 of 8 real claims proven. 2026-09-30.</p></div>
         <div class="card stat"><span class="v" data-num="game.sampleRun.levels">22</span><span class="u">levels</span><p>Sample run, built deterministically. All 26 subjects give 12 to 30.</p></div>
-        <div class="card stat"><span class="v" data-num="tests.vitest.passed">1670</span><span class="u">tests</span><p>Passed, 1 skipped, <span data-num="tests.vitest.files">100</span> files. 2026-09-30.</p></div>
-        <div class="card stat"><span class="v">6</span><span class="u">screens</span><p>0 axe violations at 390 px (wcag2a, wcag2aa, wcag21aa). Typed rounds, local.</p></div>
+        <div class="card stat"><span class="v" data-num="tests.vitest.passed">1817</span><span class="u">tests</span><p>Passed, 1 skipped, <span data-num="tests.vitest.files">110</span> files. 2026-09-30.</p></div>
+        <div class="card stat"><span class="v" data-num="aloud.live.sessionReadyMs">880</span><span class="u">ms</span><p>Click to session ready in a played level. Median, n=16 voice runs, 2026-09-30. 17 levels reached the result screen.</p></div>
       </div>
-      <p class="banner">Voice rows: synthetic learner voice (Windows System.Speech), a Node client running the browser's socket code, a local server. No browser and no human microphone. Numbers are in numbers.json.</p>
+      <p class="banner">Voice rows: synthetic learner voice (Windows System.Speech). The first three came from a Node client on 2026-09-29. The 880 ms row is the real UI in Chromium on a dev server. No human microphone in any of them.</p>
     </div>
   </div>
   <div class="foot"><span>Evidence: docs/evidence/probes, docs/evidence/vitest.2026-09-30.txt, docs/evidence/visual/REVIEW-play.md</span><span>Small n, stated</span></div>
@@ -312,7 +312,7 @@
     <div>
       <h2 style="font-size:38px;max-width:20ch">Where it stops, said plainly.</h2>
       <ul>
-        <li>The game loop has not been played by voice with a human microphone in a browser. The take is the first run.</li>
+        <li>Levels were played by voice only with a synthetic learner voice on a local dev server. No human on a real microphone yet. The take is the first.</li>
         <li>The claim judge is a model. Code proves the quote is on the page, not that the verdict is right. 54 labelled claims is a small set.</li>
         <li>Typed Catch it rounds score from the flag and your tap. The correction field is not scored.</li>
         <li>Barge-in stop time in a browser was not measured. Reconnect starts a new session with recent turns.</li>
