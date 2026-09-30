@@ -55,7 +55,7 @@ export default function PrivacyPage() {
             The levels built from your material, your stars, XP, streak, hearts and daily-goal minutes are progress
             data. They are kept in your browser&apos;s localStorage, and where durable storage is configured they are
             also saved under your browser identity, so the same browser gets them back. They hold no audio and no
-            account details. The streak counts local calendar days as your browser reports them.
+            account details. A copy of the run is kept in localStorage so the map opens without a connection, and so are your settings for sound, reduced motion and typed-only play. The streak counts local calendar days as your browser reports them.
           </p>
         </section>
 
